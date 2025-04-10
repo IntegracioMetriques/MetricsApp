@@ -46,6 +46,12 @@ const PieChart = ({ id,title, data, colors }) => {
             radius: '55%',
             center: ['50%', '60%'],
             data: chartData,
+            labelLine: {
+              show: false 
+            },
+            label: {
+              show: false,
+            },
             emphasis: {
               itemStyle: {
                 shadowBlur: 10,
