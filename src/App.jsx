@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Header from "./components/header";
 import Index from "./pages/index";
-import Prova from "./pages/prova";
+import Placeholder from "./pages/placeholder";
 import Commits from "./pages/commits";
 import Issues from "./pages/issues";
-
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 function App() {
@@ -46,7 +45,7 @@ function App() {
         <Route path="/general" element={<Index data={data} />} />
         <Route path="/commits" element={<Commits data={data}/>} />
         <Route path="/issues" element={<Issues data={data}/>} />
-        <Route path="/pull-requests" element={<Prova/>} />
+        <Route path="/pull-requests" element={<Placeholder/>} />
 
       </Routes>
     </Router>
