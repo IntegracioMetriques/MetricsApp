@@ -94,7 +94,9 @@ button:focus-visible {
 }
 
 .grid-container {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
   gap: 10px; 
   width: 100%; 
@@ -109,5 +111,5 @@ button:focus-visible {
   padding: 10px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 310px
+  width: 350px
 }

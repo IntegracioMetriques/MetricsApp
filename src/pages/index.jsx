@@ -16,8 +16,8 @@ function Index({data}) {
     ["Open",issues.total - issues.total_closed],
     ["Closed",issues.total_closed]
   ]
-  const colorsPR = ["#9B59B6", "#FF0000", "#2ECC71"]; 
-  const colorsIssues = ["#FF0000", "#2ECC71"];
+  const colorsPR = ["#7f00ff", "#00FF00","#FF0000"]; 
+  const colorsIssues = ["#00FF00","#FF0000"];
 
   return (
     <div>
