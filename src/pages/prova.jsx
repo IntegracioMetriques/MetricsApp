@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Home() {
+function Prova() {
   return (
     <div>
       <h1>Prova navegacio</h1>
@@ -9,4 +9,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Prova;

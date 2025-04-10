@@ -1,0 +1,79 @@
+import React, { useEffect, useState } from 'react';
+import * as echarts from 'echarts';
+
+const PieChart = ({ id,title, data, colors }) => {
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    try {
+      const chart = echarts.init(document.getElementById(id));
+      
+      const chartData = data.map((item, index) => ({
+        name: item[0], 
+        value: item[1], 
+        itemStyle: {
+          color: colors[index] 
+        }
+      }));
+      const option = {
+        title: {
+          text: title,
+          left: 'center',
+          top: 'top',
+          textStyle: {
+            fontSize: 20,
+            fontWeight: 'bold',
+            color: '#333',
+          }
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '{b}: {c} ({d}%)'
+        },
+        legend: {
+          orient: 'vertical',
+          left: 'right',
+          bottom: 10,        
+          data: chartData.map(item => item.name),
+          selectedMode: true,
+          itemWidth: 14,  
+          itemHeight: 14, 
+        },
+        series: [
+          {
+            name: title,
+            type: 'pie',
+            radius: '55%',
+            center: ['50%', '60%'],
+            data: chartData,
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            }
+          }
+        ]
+      };
+
+      chart.setOption(option);
+
+      return () => {
+        chart.dispose();
+      };
+    } catch (err) {
+      setError("Error al carregar el grafic: " + err.message);
+    }
+  }, [data, colors, title]);
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  return (
+    <div id={id} style={{ width: '100%', height: '300px' }}></div>
+  );
+};
+
+export default PieChart;

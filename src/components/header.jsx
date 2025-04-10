@@ -8,7 +8,7 @@ const Header = () => {
     <header className="header">
       <nav className="nav">
         <ul className="nav-list">
-          <li><NavLink to="/general" className={({ isActive  }) => (isActive || window.location.pathname === '/' ? 'active' : '')}>General</NavLink></li>
+          <li><NavLink to="/general" className={({ isActive }) => (isActive ? 'active' : '')}>General</NavLink></li>
           <li><NavLink to="/commits" className={({ isActive }) => (isActive ? 'active' : '')}>Commits</NavLink></li>
           <li><NavLink to="/issues" className={({ isActive }) => (isActive ? 'active' : '')}>Issues</NavLink></li>
           <li><NavLink to="/pull-requests" className={({ isActive }) => (isActive ? 'active' : '')}>Pull Requests</NavLink></li>
