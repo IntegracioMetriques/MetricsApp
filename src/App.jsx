@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import Header from "./components/header";
 import Index from "./pages/index";
 import Prova from "./pages/prova";
+import Commits from "./pages/commits";
+
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 function App() {
@@ -41,7 +43,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/general" />} />
         <Route path="/general" element={<Index data={data} />} />
-        <Route path="/commits" element={<Prova/>} />
+        <Route path="/commits" element={<Commits data={data}/>} />
         <Route path="/issues" element={<Prova/>} />
         <Route path="/pull-requests" element={<Prova/>} />
 

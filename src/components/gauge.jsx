@@ -9,8 +9,15 @@ const GaugeChart = ({ user, percentage, totalPeople }) => {
 
     let gaugeColor;
     let labels;
-
-    if (totalPeople === 2) {
+    if (totalPeople === 1) {
+      gaugeColor = [
+        [0.8, 'red'],
+        [0.9, 'orange'],
+        [1, 'green']
+      ]
+      labels = { 0: "0",0.9: "0.9", 1: "1" };
+    }
+    else if (totalPeople === 2) {
       gaugeColor = [
         [0.3, 'red'],
         [0.4, 'orange'],

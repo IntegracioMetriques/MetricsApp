@@ -1,0 +1,26 @@
+.commits-container {
+    text-align: center; 
+  }
+  
+  .gauge-charts-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px; 
+    padding: 20px;
+    margin-top: 20px;
+  }
+  
+  .gauge-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 250px;
+    height: 200px;
+  }
+  
+  h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+  }
+  
