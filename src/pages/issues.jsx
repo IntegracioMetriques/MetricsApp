@@ -1,5 +1,5 @@
 import React from 'react';
-import GaugeChart from '../components/gauge';
+import GaugeChart from '../components/gaugeChart';
 import '../styles/commits.css';
 
 function Issues({ data }) {
@@ -59,7 +59,7 @@ function Issues({ data }) {
               key={`closed-${user}`}
               user={user}
               percentage={percentage}
-              totalPeople={totalPeople}
+              totalPeople={1}
             />
           );
         })}

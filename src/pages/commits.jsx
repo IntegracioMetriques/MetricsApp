@@ -1,5 +1,6 @@
 import React from 'react';
-import GaugeChart from '../components/gauge';
+import GaugeChart from '../components/gaugeChart';
+import RadarChart from '../components/radarChart';
 import '../styles/commits.css';
 
 function Commits({ data }) {
@@ -39,6 +40,12 @@ function Commits({ data }) {
                 percentage= {(totalCommits-commitsData.anonymous) / totalCommits}
                 totalPeople= {1}
               />
+      </div>
+      <div className="radar-chart-container" style={{ marginTop: '40px' }}>
+        <RadarChart
+          data={commitsData}
+          title="Commits Distribution"
+        />
       </div>
     </div>
   );
