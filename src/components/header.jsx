@@ -1,17 +1,21 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import '../styles/header.css';
 
-function Header() {
+const Header = () => {
+
   return (
-    <header>
-      <nav>
-        <ul>
-          <li><Link to="/">Inici</Link></li>
-          <li><Link to="/prova">prova de navegacio</Link></li>
+    <header className="header">
+      <nav className="nav">
+        <ul className="nav-list">
+          <li><NavLink to="/general" className={({ isActive }) => (isActive ? 'active' : '')}>General</NavLink></li>
+          <li><NavLink to="/commits" className={({ isActive }) => (isActive ? 'active' : '')}>Commits</NavLink></li>
+          <li><NavLink to="/issues" className={({ isActive }) => (isActive ? 'active' : '')}>Issues</NavLink></li>
+          <li><NavLink to="/pull-requests" className={({ isActive }) => (isActive ? 'active' : '')}>Pull Requests</NavLink></li>
         </ul>
       </nav>
     </header>
   );
-}
+};
 
 export default Header;
