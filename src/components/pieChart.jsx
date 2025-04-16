@@ -1,19 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef ,useState } from 'react';
 import * as echarts from 'echarts';
 
-const PieChart = ({ id,title, data, colors }) => {
+const PieChart = ({title, data, colors }) => {
+  const chartRef = useRef(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     try {
-      const chart = echarts.init(document.getElementById(id));
-      
+      if (!chartRef.current) return;
+      const chart = echarts.init(chartRef.current);
       const chartData = data.map((item, index) => ({
-        name: item[0], 
-        value: item[1], 
-        itemStyle: {
-          color: colors[index] 
-        }
+        name: item[0],
+        value: item[1],
+        ...(Array.isArray(colors) ? { itemStyle: { color: colors[index] } } : {})
       }));
       const option = {
         title: {
@@ -78,7 +77,7 @@ const PieChart = ({ id,title, data, colors }) => {
   }
 
   return (
-    <div id={id} style={{ width: '100%', height: '300px' }}></div>
+    <div ref={chartRef} style={{ width: '100%', height: '300px' }}></div>
   );
 };
 

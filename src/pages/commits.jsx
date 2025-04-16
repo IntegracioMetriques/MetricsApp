@@ -1,13 +1,16 @@
 import React from 'react';
 import GaugeChart from '../components/gaugeChart';
 import RadarChart from '../components/radarChart';
+import PieChart from '../components/pieChart'
 import '../styles/commits.css';
 
 function Commits({ data }) {
   const commitsData = data.commits;
   const totalCommits = commitsData.total;
   const totalPeople = Object.keys(commitsData).length - 2;
-
+  const dataPieChart = Object.entries(commitsData)
+  .filter(([user]) => user !== 'total' && user !== 'anonymous')
+  .map(([user, count]) => [user, count]);
   return (
     <div className="commits-container">
       <h1>Commits</h1>
@@ -41,11 +44,20 @@ function Commits({ data }) {
                 totalPeople= {1}
               />
       </div>
-      <div className="radar-chart-container" style={{ marginTop: '40px' }}>
-        <RadarChart
-          data={commitsData}
-          title="Commits Distribution"
-        />
+      <div className="radar-charts-wrapper" style={{ marginTop: '40px' }}>
+        <div className="radar-chart-container">
+          <RadarChart
+            data={commitsData}
+            title="Commits distribution"
+          />
+        </div>
+        <div className="radar-chart-container">
+          <PieChart
+            title= "Commits distribution"
+            data={dataPieChart}
+            colors = {null}
+          />
+        </div>
       </div>
     </div>
   );

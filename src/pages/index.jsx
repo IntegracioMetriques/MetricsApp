@@ -25,7 +25,6 @@ function Index({data}) {
       <div className="grid-container">
         <div className="grid-item">
           <PieChart 
-            id = "PR state"
             title="Pull requests state summary" 
             data={datapullRequests} 
             colors={colorsPR} 
@@ -33,7 +32,6 @@ function Index({data}) {
         </div>
         <div className="grid-item">
           <PieChart 
-            id = "issue state"
             title="Issues state summary" 
             data={dataissues} 
             colors={colorsIssues} 
