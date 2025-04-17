@@ -4,6 +4,7 @@ import Index from "./pages/index";
 import Placeholder from "./pages/placeholder";
 import Commits from "./pages/commits";
 import Issues from "./pages/issues";
+import Individual from "./pages/individual";
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 function App() {
@@ -46,7 +47,7 @@ function App() {
         <Route path="/commits" element={<Commits data={data}/>} />
         <Route path="/issues" element={<Issues data={data}/>} />
         <Route path="/pull-requests" element={<Placeholder/>} />
-
+        <Route path="/individual" element={<Individual data={data}/>} />
       </Routes>
     </Router>
   );
