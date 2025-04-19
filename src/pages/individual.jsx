@@ -29,14 +29,16 @@ function Individual({ data }) {
   const longestStreak = data.longest_commit_streak_per_user[selectedUser] || 0;
   const issuesAssigned = data.issues.assigned[selectedUser] || 0;
   const issuesClosed = data.issues.closed[selectedUser] || 0;
-
+  const truncateName = (name, maxLength = 15) => {
+    return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
+  };
   return (
     <div>
       <h1>Individual overview</h1>
       <div className="individual-header">
         <select className="user-selector" value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
           {users.map(user => (
-            <option key={user} value={user}>{user}</option>
+            <option key={user} value={user} title={user}>{truncateName(user)}</option>
           ))}
         </select>
       </div>
@@ -45,7 +47,7 @@ function Individual({ data }) {
         <div className="grid-item individual-user-card horizontal-layout">
           <div className="user-info">
             <img src={avatar} alt={selectedUser} className="user-avatar" />
-            <h2 className="user-name">{selectedUser}</h2>
+            <h2 className="user-name" title={selectedUser}>{truncateName(selectedUser)}</h2>
             </div>
             <div className="stats-grid">
               <div><strong>Commits:</strong> {commits}</div>

@@ -71,11 +71,10 @@
 .radar-charts-wrapper {
   display: flex;
   justify-content: center;
-  gap: 40px;
   flex-wrap: wrap;
 }
 
 .radar-chart-container {
-  width: 400px;
+  width: 450px;
   height: 400px;
 }
