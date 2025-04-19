@@ -60,7 +60,7 @@ const GaugeChart = ({ user, percentage, totalPeople }) => {
       ];
       labels = { 0: "0", 1: "1" };
     }
-    const truncateName = (name, maxLength = 15) => {
+    const truncateName = (name, maxLength = 18) => {
       return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
     };
     const chart = echarts.init(chartRef.current);
