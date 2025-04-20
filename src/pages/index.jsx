@@ -23,6 +23,21 @@ function Index({data}) {
     <div>
       <h1>General overview</h1>
       <div className="grid-container">
+        <div className="grid-item general-stats horizontal-layout">
+          <div className='stats-title '>
+            <h2>Project Stats</h2>
+          </div>
+            <div className="general-stats-grid">
+            <div><strong>Total Members:</strong> {Object.keys(data.commits).filter(user => user !== 'anonymous' && user !== 'total').length}</div>
+            <div><strong>Total Commits:</strong> {data.commits.total}</div>
+            <div><strong>Total Issues:</strong> {data.issues.total}</div>
+            <div><strong>Total Pull Requests:</strong> {data.pull_requests.total}</div>
+            <div><strong>Total Additions:</strong> {data.modified_lines.total.additions}</div>
+            <div><strong>Total Deletions:</strong> {data.modified_lines.total.deletions}</div>
+            <div><strong>Total Modifications:</strong> {data.modified_lines.total.modified}</div>
+            <div><strong>Total Lines of code:</strong> {data.modified_lines.total.additions - data.modified_lines.total.deletions}</div>
+            </div>
+          </div>
         <div className="grid-item">
           <PieChart 
             title="Pull requests state summary" 

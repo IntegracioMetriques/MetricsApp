@@ -5,6 +5,8 @@ import '../styles/commits.css';
 function Issues({ data }) {
   const issuesData = data.issues;
   const totalIssues = issuesData.total;
+  const totalClosed = issuesData.total_closed
+  const havePullRequest = issuesData.have_pull_request
   const totalPeople = Object.keys(issuesData.assigned).length - 1;
   const totalAssigned = totalIssues - issuesData.assigned['non_assigned']
   const closedBy = issuesData.closed
@@ -34,6 +36,15 @@ function Issues({ data }) {
           }
           return null;
         })}
+        </div>
+        <h2 className="section-title">
+       Issues assigned
+        <span className="custom-tooltip">
+          ⓘ
+          <span className="tooltip-text">Percentage of Issues that are assigned to a user relative to the total number of Issues</span>
+        </span>
+      </h2>
+        <div className="gauge-charts-container">
         <GaugeChart
                 key="assigned"
                 user="assigned"
@@ -64,6 +75,24 @@ function Issues({ data }) {
           );
         })}
     </div>
+    <h2 className="section-title">
+        Issues closed with Pull Request
+        <span className="custom-tooltip">
+          ⓘ
+          <span className="tooltip-text">
+           Percentage of closed Issues that have a Pull Request associated
+          </span>
+        </span>
+      </h2>
+    <div className="gauge-charts-container">
+    <GaugeChart
+                key="HavePr"
+                user="Have Pull Request"
+                percentage= {(havePullRequest) / totalClosed}
+                totalPeople= {1}
+              />    
+    </div>
+
     </div>
   );
 }

@@ -49,7 +49,7 @@ body {
 }
 
 h1 {
-  font-size: 3.2em;
+  font-size: 2em;
   line-height: 1.1;
   text-align: center;
 }
@@ -112,4 +112,73 @@ button:focus-visible {
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   width: 350px
+}
+
+.general-stats.horizontal-layout {
+  display: flex;
+  flex-direction: column;
+  width: 550px;
+  align-items: center;
+  justify-content: flex-start;
+  background: #fff;
+  
+}
+.stats-title {
+  display: flex;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.general-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 20px;
+}
+
+.general-stats-grid div {
+  background: #f7f7f7;
+  padding: 8px 12px;
+  border-radius: 5px;
+  text-align: left;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  justify-content: center;
+}
+
+
+@media (max-width: 768px) { 
+  .general-stats.horizontal-layout {
+      width: 90%;
+      padding: 15px;
+      flex-direction: column; 
+      align-items: center;
+  }
+
+  .stats-title {
+      flex-direction: column; 
+      align-items: center;
+  }
+
+  .general-stats-grid {
+      grid-template-columns: 1fr 1fr;  
+  }
+
+  .general-stats-grid div {
+      padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .general-stats.horizontal-layout {
+      width: 100%;
+      padding: 10px;
+  }
+
+  .general-stats-grid {
+      grid-template-columns: 1fr;
+  }
+
+  .general-stats-grid div {
+      font-size: 0.9em;
+      padding: 8px;
+  }
 }

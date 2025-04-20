@@ -4,10 +4,17 @@ import * as echarts from 'echarts';
 const RadarChart = ({ data, title }) => {
   const chartRef = useRef(null);
   const [error, setError] = useState(null);
+  const truncateName = (name, maxLength = 15) => {
+    return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
+  };
   try {
   useEffect(() => {
       if (!chartRef.current) return;
-      const users = Object.entries(data).filter(([user]) => user.toLowerCase() !== "total" && user.toLowerCase() !== 'non-assigned'  && user.toLowerCase() !== 'anonymous');
+      const users = Object.entries(data)
+        .filter(([user]) => 
+         user.toLowerCase() !== "total" &&
+         user.toLowerCase() !== 'non-assigned' &&
+         user.toLowerCase() !== 'anonymous');
       const total = users.reduce((sum, [, value]) => sum + value, 0);
 
       if (users.length === 2) {
@@ -21,10 +28,11 @@ const RadarChart = ({ data, title }) => {
           text: title,
           left: 'center',
         },
-        tooltip: {},
+        tooltip:{},
         radar: {
-          indicator: users.map(([user, value]) => ({ name: user, max: total })),
+          indicator: users.map(([user, value]) => ({ name: truncateName(user), max: total })),
           shape: 'polygon',
+          radius: '60%',
         },
         series: [
           {

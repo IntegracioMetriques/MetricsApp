@@ -60,7 +60,9 @@ const GaugeChart = ({ user, percentage, totalPeople }) => {
       ];
       labels = { 0: "0", 1: "1" };
     }
-
+    const truncateName = (name, maxLength = 18) => {
+      return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
+    };
     const chart = echarts.init(chartRef.current);
 
     const option = {
@@ -94,7 +96,9 @@ const GaugeChart = ({ user, percentage, totalPeople }) => {
           }
         },
         detail: {
-          formatter: `${user} (${(percentage * 100).toFixed(2)}%)`,
+          formatter: function () {
+            return `${truncateName(user)} (${(percentage * 100).toFixed(2)}%)`;
+          },
           fontSize: 16,
           fontWeight: 'bold',
           color: '#000'
@@ -111,7 +115,7 @@ const GaugeChart = ({ user, percentage, totalPeople }) => {
   }, [user, percentage, totalPeople]);
 
   return (
-    <div className="gauge-item" style={{ textAlign: 'center' }}>
+    <div className="gauge-item" title={user} style={{ textAlign: 'center' }}>
       <div
         ref={chartRef}
         style={{ width: '250px', height: '200px' }}
