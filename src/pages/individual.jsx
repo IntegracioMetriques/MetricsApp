@@ -6,21 +6,6 @@ import GaugeChart from '../components/gaugeChart';
 function Individual({ data }) {
   const [selectedUser, setSelectedUser] = useState(Object.keys(data.commits).filter(user => user !== 'anonymous' && user !== 'total')[0]);
 
-  const pullRequests = data.pull_requests;
-  const open = pullRequests.total - pullRequests.merged - pullRequests.closed;
-
-  const datapullRequests = [
-    ["Merged", pullRequests.merged],
-    ["Open", open],
-    ["Closed", pullRequests.closed],
-  ];
-  const dataissues = [
-    ["Open", data.issues.total - data.issues.total_closed],
-    ["Closed", data.issues.total_closed]
-  ];
-  const colorsPR = ["green", "red", "orange"];
-  const colorsIssues = ["red", "green"];
-
   const users = Object.keys(data.commits).filter(user => user !== 'anonymous' && user !== 'total');
   const avatar = data.avatars[selectedUser] || "";
   const commits = data.commits[selectedUser] || 0;
@@ -29,9 +14,16 @@ function Individual({ data }) {
   const longestStreak = data.longest_commit_streak_per_user[selectedUser] || 0;
   const issuesAssigned = data.issues.assigned[selectedUser] || 0;
   const issuesClosed = data.issues.closed[selectedUser] || 0;
-  const truncateName = (name, maxLength = 15) => {
+  const totalCommits = data.commits['total']
+  const totalPeople = Object.keys(data.commits).length - 2;
+  const truncateName = (name, maxLength = 18) => {
     return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
   };
+  const userCommits = data.commits[selectedUser];
+  const percentageCommits = userCommits / totalCommits;
+  const totalAssignedIssues = data.issues.total - data.issues.assigned["non_assigned"]
+  const percentageAssigned = issuesAssigned / totalAssignedIssues
+  const percentageIssuesClosed = issuesClosed/issuesAssigned
   return (
     <div>
       <h1>Individual overview</h1>
@@ -59,6 +51,53 @@ function Individual({ data }) {
               <div><strong>Issues Assigned:</strong> {issuesAssigned}</div>
               <div><strong>Issues Closed:</strong> {issuesClosed}</div>
               </div>
+        </div>
+        </div>
+        <div className="grid-container">
+        <div>
+        <h2 className="section-title">
+        Commits
+        <span className="custom-tooltip">
+          ⓘ
+          <span className="tooltip-text">Percentage of commits made by the user relative to the total number of commits</span>
+        </span>
+      </h2>
+        <GaugeChart
+                  key="commits"
+                  user={selectedUser}
+                  percentage= {percentageCommits}
+                  totalPeople= {totalPeople}
+                /> 
+        </div>
+        <div>
+        <h2 className="section-title">
+        Assigned Issues
+        <span className="custom-tooltip">
+          ⓘ
+          <span className="tooltip-text">Percentage of issues assigned to the user relative to the number of assigned issues</span>
+        </span>
+      </h2>
+        <GaugeChart
+                  key="assignedIssues"
+                  user={selectedUser}
+                  percentage= {percentageAssigned}
+                  totalPeople= {totalPeople}
+                /> 
+        </div>
+        <div>
+        <h2 className="section-title">
+        Closed Issues
+        <span className="custom-tooltip">
+          ⓘ
+          <span className="tooltip-text"> Percentage of issues closed by the user relative to the issues assigned to the user</span>
+        </span>
+      </h2>
+        <GaugeChart
+                  key="closedIssues"
+                  user={selectedUser}
+                  percentage= {percentageIssuesClosed}
+                  totalPeople= {1}
+                /> 
         </div>
       </div>
     </div>

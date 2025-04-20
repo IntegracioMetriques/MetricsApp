@@ -36,6 +36,15 @@ function Issues({ data }) {
           }
           return null;
         })}
+        </div>
+        <h2 className="section-title">
+       Issues assigned
+        <span className="custom-tooltip">
+          ⓘ
+          <span className="tooltip-text">Percentage of Issues that are assigned to a user relative to the total number of Issues</span>
+        </span>
+      </h2>
+        <div className="gauge-charts-container">
         <GaugeChart
                 key="assigned"
                 user="assigned"
