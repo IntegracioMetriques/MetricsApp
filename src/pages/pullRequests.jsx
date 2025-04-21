@@ -1,6 +1,8 @@
 import React from 'react';
 import GaugeChart from '../components/gaugeChart';
 import '../styles/commits.css';
+import RadarChart from '../components/radarChart';
+import PieChart from '../components/pieChart';
 
 function PullRequests({ data }) {
   const pullRequests = data.pull_requests
@@ -34,6 +36,21 @@ function PullRequests({ data }) {
           );
         })}
         </div>
+        <div className="radar-charts-wrapper" style={{ marginTop: '40px' }}>
+        <div className="radar-chart-container">
+          <RadarChart
+            data={createdby}
+            title="Created Pull Requests distribution"
+          />
+        </div>
+        <div className="radar-chart-container">
+          <PieChart
+            title= "Created Pull Requests distribution"
+            data={ Object.entries(createdby)}
+            colors = {null}
+          />
+        </div>
+      </div>
         <h2 className="section-title">
        Pull requests merged per user
         <span className="custom-tooltip">
@@ -54,6 +71,21 @@ function PullRequests({ data }) {
           );
         })}
         </div>
+        <div className="radar-charts-wrapper" style={{ marginTop: '40px' }}>
+        <div className="radar-chart-container">
+          <RadarChart
+            data={mergedby}
+            title="Merged Pull Requests distribution"
+          />
+        </div>
+        <div className="radar-chart-container">
+          <PieChart
+            title= "Merged Pull Requests distribution"
+            data={ Object.entries(mergedby)}
+            colors = {null}
+          />
+        </div>
+      </div>
         <div className="gauge-charts-container">
         <div >
         <h2 className="section-title">
