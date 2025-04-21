@@ -37,21 +37,6 @@ function Issues({ data }) {
           return null;
         })}
         </div>
-        <h2 className="section-title">
-       Issues assigned
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">Percentage of Issues that are assigned to a user relative to the total number of Issues</span>
-        </span>
-      </h2>
-        <div className="gauge-charts-container">
-        <GaugeChart
-                key="assigned"
-                user="assigned"
-                percentage= {(totalAssigned) / totalIssues}
-                totalPeople= {1}
-              />
-      </div>
       <h2 className="section-title">
         Closed Issues per user
         <span className="custom-tooltip">
@@ -75,6 +60,23 @@ function Issues({ data }) {
           );
         })}
     </div>
+    <div className="gauge-charts-container">
+    <div>
+    <h2 className="section-title">
+       Issues assigned
+        <span className="custom-tooltip">
+          ⓘ
+          <span className="tooltip-text">Percentage of Issues that are assigned to a user relative to the total number of Issues</span>
+        </span>
+      </h2>
+        <GaugeChart
+                key="assigned"
+                user="assigned"
+                percentage= {(totalAssigned) / totalIssues}
+                totalPeople= {1}
+              />
+    </div>
+    <div>
     <h2 className="section-title">
         Issues closed with Pull Request
         <span className="custom-tooltip">
@@ -84,7 +86,6 @@ function Issues({ data }) {
           </span>
         </span>
       </h2>
-    <div className="gauge-charts-container">
     <GaugeChart
                 key="HavePr"
                 user="Have Pull Request"
@@ -92,7 +93,7 @@ function Issues({ data }) {
                 totalPeople= {1}
               />    
     </div>
-
+    </div>
     </div>
   );
 }
