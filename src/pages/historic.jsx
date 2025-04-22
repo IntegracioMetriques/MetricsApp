@@ -61,7 +61,7 @@ function Historic({ data }) {
                 yData={yData}  
                 xLabel="Date"   
                 yLabel="Commits"
-                title="Commits Evolution"                 
+                title="Commits History"                 
             />
             </div>
             <div className='radar-chart-container'>
@@ -75,7 +75,7 @@ function Historic({ data }) {
                 bottomLabel="Closed"
                 xLabel="Date"
                 yLabel="Issues"
-                title="Open and Closed Issues Evolution"
+                title="Open and Closed Issues Over Time"
             />           
             </div>
             </div>

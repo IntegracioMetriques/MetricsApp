@@ -103,7 +103,7 @@ function PullRequests({ data }) {
       </div> 
       <div> 
       <h2 className="section-title">
-        Not merged by author
+        Pull requests not merged by author
         <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">

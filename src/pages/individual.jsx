@@ -72,7 +72,7 @@ function Individual({ data }) {
         </div>
         <div>
         <h2 className="section-title">
-        Assigned Issues
+        Issues assigned
         <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">Percentage of issues assigned to the user relative to the number of assigned issues</span>
@@ -86,7 +86,7 @@ function Individual({ data }) {
         </div>
         <div>
         <h2 className="section-title">
-        Closed Issues
+        Issues closed
         <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text"> Percentage of issues closed by the user relative to the issues assigned to the user</span>
@@ -100,7 +100,7 @@ function Individual({ data }) {
         </div>
         <div>
         <h2 className="section-title">
-        Created Pull Requests
+        Pull Requests created
         <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">Percentage of pull requests created by the user relative to the total number of pull requests</span>
@@ -114,7 +114,7 @@ function Individual({ data }) {
         </div>
         <div>
         <h2 className="section-title">
-        Merged Pull Requests
+        Pull Requests merged
         <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">Percentage of pull requests merged by the user relative to the total number of pull requests merged</span>

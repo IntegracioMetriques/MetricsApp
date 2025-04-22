@@ -15,7 +15,7 @@ function Commits({ data }) {
     <div className="commits-container">
       <h1>Commits</h1>
       <h2 className="section-title">
-        User commits
+        Commits per user
         <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">Percentage of commits per user relative to the total number of commits</span>

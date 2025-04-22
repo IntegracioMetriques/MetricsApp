@@ -58,7 +58,7 @@ function Issues({ data }) {
         </div>
       </div>
       <h2 className="section-title">
-        Closed Issues per user
+        Issues closed per user
         <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">
