@@ -1,60 +1,87 @@
 import React from 'react';
 import "../styles/index.css"; 
-import PieChart from '../components/pieChart';
+import LineChart from '../components/lineChart';
+import AreaChart from '../components/areaChart';
 
-function Historic({data}) {
 
-  const pullRequests = data.pull_requests;
-  const open = pullRequests.total - pullRequests.merged - pullRequests.closed
-  const issues = data.issues
-  const datapullRequests = [
-    ["Merged", pullRequests.merged],
-    ["Open", open],
-    ["Closed", pullRequests.closed],
-  ];
-  const dataissues = [
-    ["Open",issues.total - issues.total_closed],
-    ["Closed",issues.total_closed]
-  ]
-  const colorsPR = ["green", "red","orange"]; 
-  const colorsIssues = ["red","green"];
-
-  return (
-    <div>
-      <h1>General overview</h1>
-      <div className="grid-container">
-        <div className="grid-item general-stats horizontal-layout">
-          <div className='stats-title '>
-            <h2>Project Stats</h2>
-          </div>
-            <div className="general-stats-grid">
-            <div><strong>Total Members:</strong> {Object.keys(data.commits).filter(user => user !== 'anonymous' && user !== 'total').length}</div>
-            <div><strong>Total Commits:</strong> {data.commits.total}</div>
-            <div><strong>Total Issues:</strong> {data.issues.total}</div>
-            <div><strong>Total Pull Requests:</strong> {data.pull_requests.total}</div>
-            <div><strong>Total Additions:</strong> {data.modified_lines.total.additions}</div>
-            <div><strong>Total Deletions:</strong> {data.modified_lines.total.deletions}</div>
-            <div><strong>Total Modifications:</strong> {data.modified_lines.total.modified}</div>
-            <div><strong>Total Lines of code:</strong> {data.modified_lines.total.additions - data.modified_lines.total.deletions}</div>
+function Historic({ data }) {
+    if (!data) {
+        return (
+            <div style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "80vh",
+              textAlign: "center",
+              fontSize: "1.8rem",
+            }}>
+              No s'ha trobat historic_metrics.json.<br />
+              Si és el primer dia, torna demà un cop 
+              s'hagi fet la primera execució del 
+              workflow Daily Metrics.
             </div>
-          </div>
-        <div className="grid-item">
-          <PieChart 
-            title="Pull requests state summary" 
-            data={datapullRequests} 
-            colors={colorsPR} 
-          />
-        </div>
-        <div className="grid-item">
-          <PieChart 
-            title="Issues state summary" 
-            data={dataissues} 
-            colors={colorsIssues} 
-          />
-        </div>
-    </div>
-    </div>
-  );
-}
+          );    }
 
-export default Historic;
+
+    const transformDataForLineChart = (data) => {
+        const xData = []; 
+        const yData = []; 
+          
+        for (const date in data) {
+              xData.push(date);
+              yData.push(data[date].commits.total); 
+            }
+          
+        return { xData, yData };
+        };
+    const { xData, yData } = transformDataForLineChart(data);
+    const transformIssuesDataForAreaChart = (data) => {
+      const xDataIssues = [];
+      const closedIssues = [];
+      const openIssues = [];
+      
+      for (const date in data) {
+        const total = data[date].issues.total || 0;
+        const closed = data[date].issues.total_closed || 0;
+        const open = total - closed;
+        xDataIssues.push(date);
+        closedIssues.push(closed);
+        openIssues.push(open);
+        }
+        return { xDataIssues, closedIssues, openIssues };
+      };
+    const { xDataIssues, closedIssues, openIssues } = transformIssuesDataForAreaChart(data);
+    return (
+      <div>
+        <h1>Historical Data</h1>
+        <div className='radar-charts-wrapper'>
+            <div className='radar-chart-container'>
+            <LineChart 
+                xData={xData}  
+                yData={yData}  
+                xLabel="Date"   
+                yLabel="Commits"
+                title="Commits Evolution"                 
+            />
+            </div>
+            <div className='radar-chart-container'>
+            <AreaChart 
+                xData={xDataIssues}
+                topData={openIssues}
+                bottomData={closedIssues}
+                topColor="rgb(255, 0, 0)"
+                bottomColor="rgb(0, 255, 0)"
+                toplabel="Open"
+                bottomLabel="Closed"
+                xLabel="Date"
+                yLabel="Issues"
+                title="Open and Closed Issues Evolution"
+            />           
+            </div>
+            </div>
+      </div>
+    );
+  }
+  
+  export default Historic;
+  
