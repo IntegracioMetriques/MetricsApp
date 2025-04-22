@@ -5,6 +5,7 @@ import PullRequests from "./pages/pullRequests";
 import Commits from "./pages/commits";
 import Issues from "./pages/issues";
 import Individual from "./pages/individual";
+import Historic from "./pages/historic";
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 function App() {
@@ -48,6 +49,8 @@ function App() {
         <Route path="/issues" element={<Issues data={data}/>} />
         <Route path="/pull-requests" element={<PullRequests data={data}/>} />
         <Route path="/individual" element={<Individual data={data}/>} />
+        <Route path="/historic" element={<Historic data={data}/>} />
+
       </Routes>
     </Router>
   );

@@ -32,7 +32,7 @@ const RadarChart = ({ data, title }) => {
         radar: {
           indicator: users.map(([user, value]) => ({ name: truncateName(user), max: total })),
           shape: 'polygon',
-          radius: '60%',
+          radius: '50%',
         },
         series: [
           {

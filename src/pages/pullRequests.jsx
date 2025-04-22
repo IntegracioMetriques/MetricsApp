@@ -36,7 +36,7 @@ function PullRequests({ data }) {
           );
         })}
         </div>
-        <div className="radar-charts-wrapper" style={{ marginTop: '40px' }}>
+        <div className="radar-charts-wrapper">
         <div className="radar-chart-container">
           <RadarChart
             data={createdby}
@@ -71,7 +71,7 @@ function PullRequests({ data }) {
           );
         })}
         </div>
-        <div className="radar-charts-wrapper" style={{ marginTop: '40px' }}>
+        <div className="radar-charts-wrapper">
         <div className="radar-chart-container">
           <RadarChart
             data={mergedby}

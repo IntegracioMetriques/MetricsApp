@@ -42,7 +42,7 @@ function Issues({ data }) {
           return null;
         })}
         </div>
-        <div className="radar-charts-wrapper" style={{ marginTop: '40px' }}>
+        <div className="radar-charts-wrapper">
         <div className="radar-chart-container">
           <RadarChart
             data={filteredData}

@@ -38,22 +38,7 @@ function Commits({ data }) {
           return null;
         })}
         </div>
-        <h2 className="section-title">
-        Non-anonymous commits
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">Percentage of commits that have a member of the project as its author</span>
-        </span>
-        </h2>
-        <div className="gauge-charts-container">
-        <GaugeChart
-                key="non-anonymous"
-                user="non-anonymous"
-                percentage= {(totalCommits-commitsData.anonymous) / totalCommits}
-                totalPeople= {1}
-              />
-      </div>
-      <div className="radar-charts-wrapper" style={{ marginTop: '40px' }}>
+      <div className="radar-charts-wrapper">
         <div className="radar-chart-container">
           <RadarChart
             data={commitsData}
@@ -67,6 +52,21 @@ function Commits({ data }) {
             colors = {null}
           />
         </div>
+      </div>
+      <h2 className="section-title">
+        Non-anonymous commits
+        <span className="custom-tooltip">
+          ⓘ
+          <span className="tooltip-text">Percentage of commits that have a member of the project as its author</span>
+        </span>
+        </h2>
+        <div className="gauge-charts-container">
+        <GaugeChart
+                key="non-anonymous"
+                user="non-anonymous"
+                percentage= {(totalCommits-commitsData.anonymous) / totalCommits}
+                totalPeople= {1}
+              />
       </div>
     </div>
   );
