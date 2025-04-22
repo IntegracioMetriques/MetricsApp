@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Header from "./components/header";
 import Index from "./pages/index";
-import Placeholder from "./pages/placeholder";
+import PullRequests from "./pages/pullRequests";
 import Commits from "./pages/commits";
 import Issues from "./pages/issues";
 import Individual from "./pages/individual";
@@ -46,7 +46,7 @@ function App() {
         <Route path="/general" element={<Index data={data} />} />
         <Route path="/commits" element={<Commits data={data}/>} />
         <Route path="/issues" element={<Issues data={data}/>} />
-        <Route path="/pull-requests" element={<Placeholder/>} />
+        <Route path="/pull-requests" element={<PullRequests data={data}/>} />
         <Route path="/individual" element={<Individual data={data}/>} />
       </Routes>
     </Router>
