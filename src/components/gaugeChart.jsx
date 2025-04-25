@@ -118,7 +118,7 @@ const GaugeChart = ({ user, percentage, totalPeople }) => {
     <div className="gauge-item" title={user} style={{ textAlign: 'center' }}>
       <div
         ref={chartRef}
-        style={{ width: '250px', height: '200px' }}
+        style={{ width: '312px', height: '200px' }}
       />
     </div>
   );

@@ -59,7 +59,6 @@ function Commits({ data }) {
           <PieChart
             title= "Commits distribution"
             data={dataPieChartCommits}
-            colors = {null}
           />
         </div>
       </div>
@@ -98,7 +97,6 @@ function Commits({ data }) {
           <PieChart
             title= "Modified lines distribution"
             data={dataPieChartModifiedLines}
-            colors = {null}
           />
         </div>
       </div>
