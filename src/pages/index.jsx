@@ -23,7 +23,8 @@ function Index({data}) {
     <div>
       <h1>General overview</h1>
       <div className="grid-container">
-        <div className="grid-item general-stats horizontal-layout">
+
+      <div className="grid-item general-stats horizontal-layout">
           <div className='stats-title '>
             <h2>Project Stats</h2>
           </div>
@@ -38,6 +39,8 @@ function Index({data}) {
             <div><strong>Total Lines of code:</strong> {data.modified_lines.total.additions - data.modified_lines.total.deletions}</div>
             </div>
           </div>
+          </div>
+      <div className="grid-container">
         <div className="grid-item">
           <PieChart 
             title="Pull requests state summary" 

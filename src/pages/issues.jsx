@@ -42,7 +42,7 @@ function Issues({ data }) {
           return null;
         })}
         </div>
-        <div className="radar-charts-wrapper" style={{ marginTop: '40px' }}>
+        <div className="radar-charts-wrapper">
         <div className="radar-chart-container">
           <RadarChart
             data={filteredData}
@@ -58,7 +58,7 @@ function Issues({ data }) {
         </div>
       </div>
       <h2 className="section-title">
-        Closed Issues per user
+        Issues closed per user
         <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">

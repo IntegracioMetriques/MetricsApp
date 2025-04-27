@@ -30,9 +30,9 @@ const RadarChart = ({ data, title }) => {
         },
         tooltip:{},
         radar: {
-          indicator: users.map(([user, value]) => ({ name: truncateName(user), max: total })),
+          indicator: users.map(([user, ]) => ({ name: truncateName(user), max: total })),
           shape: 'polygon',
-          radius: '60%',
+          radius: '50%',
         },
         series: [
           {

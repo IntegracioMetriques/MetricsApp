@@ -5,10 +5,12 @@ import PullRequests from "./pages/pullRequests";
 import Commits from "./pages/commits";
 import Issues from "./pages/issues";
 import Individual from "./pages/individual";
+import Historic from "./pages/historic";
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 function App() {
   const [data, setData] = useState(null);
+  const [historicData, setHistoricData] = useState(null);
   const [loading, setLoading] = useState(true); 
   const [error, setError] = useState(null); 
 
@@ -28,7 +30,22 @@ function App() {
       }
     };
 
+    const fetchHistoricData = async () => {
+      try {
+        const response = await fetch('./historic_metrics.json?timestamp=' + new Date().getTime());
+        if (response.ok) {
+          const result = await response.json();
+          setHistoricData(result);
+        } else {
+          setHistoricData(null);
+        }
+      } catch {
+        setHistoricData(null);
+      }
+    };
+
     fetchData();
+    fetchHistoricData();
   }, []);
 
   if (loading) {
@@ -36,7 +53,19 @@ function App() {
   }
 
   if (error) {
-    return <div>Error al carregar les dades de metrics.json.</div>;
+    return (
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "80vh",
+        textAlign: "center",
+        fontSize: "1.8rem",
+      }}>
+        Error al carregar les dades de metrics.json. <br />
+        Si encara no existeix, fes una execució manual del workflow Metrics o fes un primer push al repository.
+      </div>
+    );    
   }
   return (
     <Router>
@@ -48,6 +77,7 @@ function App() {
         <Route path="/issues" element={<Issues data={data}/>} />
         <Route path="/pull-requests" element={<PullRequests data={data}/>} />
         <Route path="/individual" element={<Individual data={data}/>} />
+        <Route path="/historic" element={<Historic data={historicData}/>} />
       </Routes>
     </Router>
   );

@@ -20,6 +20,7 @@ const Header = () => {
           <li><NavLink to="/issues" onClick={() => setMenuOpen(false)} className={({ isActive }) => (isActive ? 'active' : '')}>Issues</NavLink></li>
           <li><NavLink to="/pull-requests" onClick={() => setMenuOpen(false)} className={({ isActive }) => (isActive ? 'active' : '')}>Pull Requests</NavLink></li>
           <li><NavLink to="/individual" onClick={() => setMenuOpen(false)} className={({ isActive }) => (isActive ? 'active' : '')}>Individual</NavLink></li>
+          <li><NavLink to="/historic" onClick={() => setMenuOpen(false)} className={({ isActive }) => (isActive ? 'active' : '')}>Historic</NavLink></li>
         </ul>
       </nav>
     </header>

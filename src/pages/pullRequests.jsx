@@ -13,6 +13,7 @@ function PullRequests({ data }) {
   const totalClosed = pullRequests.closed 
   const total = pullRequests.total
   const totalPeople = Object.keys(createdby).length;
+  const merges = data.commit_merges
   return (
     <div className="commits-container">
       <h1>Pull requests</h1>
@@ -36,7 +37,7 @@ function PullRequests({ data }) {
           );
         })}
         </div>
-        <div className="radar-charts-wrapper" style={{ marginTop: '40px' }}>
+        <div className="radar-charts-wrapper">
         <div className="radar-chart-container">
           <RadarChart
             data={createdby}
@@ -71,7 +72,7 @@ function PullRequests({ data }) {
           );
         })}
         </div>
-        <div className="radar-charts-wrapper" style={{ marginTop: '40px' }}>
+        <div className="radar-charts-wrapper">
         <div className="radar-chart-container">
           <RadarChart
             data={mergedby}
@@ -103,7 +104,7 @@ function PullRequests({ data }) {
       </div> 
       <div> 
       <h2 className="section-title">
-        Not merged by author
+        Pull requests not merged by author
         <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">
@@ -114,6 +115,22 @@ function PullRequests({ data }) {
             <GaugeChart
               user="Non-author merges"
               percentage={totalMergedNotByAuthor/totalMerged}
+              totalPeople={1}
+            />
+    </div>
+    <div> 
+      <h2 className="section-title">
+        Merges from pull requests
+        <span className="custom-tooltip">
+          ⓘ
+          <span className="tooltip-text">
+          Percentage of merges that are from pull requests
+          </span>
+        </span>
+      </h2>
+            <GaugeChart
+              user="Pull requests merges"
+              percentage={totalMerged/merges}
               totalPeople={1}
             />
     </div>
