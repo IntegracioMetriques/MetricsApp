@@ -1,12 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as echarts from 'echarts';
 
-const RadarChart = ({ data, title }) => {
+const RadarChart = ({ data, title,max = null }) => {
   const chartRef = useRef(null);
   const [error, setError] = useState(null);
-  const truncateName = (name, maxLength = 15) => {
-    return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
-  };
   try {
   useEffect(() => {
       if (!chartRef.current) return;
@@ -30,9 +27,38 @@ const RadarChart = ({ data, title }) => {
         },
         tooltip:{},
         radar: {
-          indicator: users.map(([user, ]) => ({ name: truncateName(user), max: total })),
+          indicator: users.map(([user, ]) => ({ name: user, max: max !== null ? max : total , offset: [0, 40] })),
           shape: 'polygon',
           radius: '50%',
+          nameGap: 30,
+          name: { 
+            formatter: (name) => {
+              const maxLineLength = 10; 
+              const maxWordLength = 15;
+            
+              if (!name.includes(' ')) {
+                return name.length > maxWordLength ? name.slice(0, maxWordLength) + '...' : name;
+              }
+            
+              const words = name.split(' ');
+              let currentLine = '';
+              let formattedName = '';
+            
+              for (let word of words) {
+                if ((currentLine + word).length > maxLineLength) {
+                  formattedName += currentLine.trim() + '\n';
+                  currentLine = '';
+                }
+                currentLine += word + ' ';
+              }
+              formattedName += currentLine.trim();
+            
+              return formattedName;
+            },
+            textStyle: {
+              align: 'center', 
+            },
+          },
         },
         series: [
           {
@@ -40,7 +66,7 @@ const RadarChart = ({ data, title }) => {
             type: 'radar',
             data: [
               {
-                value: users.map(([, value]) => value),
+                value: users.map(([, value]) => value.toFixed(4)),
                 name: title,
                 areaStyle: { color: 'rgba(0, 128, 255, 0.3)' },
               },
@@ -64,9 +90,7 @@ const RadarChart = ({ data, title }) => {
   }
 
   return (
-    <div style={{ textAlign: 'center', width: '100%', height: '400px' }}>
-      <div ref={chartRef} style={{ width: '100%', height: '100%' }} />
-    </div>
+      <div ref={chartRef} style={{ textAlign: 'center', width: '100%', height: '350px' }} />
   );
 };
 
