@@ -3,6 +3,7 @@ import GaugeChart from '../components/gaugeChart';
 import RadarChart from '../components/radarChart';
 import PieChart from '../components/pieChart'
 import '../styles/commits.css';
+import RadarPieToggle from '../components/RadarPieToggle';
 
 function Commits({ data }) {
   const commitsData = data.commits;
@@ -48,20 +49,11 @@ function Commits({ data }) {
           return null;
         })}
         </div>
-      <div className="radar-charts-wrapper">
-        <div className="radar-chart-container">
-          <RadarChart
-            data={commitsData}
-            title="Commits distribution"
-          />
-        </div>
-        <div className="radar-chart-container">
-          <PieChart
-            title= "Commits distribution"
-            data={dataPieChartCommits}
-          />
-        </div>
-      </div>
+        <RadarPieToggle
+          radarData={commitsData}
+          pieData={dataPieChartCommits}
+          title={"Commits Distribution"}
+        />
       <h2 className="section-title">
         Modified lines per user
         <span className="custom-tooltip">
@@ -86,20 +78,11 @@ function Commits({ data }) {
           return null;
         })}
         </div>
-      <div className="radar-charts-wrapper">
-        <div className="radar-chart-container">
-          <RadarChart
-            data={radarChartModifiedLines}
-            title="Modified lines distribution"
-          />
-        </div>
-        <div className="radar-chart-container">
-          <PieChart
-            title= "Modified lines distribution"
-            data={dataPieChartModifiedLines}
-          />
-        </div>
-      </div>
+        <RadarPieToggle
+          radarData={radarChartModifiedLines}
+          pieData={dataPieChartModifiedLines}
+          title={"Modified lines distribution"}
+        />
       <h2 className="section-title">
         Non-anonymous commits
         <span className="custom-tooltip">

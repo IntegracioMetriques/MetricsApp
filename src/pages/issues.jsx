@@ -2,7 +2,7 @@ import React from 'react';
 import GaugeChart from '../components/gaugeChart';
 import RadarChart from '../components/radarChart';
 import PieChart from '../components/pieChart';
-
+import RadarPieToggle from '../components/RadarPieToggle';
 import '../styles/commits.css';
 
 function Issues({ data }) {
@@ -42,21 +42,11 @@ function Issues({ data }) {
           return null;
         })}
         </div>
-        <div className="radar-charts-wrapper">
-        <div className="radar-chart-container">
-          <RadarChart
-            data={filteredData}
-            title="Assigned Issues distribution"
-          />
-        </div>
-        <div className="radar-chart-container">
-          <PieChart
-            title= "Assigned Issues distribution"
-            data={ Object.entries(filteredData)}
-            colors = {null}
-          />
-        </div>
-      </div>
+        <RadarPieToggle
+          radarData={filteredData}
+          pieData={Object.entries(filteredData)}
+          title={"Assigned Issues distribution"}
+        />
       <h2 className="section-title">
         Issues closed per user
         <span className="custom-tooltip">
