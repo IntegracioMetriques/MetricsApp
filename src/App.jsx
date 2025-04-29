@@ -11,18 +11,29 @@ import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 function App() {
   const [data, setData] = useState(null);
   const [historicData, setHistoricData] = useState(null);
+  const [config, setConfig] = useState({ features: [] });
   const [loading, setLoading] = useState(true); 
   const [error, setError] = useState(null); 
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('./metrics.json?timestamp=' + new Date().getTime());
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: No s'ha pogut carregar l'arxiu metrics.json`);
+        const [metricsRes, configRes] = await Promise.all([
+          fetch('./metrics.json?timestamp=' + new Date().getTime()),
+          fetch('./config.json?timestamp=' + new Date().getTime()),
+        ]);
+  
+        if (!metricsRes.ok) {
+          throw new Error(`Error ${metricsRes.status}: No s'ha pogut carregar l'arxiu metrics.json`);
         }
-        const result = await response.json();
-        setData(result);
+        const metricsData = await metricsRes.json();
+        setData(metricsData);
+          if (configRes.ok) {
+          const configData = await configRes.json();
+          setConfig(configData.features ? configData : { features: ["issues", "pull-requests"] });
+        } else {
+          setConfig({ features: ["issues", "pull-requests"] });
+        }
         setLoading(false);
       } catch (error) {
         setError(error.message);
@@ -69,7 +80,7 @@ function App() {
   }
   return (
     <Router>
-      <Header />
+      <Header features={config.features}/>
       <Routes>
         <Route path="/" element={<Navigate to="/general" />} />
         <Route path="/general" element={<Index data={data} />} />
