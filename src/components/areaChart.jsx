@@ -43,7 +43,7 @@ const AreaChart = ({ xData, topData, bottomData, topColor, bottomColor, toplabel
       },
       series: [
         {
-          name: 'Closed',
+          name: bottomLabel,
           type: 'line',
           stack: 'Total',
           smooth: false,
@@ -55,7 +55,7 @@ const AreaChart = ({ xData, topData, bottomData, topColor, bottomColor, toplabel
           data: bottomData,
         },
         {
-          name: 'Open',
+          name: toplabel,
           type: 'line',
           stack: 'Total',
           smooth: false,

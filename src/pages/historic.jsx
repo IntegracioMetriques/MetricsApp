@@ -103,7 +103,7 @@ function Historic({ data }) {
                 topColor="rgb(255, 0, 0)"
                 bottomColor="rgb(0, 255, 0)"
                 toplabel="Open"
-                bottomLabel="Closed"
+                bottomLabel="Merged"
                 xLabel="Date"
                 yLabel="Issues"
                 title="Open and Merged Pull Requests Over Time"
