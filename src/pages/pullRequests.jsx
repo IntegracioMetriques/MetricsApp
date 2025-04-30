@@ -3,7 +3,8 @@ import GaugeChart from '../components/gaugeChart';
 import '../styles/commits.css';
 import RadarChart from '../components/radarChart';
 import PieChart from '../components/pieChart';
-
+import RadarPieToggle
+ from '../components/RadarPieToggle';
 function PullRequests({ data }) {
   const pullRequests = data.pull_requests
   const createdby = pullRequests.created
@@ -37,21 +38,11 @@ function PullRequests({ data }) {
           );
         })}
         </div>
-        <div className="radar-charts-wrapper">
-        <div className="radar-chart-container">
-          <RadarChart
-            data={createdby}
-            title="Created Pull Requests distribution"
-          />
-        </div>
-        <div className="radar-chart-container">
-          <PieChart
-            title= "Created Pull Requests distribution"
-            data={ Object.entries(createdby)}
-            colors = {null}
-          />
-        </div>
-      </div>
+        <RadarPieToggle
+          radarData={createdby}
+          pieData={Object.entries(createdby)}
+          title={"Created Pull Requests distribution"}
+        />
         <h2 className="section-title">
        Pull requests merged per user
         <span className="custom-tooltip">
@@ -72,21 +63,11 @@ function PullRequests({ data }) {
           );
         })}
         </div>
-        <div className="radar-charts-wrapper">
-        <div className="radar-chart-container">
-          <RadarChart
-            data={mergedby}
-            title="Merged Pull Requests distribution"
-          />
-        </div>
-        <div className="radar-chart-container">
-          <PieChart
-            title= "Merged Pull Requests distribution"
-            data={ Object.entries(mergedby)}
-            colors = {null}
-          />
-        </div>
-      </div>
+        <RadarPieToggle
+          radarData={mergedby}
+          pieData={Object.entries(mergedby)}
+          title={"Merged Pull Requests distribution"}
+        />
         <div className="gauge-charts-container">
         <div >
         <h2 className="section-title">

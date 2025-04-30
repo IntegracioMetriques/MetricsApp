@@ -1,6 +1,7 @@
 import React from 'react';
 import "../styles/index.css"; 
 import PieChart from '../components/pieChart';
+import RadarChart from '../components/radarChart';
 
 function Index({data}) {
 
@@ -18,7 +19,22 @@ function Index({data}) {
   ]
   const colorsPR = ["green", "red","orange"]; 
   const colorsIssues = ["red","green"];
+  const nonAnonymousCommits = data.commits.total - data.commits.anonymous / data.commits.total
+  const issuesAssigned = data.issues.total - data.issues.assigned.non_assigned / data.issues.total
+  const issueswithPR = data.issues.have_pull_request / data.issues.total_closed
+  const pullRequestsMerged = data.pull_requests.merged / data.pull_requests.total - data.pull_requests.closed
+  const pullRequestsReviewed = data.pull_requests.not_merged_by_author / data.pull_requests.merged
+  const pullRequestsMerges = data.pull_requests.merged / data.commit_merges
 
+  const radarData = {
+    'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
+    'Issues Assigned': (data.issues.total - data.issues.assigned.non_assigned) / data.issues.total,
+    'Issues associated PR': data.issues.have_pull_request / data.issues.total_closed,
+    'Pull Requests Merged': data.pull_requests.merged / (data.pull_requests.total - data.pull_requests.closed),
+    'Pull Requests Reviewed': data.pull_requests.not_merged_by_author / data.pull_requests.merged,
+    'Pull Requests Merges': data.pull_requests.merged / data.commit_merges,
+  };
+  
   return (
     <div>
       <h1>General overview</h1>
@@ -41,6 +57,13 @@ function Index({data}) {
           </div>
           </div>
       <div className="grid-container">
+        <div className="grid-item">
+          <RadarChart
+            data = {radarData}
+            title = "General Metrics"
+            max = {1}
+          />
+        </div>
         <div className="grid-item">
           <PieChart 
             title="Pull requests state summary" 

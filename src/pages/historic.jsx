@@ -51,6 +51,23 @@ function Historic({ data }) {
         return { xDataIssues, closedIssues, openIssues };
       };
     const { xDataIssues, closedIssues, openIssues } = transformIssuesDataForAreaChart(data);
+    const transformPRDataForAreaChart = (data) => {
+      const xDataPRs = [];
+      const mergedPRs = [];
+      const openPRs = [];
+      
+      for (const date in data) {
+        const total = data[date].pull_requests.total || 0;
+        const merged = data[date].pull_requests.merged || 0;
+        const closed = data[date].pull_requests.closed || 0;
+        const open = total - merged - closed;
+        xDataPRs.push(date);
+        mergedPRs.push(merged);
+        openPRs.push(open);
+        }
+        return { xDataPRs, mergedPRs, openPRs };
+      };
+    const { xDataPRs, mergedPRs, openPRs } = transformPRDataForAreaChart(data);
     return (
       <div>
         <h1>Historical Data</h1>
@@ -61,7 +78,7 @@ function Historic({ data }) {
                 yData={yData}  
                 xLabel="Date"   
                 yLabel="Commits"
-                title="Commits History"                 
+                title="Commits Over Time"                 
             />
             </div>
             <div className='radar-chart-container'>
@@ -76,6 +93,20 @@ function Historic({ data }) {
                 xLabel="Date"
                 yLabel="Issues"
                 title="Open and Closed Issues Over Time"
+            />           
+            </div>
+            <div className='radar-chart-container'>
+            <AreaChart 
+                xData={xDataPRs}
+                topData={openPRs}
+                bottomData={mergedPRs}
+                topColor="rgb(255, 0, 0)"
+                bottomColor="rgb(0, 255, 0)"
+                toplabel="Open"
+                bottomLabel="Closed"
+                xLabel="Date"
+                yLabel="Issues"
+                title="Open and Merged Pull Requests Over Time"
             />           
             </div>
             </div>
