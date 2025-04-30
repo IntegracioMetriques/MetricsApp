@@ -1,7 +1,5 @@
 import React from 'react';
 import GaugeChart from '../components/gaugeChart';
-import RadarChart from '../components/radarChart';
-import PieChart from '../components/pieChart';
 import RadarPieToggle from '../components/RadarPieToggle';
 import '../styles/commits.css';
 
@@ -18,59 +16,15 @@ function Issues({ data }) {
   return (
     <div className="commits-container">
       <h1>Issues</h1>
-      <h2 className="section-title">
-       Issues assigned per user
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">Percentage of issues assigned per user relative to the number of assigned issues</span>
-        </span>
-      </h2>
+      <h2>Summary</h2>
       <div className="gauge-charts-container">
-        {Object.keys(issuesData.assigned).map((user) => {
-          if (user !== 'non_assigned') {
-            const userCommits = issuesData.assigned[user];
-            const percentage = userCommits / totalAssigned;
-            return (
-              <GaugeChart
-                key={user}
-                user={user}
-                percentage={percentage}
-                totalPeople={totalPeople}
-              />
-            );
-          }
-          return null;
-        })}
-        </div>
-        <RadarPieToggle
+      <div className='chart-item'>
+      <RadarPieToggle
           radarData={filteredData}
           pieData={Object.entries(filteredData)}
           title={"Assigned Issues distribution"}
         />
-      <h2 className="section-title">
-        Issues closed per user
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">
-           Percentage of issues closed per user relative to the issues assigned to that user
-          </span>
-        </span>
-      </h2>
-      <div className="gauge-charts-container">
-        {Object.keys(closedBy).map((user) => {
-          const closedCount = closedBy[user];
-          const percentage =closedCount/issuesData.assigned[user];
-          return (
-            <GaugeChart
-              key={`closed-${user}`}
-              user={user}
-              percentage={percentage}
-              totalPeople={1}
-            />
-          );
-        })}
-    </div>
-    <div className="gauge-charts-container">
+        </div>
     <div>
     <h2 className="section-title">
        Issues assigned
@@ -82,7 +36,7 @@ function Issues({ data }) {
         <GaugeChart
                 key="assigned"
                 user="assigned"
-                percentage= {(totalAssigned) / totalIssues}
+                percentage={totalIssues > 0 ? totalAssigned / totalIssues : 0}
                 totalPeople= {1}
               />
     </div>
@@ -99,10 +53,59 @@ function Issues({ data }) {
     <GaugeChart
                 key="HavePr"
                 user="Have Pull Request"
-                percentage= {(havePullRequest) / totalClosed}
+                percentage={totalClosed > 0 ? havePullRequest / totalClosed : 0}
                 totalPeople= {1}
               />    
     </div>
+    </div>
+    <h2>Metrics by User</h2>
+      <h2 className="section-title">
+       Issues assigned per user
+        <span className="custom-tooltip">
+          ⓘ
+          <span className="tooltip-text">Percentage of issues assigned per user relative to the number of assigned issues</span>
+        </span>
+      </h2>
+      <div className="gauge-charts-container">
+        {Object.keys(issuesData.assigned).map((user) => {
+          if (user !== 'non_assigned') {
+            const userIssues = issuesData.assigned[user];
+            const percentage = totalAssigned > 0 ? userIssues / totalAssigned : 0;
+            return (
+              <GaugeChart
+                key={user}
+                user={user}
+                percentage={percentage}
+                totalPeople={totalPeople}
+              />
+            );
+          }
+          return null;
+        })}
+        </div>
+      <h2 className="section-title">
+        Issues closed per user
+        <span className="custom-tooltip">
+          ⓘ
+          <span className="tooltip-text">
+           Percentage of issues closed per user relative to the issues assigned to that user
+          </span>
+        </span>
+      </h2>
+      <div className="gauge-charts-container">
+        {Object.keys(closedBy).map((user) => {
+          const closedCount = closedBy[user];
+          const assigned = issuesData.assigned[user];
+          const percentage = assigned > 0 ? closedCount / assigned : 0;
+          return (
+            <GaugeChart
+              key={`closed-${user}`}
+              user={user}
+              percentage={percentage}
+              totalPeople={1}
+            />
+          );
+        })}
     </div>
     </div>
   );

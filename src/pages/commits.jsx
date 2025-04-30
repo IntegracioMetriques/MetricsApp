@@ -1,7 +1,5 @@
 import React from 'react';
 import GaugeChart from '../components/gaugeChart';
-import RadarChart from '../components/radarChart';
-import PieChart from '../components/pieChart'
 import '../styles/commits.css';
 import RadarPieToggle from '../components/RadarPieToggle';
 
@@ -25,6 +23,39 @@ function Commits({ data }) {
   return (
     <div className="commits-container">
       <h1>Commits</h1>
+      <h2>Summary</h2>
+      <div className="gauge-charts-container">
+      <div className='chart-item'>
+        <RadarPieToggle
+          radarData={commitsData}
+          pieData={dataPieChartCommits}
+          title={"Commits Distribution"}
+        />
+        </div>
+        <div className='chart-item'>
+        <RadarPieToggle
+          radarData={radarChartModifiedLines}
+          pieData={dataPieChartModifiedLines}
+          title={"Modified lines distribution"}
+        />
+        </div>
+        <div>
+      <h2 className="section-title">
+        Non-anonymous commits
+        <span className="custom-tooltip">
+          ⓘ
+          <span className="tooltip-text">Percentage of commits that have a member of the project as its author</span>
+        </span>
+        </h2>
+        <GaugeChart
+                key="non-anonymous"
+                user="non-anonymous"
+                percentage= {totalCommits > 0 ? (totalCommits - commitsData.anonymous) / totalCommits : 0}
+                totalPeople= {1}
+              />
+        </div>
+      </div>
+      <h2>Metrics by User</h2>
       <h2 className="section-title">
         Commits per user
         <span className="custom-tooltip">
@@ -36,7 +67,7 @@ function Commits({ data }) {
         {Object.keys(commitsData).map((user) => {
           if (user !== 'total' && user !== 'anonymous') {
             const userCommits = commitsData[user];
-            const percentage = userCommits / totalCommits;
+            const percentage = (totalCommits - commitsData.anonymous) > 0 ? userCommits / (totalCommits - commitsData.anonymous) : 0;
             return (
               <GaugeChart
                 key={user}
@@ -49,11 +80,6 @@ function Commits({ data }) {
           return null;
         })}
         </div>
-        <RadarPieToggle
-          radarData={commitsData}
-          pieData={dataPieChartCommits}
-          title={"Commits Distribution"}
-        />
       <h2 className="section-title">
         Modified lines per user
         <span className="custom-tooltip">
@@ -65,7 +91,7 @@ function Commits({ data }) {
         {Object.keys(modifiedLinesData).map((user) => {
           if (user !== 'total') {
             const userModified = modifiedLinesData[user].modified;
-            const percentage = userModified / totalModifiedLines;
+            const percentage = totalModifiedLines > 0 ? userModified / totalModifiedLines : 0;
             return (
               <GaugeChart
                 key={user}
@@ -78,26 +104,6 @@ function Commits({ data }) {
           return null;
         })}
         </div>
-        <RadarPieToggle
-          radarData={radarChartModifiedLines}
-          pieData={dataPieChartModifiedLines}
-          title={"Modified lines distribution"}
-        />
-      <h2 className="section-title">
-        Non-anonymous commits
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">Percentage of commits that have a member of the project as its author</span>
-        </span>
-        </h2>
-        <div className="gauge-charts-container">
-        <GaugeChart
-                key="non-anonymous"
-                user="non-anonymous"
-                percentage= {(totalCommits-commitsData.anonymous) / totalCommits}
-                totalPeople= {1}
-              />
-      </div>
     </div>
   );
 }

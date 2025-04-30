@@ -20,12 +20,12 @@ function Individual({ data }) {
     return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
   };
   const userCommits = data.commits[selectedUser];
-  const percentageCommits = userCommits / totalCommits;
+  const percentageCommits = totalCommits > 0 ? userCommits / totalCommits: 0;
   const totalAssignedIssues = data.issues.total - data.issues.assigned["non_assigned"]
-  const percentageAssigned = issuesAssigned / totalAssignedIssues
-  const percentageIssuesClosed = issuesClosed/issuesAssigned
-  const percentageCreated = data.pull_requests.created[selectedUser] / data.pull_requests.total
-  const percentageMerged = data.pull_requests.merged_per_member[selectedUser] / data.pull_requests.merged
+  const percentageAssigned = totalAssignedIssues > 0 ? issuesAssigned / totalAssignedIssues: 0
+  const percentageIssuesClosed = issuesAssigned > 0 ? issuesClosed/issuesAssigned: 0
+  const percentageCreated = data.pull_requests.total > 0 ? data.pull_requests.created[selectedUser] / data.pull_requests.total: 0
+  const percentageMerged = data.pull_requests.merged > 0 ? data.pull_requests.merged_per_member[selectedUser] / data.pull_requests.merged: 0
   return (
     <div>
       <h1>Individual overview</h1>
