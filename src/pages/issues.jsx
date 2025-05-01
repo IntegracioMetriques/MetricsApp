@@ -18,54 +18,54 @@ function Issues({ data }) {
       <h1>Issues</h1>
       <h2>Summary</h2>
       <div className="gauge-charts-container">
-      <div className='chart-item'>
-      <RadarPieToggle
-          radarData={filteredData}
-          pieData={Object.entries(filteredData)}
-          title={"Assigned Issues distribution"}
-        />
+        <div className='chart-item'>
+          <RadarPieToggle
+              radarData={filteredData}
+              pieData={Object.entries(filteredData)}
+              title={"Assigned Issues distribution"}
+            />
         </div>
-    <div>
-    <h2 className="section-title">
-       Issues assigned
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">Percentage of Issues that are assigned to a user relative to the total number of Issues</span>
-        </span>
-      </h2>
-        <GaugeChart
+        <div>
+          <h2 className="section-title">
+            Issues assigned
+              <span className="custom-tooltip">
+                ⓘ
+                <span className="tooltip-text">Percentage of Issues that are assigned to a user relative to the total number of Issues</span>
+              </span>
+            </h2>
+              <GaugeChart
                 key="assigned"
                 user="assigned"
                 percentage={totalIssues > 0 ? totalAssigned / totalIssues : 0}
                 totalPeople= {1}
               />
-    </div>
-    <div>
-    <h2 className="section-title">
-        Issues closed with Pull Request
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">
-           Percentage of closed Issues that have a Pull Request associated
-          </span>
-        </span>
-      </h2>
-    <GaugeChart
-                key="HavePr"
-                user="Have Pull Request"
-                percentage={totalClosed > 0 ? havePullRequest / totalClosed : 0}
-                totalPeople= {1}
-              />    
-    </div>
-    </div>
-    <h2>Metrics by User</h2>
+        </div>
+        <div>
+          <h2 className="section-title">
+              Issues closed with Pull Request
+              <span className="custom-tooltip">
+                ⓘ
+                <span className="tooltip-text">
+                Percentage of closed Issues that have a Pull Request associated
+                </span>
+              </span>
+            </h2>
+          <GaugeChart
+            key="HavePr"
+            user="Have Pull Request"
+            percentage={totalClosed > 0 ? havePullRequest / totalClosed : 0}
+            totalPeople= {1}
+            />    
+        </div>
+      </div>
+      <h2>Metrics by User</h2>
       <h2 className="section-title">
-       Issues assigned per user
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">Percentage of issues assigned per user relative to the number of assigned issues</span>
-        </span>
-      </h2>
+        Issues assigned per user
+          <span className="custom-tooltip">
+            ⓘ
+            <span className="tooltip-text">Percentage of issues assigned per user relative to the number of assigned issues</span>
+          </span>
+        </h2>
       <div className="gauge-charts-container">
         {Object.keys(issuesData.assigned).map((user) => {
           if (user !== 'non_assigned') {
@@ -82,13 +82,13 @@ function Issues({ data }) {
           }
           return null;
         })}
-        </div>
+      </div>
       <h2 className="section-title">
         Issues closed per user
         <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">
-           Percentage of issues closed per user relative to the issues assigned to that user
+          Percentage of issues closed per user relative to the issues assigned to that user
           </span>
         </span>
       </h2>
@@ -106,7 +106,7 @@ function Issues({ data }) {
             />
           );
         })}
-    </div>
+      </div>
     </div>
   );
 }

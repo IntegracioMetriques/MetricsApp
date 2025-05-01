@@ -25,35 +25,35 @@ function Commits({ data }) {
       <h1>Commits</h1>
       <h2>Summary</h2>
       <div className="gauge-charts-container">
-      <div className='chart-item'>
-        <RadarPieToggle
-          radarData={commitsData}
-          pieData={dataPieChartCommits}
-          title={"Commits Distribution"}
-        />
-        </div>
         <div className='chart-item'>
-        <RadarPieToggle
-          radarData={radarChartModifiedLines}
-          pieData={dataPieChartModifiedLines}
-          title={"Modified lines distribution"}
-        />
-        </div>
+          <RadarPieToggle
+            radarData={commitsData}
+            pieData={dataPieChartCommits}
+            title={"Commits Distribution"}
+          />
+          </div>
+          <div className='chart-item'>
+          <RadarPieToggle
+            radarData={radarChartModifiedLines}
+            pieData={dataPieChartModifiedLines}
+            title={"Modified lines distribution"}
+          />
+          </div>
         <div>
-      <h2 className="section-title">
-        Non-anonymous commits
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">Percentage of commits that have a member of the project as its author</span>
-        </span>
-        </h2>
-        <GaugeChart
-                key="non-anonymous"
-                user="non-anonymous"
-                percentage= {totalCommits > 0 ? (totalCommits - commitsData.anonymous) / totalCommits : 0}
-                totalPeople= {1}
-              />
-        </div>
+        <h2 className="section-title">
+          Non-anonymous commits
+          <span className="custom-tooltip">
+            ⓘ
+            <span className="tooltip-text">Percentage of commits that have a member of the project as its author</span>
+          </span>
+          </h2>
+          <GaugeChart
+                  key="non-anonymous"
+                  user="non-anonymous"
+                  percentage= {totalCommits > 0 ? (totalCommits - commitsData.anonymous) / totalCommits : 0}
+                  totalPeople= {1}
+                />
+          </div>
       </div>
       <h2>Metrics by User</h2>
       <h2 className="section-title">

@@ -52,79 +52,79 @@ function Individual({ data }) {
               <div><strong>Longest Streak:</strong> {longestStreak}</div>
               <div><strong>Issues Assigned:</strong> {issuesAssigned}</div>
               <div><strong>Issues Closed:</strong> {issuesClosed}</div>
-              </div>
+            </div>
         </div>
-        </div>
-        <div className="grid-container">
+      </div>
+      <div className="grid-container">
         <div>
-        <h2 className="section-title">
-        Commits
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">Percentage of commits made by the user relative to the total number of commits</span>
-        </span>
-      </h2>
-        <GaugeChart
-                  user={selectedUser}
-                  percentage= {percentageCommits}
-                  totalPeople= {totalPeople}
-                /> 
-        </div>
-        <div>
-        <h2 className="section-title">
-        Issues assigned
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">Percentage of issues assigned to the user relative to the number of assigned issues</span>
-        </span>
-      </h2>
-        <GaugeChart
-                  user={selectedUser}
-                  percentage= {percentageAssigned}
-                  totalPeople= {totalPeople}
-                /> 
+          <h2 className="section-title">
+          Commits
+          <span className="custom-tooltip">
+            ⓘ
+            <span className="tooltip-text">Percentage of commits made by the user relative to the total number of commits</span>
+          </span>
+          </h2>
+          <GaugeChart
+                    user={selectedUser}
+                    percentage= {percentageCommits}
+                    totalPeople= {totalPeople}
+                  /> 
         </div>
         <div>
-        <h2 className="section-title">
-        Issues closed
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text"> Percentage of issues closed by the user relative to the issues assigned to the user</span>
-        </span>
-      </h2>
-        <GaugeChart
-                  user={selectedUser}
-                  percentage= {percentageIssuesClosed}
-                  totalPeople= {1}
-                /> 
+          <h2 className="section-title">
+          Issues assigned
+            <span className="custom-tooltip">
+              ⓘ
+              <span className="tooltip-text">Percentage of issues assigned to the user relative to the number of assigned issues</span>
+            </span>
+          </h2>
+          <GaugeChart
+                    user={selectedUser}
+                    percentage= {percentageAssigned}
+                    totalPeople= {totalPeople}
+                  /> 
         </div>
         <div>
-        <h2 className="section-title">
-        Pull Requests created
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">Percentage of pull requests created by the user relative to the total number of pull requests</span>
-        </span>
-      </h2>
-        <GaugeChart
-                  user={selectedUser}
-                  percentage= {percentageCreated}
-                  totalPeople= {totalPeople}
-                /> 
+          <h2 className="section-title">
+            Issues closed
+            <span className="custom-tooltip">
+              ⓘ
+              <span className="tooltip-text"> Percentage of issues closed by the user relative to the issues assigned to the user</span>
+            </span>
+          </h2>
+          <GaugeChart
+                    user={selectedUser}
+                    percentage= {percentageIssuesClosed}
+                    totalPeople= {1}
+                  /> 
         </div>
         <div>
-        <h2 className="section-title">
-        Pull Requests merged
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">Percentage of pull requests merged by the user relative to the total number of pull requests merged</span>
-        </span>
-      </h2>
-        <GaugeChart
-                  user={selectedUser}
-                  percentage= {percentageMerged}
-                  totalPeople= {totalPeople}
-                /> 
+          <h2 className="section-title">
+            Pull Requests created
+            <span className="custom-tooltip">
+              ⓘ
+              <span className="tooltip-text">Percentage of pull requests created by the user relative to the total number of pull requests</span>
+            </span>
+          </h2>
+          <GaugeChart
+                    user={selectedUser}
+                    percentage= {percentageCreated}
+                    totalPeople= {totalPeople}
+                  /> 
+        </div>
+        <div>
+          <h2 className="section-title">
+            Pull Requests merged
+            <span className="custom-tooltip">
+              ⓘ
+              <span className="tooltip-text">Percentage of pull requests merged by the user relative to the total number of pull requests merged</span>
+            </span>
+          </h2>
+          <GaugeChart
+                    user={selectedUser}
+                    percentage= {percentageMerged}
+                    totalPeople= {totalPeople}
+                  /> 
         </div>
       </div>
     </div>
