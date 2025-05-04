@@ -4,8 +4,8 @@ import '../styles/header.css';
 
 const Header = (features) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  console.log(features.features)
   const array = features.features
+
   return (
     <header className="header">
       <nav className="nav">

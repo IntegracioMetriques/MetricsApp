@@ -134,13 +134,12 @@
   
   .individual-user-card.horizontal-layout {
     display: flex;
-    width: 550px;
+    width: 600px;
     align-items: center;
     justify-content: flex-start;
     gap: 20px;
     padding: 20px;
     background: #fff;
-    
 }
 .user-info {
     display: flex;

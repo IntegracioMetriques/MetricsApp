@@ -5,7 +5,7 @@ import RadarChart from '../components/radarChart';
 import LineChart from '../components/lineChart';
 import AreaChart from '../components/areaChart';
 
-function Index({data,historicData}) {
+function Index({data,historicData,features}) {
   const [showHistorical, setShowHistorical] = useState(false);
   const pullRequests = data.pull_requests;
   const open = pullRequests.total - pullRequests.merged - pullRequests.closed
@@ -40,7 +40,6 @@ function Index({data,historicData}) {
   const transformDataForLineChart = (data) => {
     const xData = []; 
     const yData = []; 
-      
     for (const date in data) {
           xData.push(date);
           yData.push(data[date].commits.total); 
@@ -82,7 +81,6 @@ const transformPRDataForAreaChart = (data) => {
     return { xDataPRs, mergedPRs, openPRs };
   };
   const { xDataPRs, mergedPRs, openPRs } = transformPRDataForAreaChart(historicData);
-  console.log(xDataPRs)
   return (
     <div>
       <h1>General overview</h1>
@@ -114,8 +112,10 @@ const transformPRDataForAreaChart = (data) => {
               <div className="general-stats-grid">
                 <div><strong>Total Members:</strong> {Object.keys(data.commits).filter(user => user !== 'anonymous' && user !== 'total').length}</div>
                 <div><strong>Total Commits:</strong> {data.commits.total}</div>
-                <div><strong>Total Issues:</strong> {data.issues.total}</div>
-                <div><strong>Total Pull Requests:</strong> {data.pull_requests.total}</div>
+                {features.includes("issues") && (
+                <div><strong>Total Issues:</strong> {data.issues.total}</div>) }
+                {features.includes("pull-requests") && (
+                <div><strong>Total Pull Requests:</strong> {data.pull_requests.total}</div>)}
                 <div><strong>Total Additions:</strong> {data.modified_lines.total.additions}</div>
                 <div><strong>Total Deletions:</strong> {data.modified_lines.total.deletions}</div>
                 <div><strong>Total Modifications:</strong> {data.modified_lines.total.modified}</div>
@@ -131,20 +131,23 @@ const transformPRDataForAreaChart = (data) => {
                 max={1}
               />
             </div>
+            {features.includes("pull-requests") && (
             <div className="grid-item">
               <PieChart
                 title="Pull requests state summary"
                 data={datapullRequests}
                 colors={colorsPR}
               />
-            </div>
+            </div>)}
+            {features.includes("issues") && (
+
             <div className="grid-item">
               <PieChart
                 title="Issues state summary"
                 data={dataissues}
                 colors={colorsIssues}
               />
-            </div>
+            </div>)}
           </div>
         </>
       )}

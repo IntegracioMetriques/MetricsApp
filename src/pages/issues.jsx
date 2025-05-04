@@ -3,7 +3,7 @@ import GaugeChart from '../components/gaugeChart';
 import RadarPieToggle from '../components/RadarPieToggle';
 import '../styles/commits.css';
 
-function Issues({ data }) {
+function Issues({ data,features }) {
   const issuesData = data.issues;
   const totalIssues = issuesData.total;
   const totalClosed = issuesData.total_closed
@@ -12,7 +12,6 @@ function Issues({ data }) {
   const totalPeople = Object.keys(issuesData.assigned).length - 1;
   const totalAssigned = totalIssues - issuesData.assigned['non_assigned']
   const closedBy = issuesData.closed
-  console.log(issuesData.assigned);
   return (
     <div className="commits-container">
       <h1>Issues</h1>
@@ -41,6 +40,7 @@ function Issues({ data }) {
                 totalPeople= {1}
               />
         </div>
+        {features.includes("pull-requests") && (
         <div>
           <h2 className="section-title">
               Issues closed with Pull Request
@@ -57,7 +57,7 @@ function Issues({ data }) {
             percentage={totalClosed > 0 ? havePullRequest / totalClosed : 0}
             totalPeople= {1}
             />    
-        </div>
+        </div>)}
       </div>
       </div>
       <div className='section-background'>

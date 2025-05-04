@@ -3,7 +3,7 @@ import "../styles/individual.css";
 import PieChart from '../components/pieChart';
 import GaugeChart from '../components/gaugeChart';
 
-function Individual({ data }) {
+function Individual({ data,features }) {
   const [selectedUser, setSelectedUser] = useState(Object.keys(data.commits).filter(user => user !== 'anonymous' && user !== 'total')[0]);
 
   const users = Object.keys(data.commits).filter(user => user !== 'anonymous' && user !== 'total');
@@ -16,12 +16,15 @@ function Individual({ data }) {
   const issuesClosed = data.issues.closed[selectedUser] || 0;
   const totalCommits = data.commits['total']
   const totalPeople = Object.keys(data.commits).length - 2;
+
   const truncateName = (name, maxLength = 18) => {
     return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
   };
   const userCommits = data.commits[selectedUser];
   const percentageCommits = totalCommits > 0 ? userCommits / totalCommits: 0;
   const totalAssignedIssues = data.issues.total - data.issues.assigned["non_assigned"]
+  const pullRequestsCreated = data.pull_requests.created[selectedUser]
+  const pullRequestsMerged = data.pull_requests.merged_per_member[selectedUser]
   const percentageAssigned = totalAssignedIssues > 0 ? issuesAssigned / totalAssignedIssues: 0
   const percentageIssuesClosed = issuesAssigned > 0 ? issuesClosed/issuesAssigned: 0
   const percentageCreated = data.pull_requests.total > 0 ? data.pull_requests.created[selectedUser] / data.pull_requests.total: 0
@@ -45,8 +48,14 @@ function Individual({ data }) {
               <div><strong>Modifications:</strong> {modifiedLines.modified}</div>
               <div><strong>Commit Streak:</strong> {streak}</div>
               <div><strong>Longest Streak:</strong> {longestStreak}</div>
-              <div><strong>Issues Assigned:</strong> {issuesAssigned}</div>
-              <div><strong>Issues Closed:</strong> {issuesClosed}</div>
+              {features.includes("issues") && (
+              <div><strong>Issues Assigned:</strong> {issuesAssigned}</div>)}
+              {features.includes("issues") && (
+              <div><strong>Issues Closed:</strong> {issuesClosed}</div>)}
+              {features.includes("pull-requests") && (
+              <div><strong>Pull requests Created:</strong> {pullRequestsCreated}</div>)}
+              {features.includes("pull-requests") && (
+              <div><strong>Pull requests merged:</strong> {pullRequestsMerged}</div>)}
             </div>
         </div>
       </div>
@@ -65,6 +74,7 @@ function Individual({ data }) {
                     totalPeople= {totalPeople}
                   /> 
         </div>
+        {features.includes("issues") && (
         <div>
           <h2 className="section-title">
           Issues assigned
@@ -78,7 +88,8 @@ function Individual({ data }) {
                     percentage= {percentageAssigned}
                     totalPeople= {totalPeople}
                   /> 
-        </div>
+        </div>)}
+        {features.includes("issues") && (
         <div>
           <h2 className="section-title">
             Issues closed
@@ -92,7 +103,8 @@ function Individual({ data }) {
                     percentage= {percentageIssuesClosed}
                     totalPeople= {1}
                   /> 
-        </div>
+        </div>)}
+        {features.includes("pull-requests") && (
         <div>
           <h2 className="section-title">
             Pull Requests created
@@ -106,7 +118,8 @@ function Individual({ data }) {
                     percentage= {percentageCreated}
                     totalPeople= {totalPeople}
                   /> 
-        </div>
+        </div>)}
+        {features.includes("pull-requests") && (
         <div>
           <h2 className="section-title">
             Pull Requests merged
@@ -120,7 +133,7 @@ function Individual({ data }) {
                     percentage= {percentageMerged}
                     totalPeople= {totalPeople}
                   /> 
-        </div>
+        </div>)}
       </div>
     </div>
   );
