@@ -29,20 +29,15 @@ function Individual({ data }) {
   return (
     <div>
       <h1>Individual overview</h1>
-      <div className="individual-header">
-        <select className="user-selector" value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
-          {users.map(user => (
-            <option key={user} value={user} title={user}>{truncateName(user)}</option>
-          ))}
-        </select>
-      </div>
-
       <div className="grid-container">
         <div className="grid-item individual-user-card horizontal-layout">
           <div className="user-info">
             <img src={avatar} alt={selectedUser} className="user-avatar" />
-            <h2 className="user-name" title={selectedUser}>{truncateName(selectedUser)}</h2>
-            </div>
+            <select className="user-selector" value={selectedUser}  title={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
+          {users.map(user => (
+            <option key={user} value={user} title={user}>{truncateName(user)}</option>
+          ))}
+        </select>            </div>
             <div className="stats-grid">
               <div><strong>Commits:</strong> {commits}</div>
               <div><strong>Additions:</strong> {modifiedLines.additions}</div>
