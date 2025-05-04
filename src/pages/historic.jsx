@@ -4,8 +4,8 @@ import LineChart from '../components/lineChart';
 import AreaChart from '../components/areaChart';
 
 
-function Historic({ data }) {
-    if (!data) {
+function Historic({ historicData }) {
+    if (!historicData) {
         return (
             <div style={{
               display: "flex",
@@ -34,7 +34,7 @@ function Historic({ data }) {
           
         return { xData, yData };
         };
-    const { xData, yData } = transformDataForLineChart(data);
+    const { xData, yData } = transformDataForLineChart(historicData);
     const transformIssuesDataForAreaChart = (data) => {
       const xDataIssues = [];
       const closedIssues = [];
@@ -50,7 +50,7 @@ function Historic({ data }) {
         }
         return { xDataIssues, closedIssues, openIssues };
       };
-    const { xDataIssues, closedIssues, openIssues } = transformIssuesDataForAreaChart(data);
+    const { xDataIssues, closedIssues, openIssues } = transformIssuesDataForAreaChart(historicData);
     const transformPRDataForAreaChart = (data) => {
       const xDataPRs = [];
       const mergedPRs = [];
@@ -67,7 +67,7 @@ function Historic({ data }) {
         }
         return { xDataPRs, mergedPRs, openPRs };
       };
-    const { xDataPRs, mergedPRs, openPRs } = transformPRDataForAreaChart(data);
+    const { xDataPRs, mergedPRs, openPRs } = transformPRDataForAreaChart(historicData);
     return (
       <div>
         <h1>Historical Data</h1>

@@ -16,8 +16,9 @@ function Issues({ data }) {
   return (
     <div className="commits-container">
       <h1>Issues</h1>
+      <div className='section-background'>
       <h2>Summary</h2>
-      <div className="gauge-charts-container">
+      <div className="summary-charts-container">
         <div className='chart-item'>
           <RadarPieToggle
               radarData={filteredData}
@@ -58,6 +59,8 @@ function Issues({ data }) {
             />    
         </div>
       </div>
+      </div>
+      <div className='section-background'>
       <h2>Metrics by User</h2>
       <h2 className="section-title">
         Issues assigned per user
@@ -107,6 +110,7 @@ function Issues({ data }) {
           );
         })}
       </div>
+    </div>
     </div>
   );
 }

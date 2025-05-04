@@ -25,7 +25,7 @@ function Commits({ data }) {
       <h1>Commits</h1>
       <div className="section-background">
         <h2>Summary</h2>
-        <div className="gauge-charts-container">
+        <div className="summary-charts-container">
           <div className='chart-item'>
             <RadarPieToggle
               radarData={commitsData}
