@@ -73,6 +73,40 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+.chart-toggle-wrapper-index {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-toggle-buttons {
+  display: inline-flex;
+  background-color: #1c3d5d;
+}
+
+.chart-toggle-buttons button {
+  padding: 10px 20px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  background-color: #1c3d5d;
+  border-radius: 0;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  color: #ffffff
+}
+
+.chart-toggle-buttons button:focus {
+  outline: none;
+}
+.chart-toggle-buttons button.selected {
+  background-color: #58a6ff;
+  border-color: #58a6ff;
+}
+
+.chart-toggle-buttons button:not(.selected):hover {
+  background-color: rgba(88, 166, 255, 0.2);
+  border-color: #58a6ff;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
