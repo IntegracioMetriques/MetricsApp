@@ -19,8 +19,20 @@ function Index({data,historicData,features}) {
     ["Open",issues.total - issues.total_closed],
     ["Closed",issues.total_closed]
   ]
+
+  const taskData = data.project;
+  const totalTasks = taskData.total;
+  const totalInProgress = taskData.in_progress
+  const totalDone = taskData.done
+  const totalToDo = totalTasks - totalDone - totalInProgress
+  const dataTasks = [
+    ["Todo",totalToDo],
+    ["In Progress",totalInProgress],
+    ["Done", totalDone]
+  ]
   const colorsPR = ["green", "red","orange"]; 
   const colorsIssues = ["red","green"];
+  const colorsProject = ["red", "orange","green"]; 
   const nonAnonymousCommits = data.commits.total - data.commits.anonymous / data.commits.total
   const issuesAssigned = data.issues.total - data.issues.assigned.non_assigned / data.issues.total
   const issueswithPR = data.issues.have_pull_request / data.issues.total_closed
@@ -146,6 +158,14 @@ const transformPRDataForAreaChart = (data) => {
                 title="Issues state summary"
                 data={dataissues}
                 colors={colorsIssues}
+              />
+            </div>)}
+            {features.includes("projects") && (
+            <div className="grid-item">
+              <PieChart
+                title="Project tasks state summary"
+                data={dataTasks}
+                colors={colorsProject}
               />
             </div>)}
           </div>
