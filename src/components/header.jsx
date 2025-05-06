@@ -24,6 +24,9 @@ const Header = (features) => {
           {array.includes("pull-requests") && (
           <li><NavLink to="/pull-requests" onClick={() => setMenuOpen(false)} className={({ isActive }) => (isActive ? 'active' : '')}>Pull Requests</NavLink></li>
           )}
+          {array.includes("projects") && (
+          <li><NavLink to="/projects" onClick={() => setMenuOpen(false)} className={({ isActive }) => (isActive ? 'active' : '')}>Projects</NavLink></li>
+          )}
           <li><NavLink to="/individual" onClick={() => setMenuOpen(false)} className={({ isActive }) => (isActive ? 'active' : '')}>Individual</NavLink></li>
         </ul>
       </nav>

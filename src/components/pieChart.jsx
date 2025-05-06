@@ -10,17 +10,6 @@ const PieChart = ({ title, data, colors }) => {
     return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
   };
 
-  const patterns = [
-    { symbol: 'line', color: '#000', symbolSize: 4 },
-    { symbol: 'circle', color: '#000', symbolSize: 1,},
-    { symbol: 'diamond', color: '#000', symbolSize: 2 },
-    { symbol: 'square', color: '#000', symbolSize: 1 },
-    { symbol: 'triangle', color: '#000', symbolSize: 1 },
-    { symbol: 'cross', color: '#000', symbolSize: 1 },
-    { symbol: 'rect', color: '#000', symbolSize: 1 },
-    { symbol: 'star', color: '#000', symbolSize: 1 },
-  ];
-
   useEffect(() => {
     try {
       if (!chartRef.current) return;
@@ -31,27 +20,12 @@ const PieChart = ({ title, data, colors }) => {
         const value = item[1];
         const base = { name, value };
 
-        if (usePatterns) {
-          const pattern = patterns[index % patterns.length];
-          return {
-            ...base,
-            itemStyle: {
-              decal: {
-                symbol: pattern.symbol,
-                color: pattern.color,
-                symbolSize: pattern.symbolSize,
-              },
-              color: colors && colors[index] ? colors[index] : undefined,
-            },
-          };
-        } else {
-          return {
-            ...base,
-            itemStyle: {
-              color: colors && colors[index] ? colors[index] : undefined,
-            },
-          };
-        }
+        return {
+          ...base,
+          itemStyle: {
+            color: colors && colors[index] ? colors[index] : undefined,
+          },
+        };
       });
 
       const option = {
@@ -95,6 +69,12 @@ const PieChart = ({ title, data, colors }) => {
             },
           },
         ],
+        aria: {
+          enabled: usePatterns,
+          decal: {
+            show: usePatterns,
+          },
+        },
       };
 
       chart.setOption(option);
@@ -108,6 +88,7 @@ const PieChart = ({ title, data, colors }) => {
   }, [data, colors, title, usePatterns]);
 
   if (error) return <div>{error}</div>;
+
   return (
     <div style={{ width: '100%', textAlign: 'center' }}>
       <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center' }}>
@@ -142,7 +123,8 @@ const PieChart = ({ title, data, colors }) => {
       </div>
 
       <div ref={chartRef} style={{ width: '100%', height: '350px' }}></div>
-    </div>  );
+    </div>
+  );
 };
 
 export default PieChart;
