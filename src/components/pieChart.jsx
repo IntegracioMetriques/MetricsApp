@@ -73,8 +73,8 @@ const PieChart = ({ title, data, colors }) => {
           left: 'right',
           bottom: 10,
           data: chartData.map((item) => item.name),
-          itemWidth: 14,
-          itemHeight: 14,
+          itemWidth: 24,
+          itemHeight: 24,
         },
         series: [
           {
@@ -111,7 +111,7 @@ const PieChart = ({ title, data, colors }) => {
     <div style={{ width: '100%', textAlign: 'center' }}>
       <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center' }}>
         <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span>Usar tramas</span>
+          <span>Trames</span>
           <div
             onClick={() => setUsePatterns((prev) => !prev)}
             style={{
