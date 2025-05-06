@@ -1,13 +1,68 @@
-import React from 'react';
+import React, { useState } from 'react';
 import GaugeChart from '../components/gaugeChart';
 import '../styles/commits.css';
 import RadarPieToggle from '../components/RadarPieToggle';
+import LineChartMultiple from '../components/lineChartMultiple';
 
-function Commits({ data }) {
+function Commits({ data, historicData, features}) {
   const commitsData = data.commits;
   const totalCommits = commitsData.total;
   const modifiedLinesData = data.modified_lines
   const radarChartModifiedLines = {};
+  const [showHistorical, setShowHistorical] = useState(false);
+
+  const transformCommitsDataForLineChart = (data) => {
+    const xDataCommits = [];
+    const userSeries = {};
+  
+    for (const date in data) {
+      xDataCommits.push(date);
+      const commits = data[date].commits;
+  
+      for (const user in commits) {
+        if (user === 'total') continue;
+        if(user === 'anonymous') continue;
+        if (!userSeries[user]) {
+          userSeries[user] = [];
+        }
+        userSeries[user].push(commits[user]);
+      }
+    }
+    const seriesDataCommits = Object.keys(userSeries).map(user => ({
+      name: user,
+      data: userSeries[user]
+    }));
+  
+    return { xDataCommits, seriesDataCommits };
+  };
+
+  const { xDataCommits, seriesDataCommits } = transformCommitsDataForLineChart(historicData);
+
+  const transformModifiedLinesDataForLineChart = (data) => {
+    const xDataModified = [];
+    const userSeries = {};
+  
+    for (const date in data) {
+      xDataModified.push(date);
+      const modifiedLines = data[date].modified_lines;
+  
+      for (const user in modifiedLines) {
+        if (user === 'total') continue;
+        if (!userSeries[user]) {
+          userSeries[user] = [];
+        }
+        userSeries[user].push(modifiedLines[user].modified);
+      }
+    }
+    const seriesModified = Object.keys(userSeries).map(user => ({
+      name: user,
+      data: userSeries[user]
+    }));
+  
+    return { xDataModified, seriesModified };
+  };
+
+  const { xDataModified, seriesModified } = transformModifiedLinesDataForLineChart(historicData);
 
   for (const [user, {modified}] of Object.entries(modifiedLinesData)) {
     radarChartModifiedLines[user] = modified;
@@ -23,6 +78,25 @@ function Commits({ data }) {
   return (
     <div className="commits-container">
       <h1>Commits</h1>
+      <div className="chart-toggle-wrapper-index">
+      <div className="chart-toggle-buttons">
+        <button 
+          onClick={() => setShowHistorical(false)}
+          className={!showHistorical ? 'selected' : ''}
+        >
+          Current
+        </button>
+        <button 
+          onClick={() => setShowHistorical(true)}
+          className={showHistorical ? 'selected' : ''}
+        >
+          Historical
+        </button>
+      </div>
+    </div>
+
+    {!showHistorical && (
+      <>
       <div className="section-background">
         <h2>Summary</h2>
         <div className="summary-charts-container">
@@ -108,6 +182,39 @@ function Commits({ data }) {
           })}
           </div>
       </div>
+      </>)}
+      {showHistorical && (
+        <>
+          
+        <div className="section-background">
+        <h1>Historical data</h1>
+        <div className='radar-charts-wrapper'>
+        <div className='radar-chart-container'>
+        <LineChartMultiple
+            xData={xDataCommits}
+            seriesData={seriesDataCommits}
+            xLabel="Data"
+            yLabel="Commits"
+            title="Commits distribution over time"
+          />
+          </div>
+          <div className='radar-chart-container'>
+        <LineChartMultiple
+            xData={xDataModified}
+            seriesData={seriesModified}
+            xLabel="Data"
+            yLabel="Modified Lines"
+            title="Modified lines distribution over time"
+          />
+          </div>
+          </div>
+          </div>
+
+        </>)}
+
+
+
+
     </div>
   );
 }

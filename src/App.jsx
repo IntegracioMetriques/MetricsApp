@@ -85,7 +85,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/general" />} />
         <Route path="/general" element={<Index data={data} historicData={historicData} features={config.features} />} />
-        <Route path="/commits" element={<Commits data={data} features={config.features}/>} />
+        <Route path="/commits" element={<Commits data={data} historicData={historicData} features={config.features}/>} />
         <Route path="/issues" element={<Issues data={data} features={config.features}/>} />
         <Route path="/pull-requests" element={<PullRequests data={data} features={config.features}/>} />
         <Route path="/projects" element={<Projects data={data} features={config.features}/>} />
