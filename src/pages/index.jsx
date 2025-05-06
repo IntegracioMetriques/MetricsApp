@@ -3,7 +3,10 @@ import "../styles/index.css";
 import PieChart from '../components/pieChart';
 import RadarChart from '../components/radarChart';
 import LineChart from '../components/lineChart';
+import BarChart from '../components/barChart';
+import BarLineChart from '../components/barLineChart';
 import AreaChart from '../components/areaChart';
+import AreaChartMultiple from '../components/areaChartMultiple';
 
 function Index({data,historicData,features}) {
   const [showHistorical, setShowHistorical] = useState(false);
@@ -93,6 +96,26 @@ const transformPRDataForAreaChart = (data) => {
     return { xDataPRs, mergedPRs, openPRs };
   };
   const { xDataPRs, mergedPRs, openPRs } = transformPRDataForAreaChart(historicData);
+  
+  const transformTaskDataForAreaChart = (data) => {
+    const xDataTask = [];
+    const doneTask = [];
+    const inProgressTask = [];
+    const toDoTask = []
+    
+    for (const date in data) {
+      const total = data[date].project.total || 0;
+      const done = data[date].project.done || 0;
+      const inProgress = data[date].project.in_progress || 0;
+      const todo = total - done - inProgress
+      xDataTask.push(date);
+      doneTask.push(done);
+      inProgressTask.push(inProgress);
+      toDoTask.push(todo)
+      }
+      return { xDataTask, doneTask, inProgressTask,toDoTask };
+    };
+  const { xDataTask, doneTask, inProgressTask,toDoTask } = transformTaskDataForAreaChart(historicData);
   return (
     <div>
       <h1>General overview</h1>
@@ -111,7 +134,6 @@ const transformPRDataForAreaChart = (data) => {
           Historical
         </button>
       </div>
-      
     </div>
   
       {!showHistorical && (
@@ -152,7 +174,6 @@ const transformPRDataForAreaChart = (data) => {
               />
             </div>)}
             {features.includes("issues") && (
-
             <div className="grid-item">
               <PieChart
                 title="Issues state summary"
@@ -187,6 +208,26 @@ const transformPRDataForAreaChart = (data) => {
                 />
               </div>
               <div className='radar-chart-container'>
+                <BarChart
+                  xData={xData}
+                  yData={yData}
+                  xLabel="Date"
+                  yLabel="Commits"
+                  title="Commits Over Time"
+                />
+              </div>
+              <div className='radar-chart-container'>
+                <BarLineChart
+                  xData={xData}
+                  yDataBar={yData}
+                  yDataLine={yData}
+                  xLabel="Date"
+                  yLabel="Commits"
+                  title="Commits Over Time"
+                />
+              </div>
+              {features.includes("issues") && (
+              <div className='radar-chart-container'>
                 <AreaChart
                   xData={xDataIssues}
                   topData={openIssues}
@@ -199,7 +240,8 @@ const transformPRDataForAreaChart = (data) => {
                   yLabel="Issues"
                   title="Open and Closed Issues Over Time"
                 />
-              </div>
+              </div>)}
+              {features.includes("pull-requests") && (
               <div className='radar-chart-container'>
                 <AreaChart
                   xData={xDataPRs}
@@ -210,10 +252,24 @@ const transformPRDataForAreaChart = (data) => {
                   toplabel="Open"
                   bottomLabel="Merged"
                   xLabel="Date"
-                  yLabel="Issues"
+                  yLabel="Pull Requests"
                   title="Open and Merged Pull Requests Over Time"
                 />
-              </div>
+              </div>)}
+              {features.includes("projects") && (
+              <div className='radar-chart-container'>
+                <AreaChartMultiple
+                xData={xDataTask}
+                seriesData={[
+                  { label: 'To Do', data: toDoTask, color: "rgb(255, 0, 0)" },
+                  { label: 'In Progress', data: inProgressTask, color: 'orange' },
+                  { label: 'Done', data: doneTask, color: "rgb(0, 255, 0)" }
+                ]}
+                xLabel="Date"
+                yLabel="Tasks"
+                title="Tasks Over Time"
+              />      
+            </div>)}
             </div>
           ) : (
             <div style={{

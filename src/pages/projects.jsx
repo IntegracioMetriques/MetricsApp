@@ -32,7 +32,7 @@ function Projects({ data,features }) {
           <RadarPieToggle
               radarData={donePerMember}
               pieData={Object.entries(donePerMember)}
-              title={"Done Assigned Tasks distribution"}
+              title={"Assigned Tasks Done distribution"}
             />
         </div>
         <div>
@@ -83,7 +83,7 @@ function Projects({ data,features }) {
       <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">
-          This shows whether the user is actively working on at least one task.
+          Shows if the user is actively working on at least one task.
             If the gauge is at 100%, the user has at least one task in progress.
             If it's at 0%, the user currently has no tasks in progress.          
             </span>
