@@ -4,8 +4,8 @@ import '../styles/header.css';
 
 const Header = (features) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  console.log(features.features)
   const array = features.features
+
   return (
     <header className="header">
       <nav className="nav">
@@ -25,7 +25,6 @@ const Header = (features) => {
           <li><NavLink to="/pull-requests" onClick={() => setMenuOpen(false)} className={({ isActive }) => (isActive ? 'active' : '')}>Pull Requests</NavLink></li>
           )}
           <li><NavLink to="/individual" onClick={() => setMenuOpen(false)} className={({ isActive }) => (isActive ? 'active' : '')}>Individual</NavLink></li>
-          <li><NavLink to="/historic" onClick={() => setMenuOpen(false)} className={({ isActive }) => (isActive ? 'active' : '')}>Historic</NavLink></li>
         </ul>
       </nav>
     </header>

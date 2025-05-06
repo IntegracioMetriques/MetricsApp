@@ -30,8 +30,8 @@ const RadarChart = ({ data, title,max = null }) => {
           indicator: users.map(([user, ]) => ({ name: user, max: max !== null ? max : total , offset: [0, 40] })),
           shape: 'polygon',
           radius: '50%',
-          nameGap: 30,
-          name: { 
+          axisNameGap: 30,
+          axisName: { 
             formatter: (name) => {
               const maxLineLength = 10; 
               const maxWordLength = 15;

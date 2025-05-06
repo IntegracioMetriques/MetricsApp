@@ -1,11 +1,9 @@
 import React from 'react';
 import GaugeChart from '../components/gaugeChart';
 import '../styles/commits.css';
-import RadarChart from '../components/radarChart';
-import PieChart from '../components/pieChart';
 import RadarPieToggle
  from '../components/RadarPieToggle';
-function PullRequests({ data }) {
+function PullRequests({ data,features }) {
   const pullRequests = data.pull_requests
   const createdby = pullRequests.created
   const mergedby = pullRequests.merged_per_member
@@ -18,60 +16,35 @@ function PullRequests({ data }) {
   return (
     <div className="commits-container">
       <h1>Pull requests</h1>
-      <h2 className="section-title">
-       Pull requests created per user
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">Percentage of pull requests created per user relative to the total number of pull requets</span>
-        </span>
-      </h2>
-      <div className="gauge-charts-container">
-        {Object.keys(createdby).map((user) => {
-          const userPRs = createdby[user];
-          const percentage = userPRs / total;
-          return (
-          <GaugeChart
-            user={user}
-            percentage={percentage}
-            totalPeople={totalPeople}
-          />
-          );
-        })}
-        </div>
+      <div className="section-background">
+      <h2>Summary</h2>
+      <div className="summary-charts-container">
+        <div className='chart-item'>
         <RadarPieToggle
           radarData={createdby}
           pieData={Object.entries(createdby)}
           title={"Created Pull Requests distribution"}
         />
-        <h2 className="section-title">
-       Pull requests merged per user
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">Percentage of pull requests merged per user relative to the number of merged pull requets</span>
-        </span>
-      </h2>
-      <div className="gauge-charts-container">
-        {Object.keys(mergedby).map((user) => {
-          const userMergedPRs = mergedby[user];
-          const percentage = userMergedPRs / totalMerged;
-          return (
-            <GaugeChart
-              user={user}
-              percentage={percentage}
-              totalPeople={totalPeople}
-            />
-          );
-        })}
         </div>
+        <div className='chart-item'>
+        <RadarPieToggle
+          radarData={createdby}
+          pieData={Object.entries(createdby)}
+          title={"Created Pull Requests distribution"}
+        />
+        </div>
+        <div className='chart-item'>
         <RadarPieToggle
           radarData={mergedby}
           pieData={Object.entries(mergedby)}
           title={"Merged Pull Requests distribution"}
         />
+        </div>
+        </div>
         <div className="gauge-charts-container">
-        <div >
+        <div>
         <h2 className="section-title">
-       Pull requests merged
+        Pull requests merged
         <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">Percentage of pull requests that are merged relative to the total number of pull requests that are not closed</span>
@@ -79,7 +52,7 @@ function PullRequests({ data }) {
       </h2>
         <GaugeChart
                 user="Merged"
-                percentage= {(totalMerged) / total - totalClosed}
+                percentage={(total - totalClosed) > 0 ? totalMerged / (total - totalClosed) : 0}
                 totalPeople= {1}
               />
       </div> 
@@ -95,7 +68,7 @@ function PullRequests({ data }) {
       </h2>
             <GaugeChart
               user="Non-author merges"
-              percentage={totalMergedNotByAuthor/totalMerged}
+              percentage={totalMerged > 0 ? totalMergedNotByAuthor / totalMerged : 0}
               totalPeople={1}
             />
     </div>
@@ -111,11 +84,55 @@ function PullRequests({ data }) {
       </h2>
             <GaugeChart
               user="Pull requests merges"
-              percentage={totalMerged/merges}
+              percentage={merges > 0 ? totalMerged / merges : 0}
               totalPeople={1}
             />
     </div>
     </div> 
+    </div>
+    <div className='section-background'>
+    <h2>Metrics by User</h2>
+      <h2 className="section-title">
+       Pull requests created per user
+        <span className="custom-tooltip">
+          ⓘ
+          <span className="tooltip-text">Percentage of pull requests created per user relative to the total number of pull requets</span>
+        </span>
+      </h2>
+      <div className="gauge-charts-container">
+        {Object.keys(createdby).map((user) => {
+          const userPRs = createdby[user];
+          const percentage = total > 0 ? userPRs / total : 0;
+          return (
+          <GaugeChart
+            user={user}
+            percentage={percentage}
+            totalPeople={totalPeople}
+          />
+          );
+        })}
+        </div>
+        <h2 className="section-title">
+       Pull requests merged per user
+        <span className="custom-tooltip">
+          ⓘ
+          <span className="tooltip-text">Percentage of pull requests merged per user relative to the number of merged pull requets</span>
+        </span>
+      </h2>
+      <div className="gauge-charts-container">
+        {Object.keys(mergedby).map((user) => {
+          const userMergedPRs = mergedby[user];
+          const percentage = totalMerged > 0 ? userMergedPRs / totalMerged : 0;
+          return (
+            <GaugeChart
+              user={user}
+              percentage={percentage}
+              totalPeople={totalPeople}
+            />
+          );
+        })}
+        </div>
+        </div>
     </div>
   );
 }

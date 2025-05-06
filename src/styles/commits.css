@@ -6,7 +6,18 @@
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
+    align-items: center; 
     gap: 20px; 
+    padding: 20px;
+    margin-top: 20px;
+  }
+
+  .summary-charts-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center; 
+    gap: 40px; 
     padding: 20px;
     margin-top: 20px;
   }
@@ -17,6 +28,13 @@
     align-items: center;
     width: 250px;
     height: 200px;
+  }
+
+  .chart-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 400px;
   }
   
   h1 {
@@ -34,6 +52,20 @@
   margin-top: 0rem;
   color: #333;
   justify-content: center;
+}
+
+
+.section-background {
+  background-color: #ffffff;
+  margin: 0 auto;
+  padding: 0.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  width: 85vw;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem
 }
 
 .custom-tooltip {

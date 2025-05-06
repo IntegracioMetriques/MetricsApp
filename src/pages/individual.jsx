@@ -3,7 +3,7 @@ import "../styles/individual.css";
 import PieChart from '../components/pieChart';
 import GaugeChart from '../components/gaugeChart';
 
-function Individual({ data }) {
+function Individual({ data,features }) {
   const [selectedUser, setSelectedUser] = useState(Object.keys(data.commits).filter(user => user !== 'anonymous' && user !== 'total')[0]);
 
   const users = Object.keys(data.commits).filter(user => user !== 'anonymous' && user !== 'total');
@@ -16,33 +16,31 @@ function Individual({ data }) {
   const issuesClosed = data.issues.closed[selectedUser] || 0;
   const totalCommits = data.commits['total']
   const totalPeople = Object.keys(data.commits).length - 2;
+
   const truncateName = (name, maxLength = 18) => {
     return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
   };
   const userCommits = data.commits[selectedUser];
-  const percentageCommits = userCommits / totalCommits;
+  const percentageCommits = totalCommits > 0 ? userCommits / totalCommits: 0;
   const totalAssignedIssues = data.issues.total - data.issues.assigned["non_assigned"]
-  const percentageAssigned = issuesAssigned / totalAssignedIssues
-  const percentageIssuesClosed = issuesClosed/issuesAssigned
-  const percentageCreated = data.pull_requests.created[selectedUser] / data.pull_requests.total
-  const percentageMerged = data.pull_requests.merged_per_member[selectedUser] / data.pull_requests.merged
+  const pullRequestsCreated = data.pull_requests.created[selectedUser]
+  const pullRequestsMerged = data.pull_requests.merged_per_member[selectedUser]
+  const percentageAssigned = totalAssignedIssues > 0 ? issuesAssigned / totalAssignedIssues: 0
+  const percentageIssuesClosed = issuesAssigned > 0 ? issuesClosed/issuesAssigned: 0
+  const percentageCreated = data.pull_requests.total > 0 ? data.pull_requests.created[selectedUser] / data.pull_requests.total: 0
+  const percentageMerged = data.pull_requests.merged > 0 ? data.pull_requests.merged_per_member[selectedUser] / data.pull_requests.merged: 0
   return (
     <div>
       <h1>Individual overview</h1>
-      <div className="individual-header">
-        <select className="user-selector" value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
-          {users.map(user => (
-            <option key={user} value={user} title={user}>{truncateName(user)}</option>
-          ))}
-        </select>
-      </div>
-
       <div className="grid-container">
         <div className="grid-item individual-user-card horizontal-layout">
           <div className="user-info">
             <img src={avatar} alt={selectedUser} className="user-avatar" />
-            <h2 className="user-name" title={selectedUser}>{truncateName(selectedUser)}</h2>
-            </div>
+            <select className="user-selector" value={selectedUser}  title={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
+          {users.map(user => (
+            <option key={user} value={user} title={user}>{truncateName(user)}</option>
+          ))}
+        </select>            </div>
             <div className="stats-grid">
               <div><strong>Commits:</strong> {commits}</div>
               <div><strong>Additions:</strong> {modifiedLines.additions}</div>
@@ -50,82 +48,92 @@ function Individual({ data }) {
               <div><strong>Modifications:</strong> {modifiedLines.modified}</div>
               <div><strong>Commit Streak:</strong> {streak}</div>
               <div><strong>Longest Streak:</strong> {longestStreak}</div>
-              <div><strong>Issues Assigned:</strong> {issuesAssigned}</div>
-              <div><strong>Issues Closed:</strong> {issuesClosed}</div>
-              </div>
+              {features.includes("issues") && (
+              <div><strong>Issues Assigned:</strong> {issuesAssigned}</div>)}
+              {features.includes("issues") && (
+              <div><strong>Issues Closed:</strong> {issuesClosed}</div>)}
+              {features.includes("pull-requests") && (
+              <div><strong>Pull requests Created:</strong> {pullRequestsCreated}</div>)}
+              {features.includes("pull-requests") && (
+              <div><strong>Pull requests merged:</strong> {pullRequestsMerged}</div>)}
+            </div>
         </div>
-        </div>
-        <div className="grid-container">
+      </div>
+      <div className="grid-container">
         <div>
-        <h2 className="section-title">
-        Commits
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">Percentage of commits made by the user relative to the total number of commits</span>
-        </span>
-      </h2>
-        <GaugeChart
-                  user={selectedUser}
-                  percentage= {percentageCommits}
-                  totalPeople= {totalPeople}
-                /> 
+          <h2 className="section-title">
+          Commits
+          <span className="custom-tooltip">
+            ⓘ
+            <span className="tooltip-text">Percentage of commits made by the user relative to the total number of commits</span>
+          </span>
+          </h2>
+          <GaugeChart
+                    user={selectedUser}
+                    percentage= {percentageCommits}
+                    totalPeople= {totalPeople}
+                  /> 
         </div>
+        {features.includes("issues") && (
         <div>
-        <h2 className="section-title">
-        Issues assigned
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">Percentage of issues assigned to the user relative to the number of assigned issues</span>
-        </span>
-      </h2>
-        <GaugeChart
-                  user={selectedUser}
-                  percentage= {percentageAssigned}
-                  totalPeople= {totalPeople}
-                /> 
-        </div>
+          <h2 className="section-title">
+          Issues assigned
+            <span className="custom-tooltip">
+              ⓘ
+              <span className="tooltip-text">Percentage of issues assigned to the user relative to the number of assigned issues</span>
+            </span>
+          </h2>
+          <GaugeChart
+                    user={selectedUser}
+                    percentage= {percentageAssigned}
+                    totalPeople= {totalPeople}
+                  /> 
+        </div>)}
+        {features.includes("issues") && (
         <div>
-        <h2 className="section-title">
-        Issues closed
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text"> Percentage of issues closed by the user relative to the issues assigned to the user</span>
-        </span>
-      </h2>
-        <GaugeChart
-                  user={selectedUser}
-                  percentage= {percentageIssuesClosed}
-                  totalPeople= {1}
-                /> 
-        </div>
+          <h2 className="section-title">
+            Issues closed
+            <span className="custom-tooltip">
+              ⓘ
+              <span className="tooltip-text"> Percentage of issues closed by the user relative to the issues assigned to the user</span>
+            </span>
+          </h2>
+          <GaugeChart
+                    user={selectedUser}
+                    percentage= {percentageIssuesClosed}
+                    totalPeople= {1}
+                  /> 
+        </div>)}
+        {features.includes("pull-requests") && (
         <div>
-        <h2 className="section-title">
-        Pull Requests created
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">Percentage of pull requests created by the user relative to the total number of pull requests</span>
-        </span>
-      </h2>
-        <GaugeChart
-                  user={selectedUser}
-                  percentage= {percentageCreated}
-                  totalPeople= {totalPeople}
-                /> 
-        </div>
+          <h2 className="section-title">
+            Pull Requests created
+            <span className="custom-tooltip">
+              ⓘ
+              <span className="tooltip-text">Percentage of pull requests created by the user relative to the total number of pull requests</span>
+            </span>
+          </h2>
+          <GaugeChart
+                    user={selectedUser}
+                    percentage= {percentageCreated}
+                    totalPeople= {totalPeople}
+                  /> 
+        </div>)}
+        {features.includes("pull-requests") && (
         <div>
-        <h2 className="section-title">
-        Pull Requests merged
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">Percentage of pull requests merged by the user relative to the total number of pull requests merged</span>
-        </span>
-      </h2>
-        <GaugeChart
-                  user={selectedUser}
-                  percentage= {percentageMerged}
-                  totalPeople= {totalPeople}
-                /> 
-        </div>
+          <h2 className="section-title">
+            Pull Requests merged
+            <span className="custom-tooltip">
+              ⓘ
+              <span className="tooltip-text">Percentage of pull requests merged by the user relative to the total number of pull requests merged</span>
+            </span>
+          </h2>
+          <GaugeChart
+                    user={selectedUser}
+                    percentage= {percentageMerged}
+                    totalPeople= {totalPeople}
+                  /> 
+        </div>)}
       </div>
     </div>
   );
