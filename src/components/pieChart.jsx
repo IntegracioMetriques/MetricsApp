@@ -41,6 +41,7 @@ const PieChart = ({ title, data, colors }) => {
                 color: pattern.color,
                 symbolSize: pattern.symbolSize,
               },
+              color: colors && colors[index] ? colors[index] : undefined,
             },
           };
         } else {
