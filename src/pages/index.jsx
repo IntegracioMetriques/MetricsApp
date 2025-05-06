@@ -119,25 +119,6 @@ const transformPRDataForAreaChart = (data) => {
   return (
     <div>
       <h1>General overview</h1>
-      <div className="chart-toggle-wrapper-index">
-      <div className="chart-toggle-buttons">
-        <button 
-          onClick={() => setShowHistorical(false)}
-          className={!showHistorical ? 'selected' : ''}
-        >
-          Current
-        </button>
-        <button 
-          onClick={() => setShowHistorical(true)}
-          className={showHistorical ? 'selected' : ''}
-        >
-          Historical
-        </button>
-      </div>
-    </div>
-  
-      {!showHistorical && (
-        <>
           <div className="grid-container">
             <div className="grid-item general-stats horizontal-layout">
               <div className='stats-title '>
@@ -157,6 +138,24 @@ const transformPRDataForAreaChart = (data) => {
               </div>
             </div>
           </div>
+          <div className="chart-toggle-wrapper-index">
+            <div className="chart-toggle-buttons">
+              <button 
+                onClick={() => setShowHistorical(false)}
+                className={!showHistorical ? 'selected' : ''}
+              >
+                Current
+              </button>
+              <button 
+                onClick={() => setShowHistorical(true)}
+                className={showHistorical ? 'selected' : ''}
+              >
+                Historical
+              </button>
+            </div>
+          </div>
+          {!showHistorical && (
+        <>
           <div className="grid-container">
             <div className="grid-item">
               <RadarChart
@@ -195,7 +194,6 @@ const transformPRDataForAreaChart = (data) => {
   
       {showHistorical && (
         <div>
-          <h1>Historical Data</h1>
           {historicData ? (
             <div className='radar-charts-wrapper'>
               <div className='radar-chart-container'>

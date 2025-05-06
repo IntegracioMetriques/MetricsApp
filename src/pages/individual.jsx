@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import "../styles/individual.css";
-import PieChart from '../components/pieChart';
+import LineChart from '../components/lineChart';
 import GaugeChart from '../components/gaugeChart';
 
-function Individual({ data,features }) {
+function Individual({ data, historicData, features }) {
   const [selectedUser, setSelectedUser] = useState(Object.keys(data.commits).filter(user => user !== 'anonymous' && user !== 'total')[0]);
+  const [showHistorical, setShowHistorical] = useState(false);
 
   const users = Object.keys(data.commits).filter(user => user !== 'anonymous' && user !== 'total');
   const avatar = data.avatars[selectedUser] || "";
@@ -29,6 +30,89 @@ function Individual({ data,features }) {
   const percentageIssuesClosed = issuesAssigned > 0 ? issuesClosed/issuesAssigned: 0
   const percentageCreated = data.pull_requests.total > 0 ? data.pull_requests.created[selectedUser] / data.pull_requests.total: 0
   const percentageMerged = data.pull_requests.merged > 0 ? data.pull_requests.merged_per_member[selectedUser] / data.pull_requests.merged: 0
+  
+  const transformCommitsDataForUser = (data, username) => {
+    const xDataCommits = [];
+    const yDataCommits = [];
+  
+    for (const date in data) {
+      xDataCommits.push(date);
+      yDataCommits.push(data[date].commits[username] || 0);
+    }
+  
+    return { xDataCommits, yDataCommits };
+  };
+
+  const { xDataCommits, yDataCommits } = transformCommitsDataForUser(historicData, selectedUser)
+  
+  const transformModifiedLinesDataForUser = (data, username) => {
+    const xDataModifiedLines = [];
+    const yDataModifiedLines = [];
+  
+    for (const date in data) {
+      const userData = data[date].modified_lines[username].modified;
+      xDataModifiedLines.push(date);
+      yDataModifiedLines.push(userData);
+    }
+  
+    return { xDataModifiedLines, yDataModifiedLines };
+  };
+  const { xDataModifiedLines, yDataModifiedLines } = transformModifiedLinesDataForUser(historicData, selectedUser)
+
+  const transformAssignedIssuesDataForUser = (data, username) => {
+    const xDataAssignedIssues = [];
+    const yDataAssignedIssues = [];
+  
+    for (const date in data) {
+      xDataAssignedIssues.push(date);
+      yDataAssignedIssues.push(data[date].issues?.assigned?.[username] || 0);
+    }
+  
+    return { xDataAssignedIssues, yDataAssignedIssues };
+  };
+  const { xDataAssignedIssues, yDataAssignedIssues } = transformAssignedIssuesDataForUser(historicData, selectedUser);
+
+  const transformClosedIssuesDataForUser = (data, username) => {
+    const xDataClosedIssues = [];
+    const yDataClosedIssues = [];
+  
+    for (const date in data) {
+      xDataClosedIssues.push(date);
+      yDataClosedIssues.push(data[date].issues?.closed?.[username] || 0);
+    }
+  
+    return { xDataClosedIssues, yDataClosedIssues };
+  };
+
+  const { xDataClosedIssues, yDataClosedIssues } = transformClosedIssuesDataForUser(historicData, selectedUser);
+
+
+  const transformCreatedPRsDataForUser = (data, username) => {
+    const xDataCreatedPRs = [];
+    const yDataCreatedPRs = [];
+  
+    for (const date in data) {
+      xDataCreatedPRs.push(date);
+      yDataCreatedPRs.push(data[date].pull_requests?.created?.[username] || 0);
+    }
+  
+    return { xDataCreatedPRs, yDataCreatedPRs };
+  };
+  const { xDataCreatedPRs, yDataCreatedPRs } = transformCreatedPRsDataForUser(historicData, selectedUser);
+
+  const transformMergedPRsDataForUser = (data, username) => {
+    const xDataMergedPRs = [];
+    const yDataMergedPRs = [];
+  
+    for (const date in data) {
+      xDataMergedPRs.push(date);
+      yDataMergedPRs.push(data[date].pull_requests?.merged_per_member?.[username] || 0);
+    }
+  
+    return { xDataMergedPRs, yDataMergedPRs };
+  };
+  const { xDataMergedPRs, yDataMergedPRs } = transformMergedPRsDataForUser(historicData, selectedUser);
+
   return (
     <div>
       <h1>Individual overview</h1>
@@ -59,6 +143,25 @@ function Individual({ data,features }) {
             </div>
         </div>
       </div>
+
+      <div className="chart-toggle-wrapper-index">
+      <div className="chart-toggle-buttons">
+        <button 
+          onClick={() => setShowHistorical(false)}
+          className={!showHistorical ? 'selected' : ''}
+        >
+          Current
+        </button>
+        <button 
+          onClick={() => setShowHistorical(true)}
+          className={showHistorical ? 'selected' : ''}
+        >
+          Historical
+        </button>
+      </div>
+    </div>
+    {!showHistorical && (
+      <>
       <div className="grid-container">
         <div>
           <h2 className="section-title">
@@ -135,6 +238,67 @@ function Individual({ data,features }) {
                   /> 
         </div>)}
       </div>
+      </>)}
+      {showHistorical && (
+      <>
+      <div className='radar-charts-wrapper'>
+          <div className='radar-chart-container'>
+             <LineChart
+                xData={xDataCommits}
+                yData={yDataCommits}
+                xLabel="Date"
+                yLabel="Commits"
+                title="Commits Over Time"
+                />
+              </div>
+              <div className='radar-chart-container'>
+             <LineChart
+                xData={xDataModifiedLines}
+                yData={yDataModifiedLines}
+                xLabel="Date"
+                yLabel="Modified Lines"
+                title="Modified Lines Over Time"
+                />
+              </div>
+              <div className='radar-chart-container'>
+             <LineChart
+                xData={xDataAssignedIssues}
+                yData={yDataAssignedIssues}
+                xLabel="Date"
+                yLabel="Issues"
+                title="Assigned Issues Over Time"
+                />
+              </div>
+              <div className='radar-chart-container'>
+             <LineChart
+                xData={xDataClosedIssues}
+                yData={yDataClosedIssues}
+                xLabel="Date"
+                yLabel="Issues"
+                title="Clossed Issues Over Time"
+                />
+              </div>
+              <div className='radar-chart-container'>
+             <LineChart
+                xData={xDataCreatedPRs}
+                yData={yDataCreatedPRs}
+                xLabel="Date"
+                yLabel="Pull Requests"
+                title="Pull Requests Created Over Time"
+                />
+              </div>
+              <div className='radar-chart-container'>
+             <LineChart
+                xData={xDataMergedPRs}
+                yData={yDataMergedPRs}
+                xLabel="Date"
+                yLabel="Pull Requests"
+                title="Pull Requests Merged Over Time"
+                />
+              </div>
+          </div>
+      </>
+    )}
     </div>
   );
 }

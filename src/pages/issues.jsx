@@ -3,7 +3,7 @@ import GaugeChart from '../components/gaugeChart';
 import RadarPieToggle from '../components/RadarPieToggle';
 import '../styles/commits.css';
 
-function Issues({ data,features }) {
+function Issues({ data,historicData,features }) {
   const issuesData = data.issues;
   const totalIssues = issuesData.total;
   const totalClosed = issuesData.total_closed

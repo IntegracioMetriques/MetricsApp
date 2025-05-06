@@ -3,7 +3,7 @@ import GaugeChart from '../components/gaugeChart';
 import '../styles/commits.css';
 import RadarPieToggle
  from '../components/RadarPieToggle';
-function PullRequests({ data,features }) {
+function PullRequests({ data,historicData,features }) {
   const pullRequests = data.pull_requests
   const createdby = pullRequests.created
   const mergedby = pullRequests.merged_per_member

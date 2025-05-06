@@ -3,7 +3,7 @@ import GaugeChart from '../components/gaugeChart';
 import RadarPieToggle from '../components/RadarPieToggle';
 import '../styles/commits.css';
 
-function Projects({ data,features }) {
+function Projects({ data,historicData,features }) {
   const taskData = data.project;
   const totalTasks = taskData.total;
   const totalInProgress = taskData.in_progress

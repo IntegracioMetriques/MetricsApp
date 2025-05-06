@@ -180,6 +180,10 @@
     max-width: 15ch;
   }
 
+  .chart-toggle-wrapper-index {
+    margin-top:20px;
+  }
+
   @media (max-width: 768px) { 
     .individual-user-card.horizontal-layout {
         width: 90%;

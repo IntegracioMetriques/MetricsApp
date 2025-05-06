@@ -187,7 +187,6 @@ function Commits({ data, historicData, features}) {
         <>
           
         <div className="section-background">
-        <h1>Historical data</h1>
         <div className='radar-charts-wrapper'>
         <div className='radar-chart-container'>
         <LineChartMultiple
