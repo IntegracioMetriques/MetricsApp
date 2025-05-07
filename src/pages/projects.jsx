@@ -79,7 +79,7 @@ function Projects({ data,historicData,features }) {
         })}
       </div>
       <h2 className="section-title">
-      In Progress tasks per user
+      Tasks In Progress per user
       <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">
@@ -103,7 +103,7 @@ function Projects({ data,historicData,features }) {
         })}
       </div>
       <h2 className="section-title">
-      Done tasks per user
+      Tasks Done per user
       <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">
