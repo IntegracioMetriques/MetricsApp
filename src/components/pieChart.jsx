@@ -93,7 +93,7 @@ const PieChart = ({ title, data, colors }) => {
     <div style={{ width: '100%', textAlign: 'center' }}>
       <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center' }}>
         <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span>Trames</span>
+          <span>Patterns</span>
           <div
             onClick={() => setUsePatterns((prev) => !prev)}
             style={{

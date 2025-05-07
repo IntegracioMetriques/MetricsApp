@@ -241,6 +241,8 @@ function Individual({ data, historicData, features }) {
       </>)}
       {showHistorical && (
       <>
+      {historicData ? (
+        <>
       <div className='radar-charts-wrapper'>
           <div className='radar-chart-container'>
              <LineChart
@@ -297,8 +299,21 @@ function Individual({ data, historicData, features }) {
                 />
               </div>
           </div>
-      </>
-    )}
+      </>) : (
+            <div style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            fontSize: "1.8rem",
+            }}>
+            No s'ha trobat historic_metrics.json.<br />
+            Si és el primer dia, torna demà un cop
+            s'hagi fet la primera execució del
+            workflow Daily Metrics.
+            </div>)}
+         </>
+        )}
     </div>
   );
 }
