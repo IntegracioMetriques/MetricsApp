@@ -66,7 +66,13 @@ const AreaChart = ({ xData, topData, bottomData, topColor, bottomColor, toplabel
           color: topColor.replace('0.4', '1'), 
           data: topData,
         }
-      ]
+      ],
+      aria: {
+        enabled: true,
+        decal: {
+          show: true,
+        },
+      },
     };
 
     chart.setOption(option);

@@ -53,7 +53,13 @@ const AreaChartMultiple = ({ xData, seriesData, xLabel, yLabel, title }) => {
         lineStyle: { color: s.color, width: 2 },
         color: s.color.replace('0.4', '1'),
         data: s.data,
-      }))
+      })),
+      aria: {
+        enabled: true,
+        decal: {
+          show: true,
+        },
+      },
     };
 
     chart.setOption(option);
