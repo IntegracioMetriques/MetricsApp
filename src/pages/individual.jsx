@@ -16,6 +16,7 @@ function Individual({ data, historicData, features }) {
   const issuesAssigned = data.issues.assigned[selectedUser] || 0;
   const issuesClosed = data.issues.closed[selectedUser] || 0;
   const totalCommits = data.commits['total']
+  const totalModifiedLines = data.modified_lines['total'].modified
   const totalPeople = Object.keys(data.commits).length - 2;
 
   const truncateName = (name, maxLength = 18) => {
@@ -23,6 +24,8 @@ function Individual({ data, historicData, features }) {
   };
   const userCommits = data.commits[selectedUser];
   const percentageCommits = totalCommits > 0 ? userCommits / totalCommits: 0;
+  const userModifiedLines = data.modified_lines[selectedUser].modified
+  const percentageModifiedlLines = totalModifiedLines > 0 ? userModifiedLines / totalModifiedLines : 0
   const totalAssignedIssues = data.issues.total - data.issues.assigned["non_assigned"]
   const pullRequestsCreated = data.pull_requests.created[selectedUser]
   const pullRequestsMerged = data.pull_requests.merged_per_member[selectedUser]
@@ -172,10 +175,24 @@ function Individual({ data, historicData, features }) {
           </span>
           </h2>
           <GaugeChart
-                    user={selectedUser}
-                    percentage= {percentageCommits}
-                    totalPeople= {totalPeople}
-                  /> 
+            user={selectedUser}
+            percentage= {percentageCommits}
+            totalPeople= {totalPeople}
+          /> 
+        </div>
+        <div>
+          <h2 className="section-title">
+          Modified Lines
+          <span className="custom-tooltip">
+            ⓘ
+            <span className="tooltip-text">Percentage of commits made by the user relative to the total number of commits</span>
+          </span>
+          </h2>
+          <GaugeChart
+            user={selectedUser}
+            percentage= {percentageModifiedlLines}
+            totalPeople= {totalPeople}
+          /> 
         </div>
         {features.includes("issues") && (
         <div>
