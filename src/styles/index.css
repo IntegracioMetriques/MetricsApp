@@ -182,6 +182,26 @@ button:focus-visible {
   justify-content: center;
 }
 
+.only-commits-wrapper {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+  align-items: center;
+}
+
+.only-commits-container {
+  width: 450px;
+  height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.only-commits-line-container {
+  width: 450px;
+  height: 350px;
+}
 
 @media (max-width: 768px) { 
   .general-stats.horizontal-layout {
