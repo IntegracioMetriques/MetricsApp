@@ -71,6 +71,22 @@ const LineChartMultiple = ({ xData, seriesData, xLabel, yLabel, title }) => {
 
     chart.setOption(option);
 
+    chart.on('legendselectchanged', function (params) {
+      const selectedName = params.name;
+      const allNames = seriesData.map(s => s.name);
+
+      const newSelection = {};
+      allNames.forEach(name => {
+        newSelection[name] = name === selectedName;
+      });
+
+      chart.setOption({
+        legend: {
+          selected: newSelection
+        }
+      });
+    });
+
     return () => {
       chart.dispose(); 
     };

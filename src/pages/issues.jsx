@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import GaugeChart from '../components/gaugeChart';
 import RadarPieToggle from '../components/RadarPieToggle';
+import LineChartMultiple from '../components/lineChartMultiple';
+
 import '../styles/commits.css';
 
 function Issues({ data,historicData,features }) {
+  const [showHistorical, setShowHistorical] = useState(false);
   const issuesData = data.issues;
   const totalIssues = issuesData.total;
   const totalClosed = issuesData.total_closed
@@ -12,9 +15,56 @@ function Issues({ data,historicData,features }) {
   const totalPeople = Object.keys(issuesData.assigned).length - 1;
   const totalAssigned = totalIssues - issuesData.assigned['non_assigned']
   const closedBy = issuesData.closed
+
+
+  const transformAssignedPRsDataForLineChart = (data) => {
+    const xDataAssigned = [];
+    const userSeries = {};
+  
+    for (const date in data) {
+      xDataAssigned.push(date);
+      const issues = data[date].issues.assigned;
+      
+      for (const user in issues) {
+        if(user === 'non_assigned') continue;
+        if (!userSeries[user]) {
+          userSeries[user] = [];
+        }
+        userSeries[user].push(issues[user]);
+      }
+    }
+    const seriesDataAssigned = Object.keys(userSeries).map(user => ({
+      name: user,
+      data: userSeries[user]
+    }));
+  
+    return { xDataAssigned, seriesDataAssigned};
+  };
+
+    const { xDataAssigned, seriesDataAssigned } = transformAssignedPRsDataForLineChart(historicData);
+
+
   return (
     <div className="commits-container">
       <h1>Issues</h1>
+            <div className="chart-toggle-wrapper-index">
+      <div className="chart-toggle-buttons">
+        <button 
+          onClick={() => setShowHistorical(false)}
+          className={!showHistorical ? 'selected' : ''}
+        >
+          Current
+        </button>
+        <button 
+          onClick={() => setShowHistorical(true)}
+          className={showHistorical ? 'selected' : ''}
+        >
+          Historical
+        </button>
+      </div>
+    </div>
+        {!showHistorical && (
+      <>
       <div className='section-background'>
       <h2>Summary</h2>
       <div className="summary-charts-container">
@@ -111,6 +161,42 @@ function Issues({ data,historicData,features }) {
         })}
       </div>
     </div>
+    </>)}
+    
+{showHistorical && (
+        <>
+        {historicData ? (
+        <>
+        <div className="section-background">
+        <div className='radar-charts-wrapper'>
+        <div className='radar-chart-container'>
+        <LineChartMultiple
+            xData={xDataAssigned}
+            seriesData={seriesDataAssigned}
+            xLabel="Data"
+            yLabel="Issues"
+            title="Assigned issues distribution over time"
+          />
+          </div>
+          </div>
+          </div>
+
+        </>)  : (
+            <div style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            fontSize: "1.8rem",
+            }}>
+            No s'ha trobat historic_metrics.json.<br />
+            Si és el primer dia, torna demà un cop
+            s'hagi fet la primera execució del
+            workflow Daily Metrics.
+            </div>)}
+         </>
+      )}
+
     </div>
   );
 }

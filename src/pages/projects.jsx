@@ -28,13 +28,6 @@ function Projects({ data,historicData,features }) {
               title={"Assigned Tasks distribution"}
             />
         </div>
-        <div className='chart-item'>
-          <RadarPieToggle
-              radarData={donePerMember}
-              pieData={Object.entries(donePerMember)}
-              title={"Assigned Tasks Done distribution"}
-            />
-        </div>
         <div>
           <h2 className="section-title">
             Tasks assigned

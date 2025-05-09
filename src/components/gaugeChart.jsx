@@ -53,7 +53,35 @@ const GaugeChart = ({ user, percentage, totalPeople }) => {
         [1, 'red']
       ];
       labels = { 0: "0", 0.1: "0.1", 0.3: "0.3", 1: "1" };
-    } else {
+    } else if (totalPeople === 6) {
+      gaugeColor = [
+        [0.05, 'red'],
+        [0.1, 'orange'],
+        [0.3, 'green'],
+        [0.35, 'orange'],
+        [1, 'red']
+      ];
+      labels = { 0: "0", 0.1: "0.1", 0.3: "0.3", 1: "1" };
+    } else if (totalPeople === 7) {
+      gaugeColor = [
+        [0.05, 'red'],
+        [0.1, 'orange'],
+        [0.3, 'green'],
+        [0.35, 'orange'],
+        [1, 'red']
+      ];
+      labels = { 0: "0", 0.1: "0.1", 0.3: "0.3", 1: "1" };
+    } else if (totalPeople === 8) {
+      gaugeColor = [
+        [0.05, 'red'],
+        [0.1, 'orange'],
+        [0.3, 'green'],
+        [0.35, 'orange'],
+        [1, 'red']
+      ];
+      labels = { 0: "0", 0.1: "0.1", 0.3: "0.3", 1: "1" };
+    }
+    else {
       gaugeColor = [
         [0, 'red'],
         [1, 'red']

@@ -79,6 +79,17 @@ const PieChart = ({ title, data, colors }) => {
 
       chart.setOption(option);
 
+      chart.on('legendselectchanged', function (event) {
+        chart.setOption({
+          legend: {
+            selected: chartData.reduce((acc, item) => {
+              acc[item.name] = true;
+              return acc;
+            }, {})
+          }
+        });
+      });
+      
       return () => {
         chart.dispose();
       };
