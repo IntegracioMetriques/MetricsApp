@@ -120,6 +120,7 @@
     border-radius: 5px;
     font-size: 1em;
     background-color: #1c3d5d;
+    color: #ffffff;
   }
 
   .user-selector:focus {
@@ -178,6 +179,10 @@
     overflow: hidden;
     text-overflow: ellipsis; 
     max-width: 15ch;
+  }
+
+  .chart-toggle-wrapper-index {
+    margin-top:20px;
   }
 
   @media (max-width: 768px) { 

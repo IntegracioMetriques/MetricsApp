@@ -6,6 +6,7 @@ import LineChart from '../components/lineChart';
 import BarChart from '../components/barChart';
 import BarLineChart from '../components/barLineChart';
 import AreaChart from '../components/areaChart';
+import GaugeChart from '../components/gaugeChart';
 import AreaChartMultiple from '../components/areaChartMultiple';
 
 function Index({data,historicData,features}) {
@@ -14,9 +15,9 @@ function Index({data,historicData,features}) {
   const open = pullRequests.total - pullRequests.merged - pullRequests.closed
   const issues = data.issues
   const datapullRequests = [
-    ["Merged", pullRequests.merged],
     ["Open", open],
     ["Closed", pullRequests.closed],
+    ["Merged", pullRequests.merged],
   ];
   const dataissues = [
     ["Open",issues.total - issues.total_closed],
@@ -33,7 +34,7 @@ function Index({data,historicData,features}) {
     ["In Progress",totalInProgress],
     ["Done", totalDone]
   ]
-  const colorsPR = ["green", "red","orange"]; 
+  const colorsPR = ["red", "orange","green"];  
   const colorsIssues = ["red","green"];
   const colorsProject = ["red", "orange","green"]; 
   const nonAnonymousCommits = data.commits.total - data.commits.anonymous / data.commits.total
@@ -42,16 +43,35 @@ function Index({data,historicData,features}) {
   const pullRequestsMerged = data.pull_requests.merged / data.pull_requests.total - data.pull_requests.closed
   const pullRequestsReviewed = data.pull_requests.not_merged_by_author / data.pull_requests.merged
   const pullRequestsMerges = data.pull_requests.merged / data.commit_merges
-
-  const radarData = {
-    'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
-    'Issues Assigned': (data.issues.total - data.issues.assigned.non_assigned) / data.issues.total,
-    'Issues associated PR': data.issues.have_pull_request / data.issues.total_closed,
-    'Pull Requests Merged': data.pull_requests.merged / (data.pull_requests.total - data.pull_requests.closed),
-    'Pull Requests Reviewed': data.pull_requests.not_merged_by_author / data.pull_requests.merged,
-    'Pull Requests Merges': data.pull_requests.merged / data.commit_merges,
-  };
-
+  let radarData;
+  if (features.includes('issues') && features.includes('pull-requests')) {
+    radarData = {
+      'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
+      'Issues Assigned': (data.issues.total - data.issues.assigned.non_assigned) / data.issues.total,
+      'Issues associated PR': data.issues.have_pull_request / data.issues.total_closed,
+      'Pull Requests Merged': data.pull_requests.merged / (data.pull_requests.total - data.pull_requests.closed),
+      'Pull Requests Reviewed': data.pull_requests.not_merged_by_author / data.pull_requests.merged,
+      'Pull Requests Merges': data.pull_requests.merged / data.commit_merges,
+    };
+  }
+  else if (!(features.includes('issues')) && features.includes('pull-requests')) {
+    radarData = {
+      'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
+      'Pull Requests Merged': data.pull_requests.merged / (data.pull_requests.total - data.pull_requests.closed),
+      'Pull Requests Reviewed': data.pull_requests.not_merged_by_author / data.pull_requests.merged,
+      'Pull Requests Merges': data.pull_requests.merged / data.commit_merges,
+    };
+  }
+  else if (features.includes('issues') && !(features.includes('pull-requests'))) {
+    radarData = {
+      'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
+      'Issues Assigned': (data.issues.total - data.issues.assigned.non_assigned) / data.issues.total,
+    };
+  } else {
+    radarData = {
+      'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
+    };
+  }
   const transformDataForLineChart = (data) => {
     const xData = []; 
     const yData = []; 
@@ -119,25 +139,6 @@ const transformPRDataForAreaChart = (data) => {
   return (
     <div>
       <h1>General overview</h1>
-      <div className="chart-toggle-wrapper-index">
-      <div className="chart-toggle-buttons">
-        <button 
-          onClick={() => setShowHistorical(false)}
-          className={!showHistorical ? 'selected' : ''}
-        >
-          Current
-        </button>
-        <button 
-          onClick={() => setShowHistorical(true)}
-          className={showHistorical ? 'selected' : ''}
-        >
-          Historical
-        </button>
-      </div>
-    </div>
-  
-      {!showHistorical && (
-        <>
           <div className="grid-container">
             <div className="grid-item general-stats horizontal-layout">
               <div className='stats-title '>
@@ -157,45 +158,102 @@ const transformPRDataForAreaChart = (data) => {
               </div>
             </div>
           </div>
-          <div className="grid-container">
-            <div className="grid-item">
-              <RadarChart
-                data={radarData}
-                title="General Metrics"
-                max={1}
-              />
+          {(features.includes("issues") || features.includes("pull-requests")) && (
+          <div className="chart-toggle-wrapper-index">
+            <div className="chart-toggle-buttons">
+              <button 
+                onClick={() => setShowHistorical(false)}
+                className={!showHistorical ? 'selected' : ''}
+              >
+                Current
+              </button>
+              <button 
+                onClick={() => setShowHistorical(true)}
+                className={showHistorical ? 'selected' : ''}
+              >
+                Historical
+              </button>
             </div>
-            {features.includes("pull-requests") && (
-            <div className="grid-item">
-              <PieChart
-                title="Pull requests state summary"
-                data={datapullRequests}
-                colors={colorsPR}
-              />
-            </div>)}
-            {features.includes("issues") && (
-            <div className="grid-item">
-              <PieChart
-                title="Issues state summary"
-                data={dataissues}
-                colors={colorsIssues}
-              />
-            </div>)}
-            {features.includes("projects") && (
-            <div className="grid-item">
-              <PieChart
-                title="Project tasks state summary"
-                data={dataTasks}
-                colors={colorsProject}
-              />
-            </div>)}
+          </div>)}
+          {!showHistorical && (
+  <>
+    {(features.includes("issues") || features.includes("pull-requests")) ? (
+      <div className="grid-container">
+        <div className="grid-item">
+          <RadarChart
+            data={radarData}
+            title="General Metrics"
+            max={1}
+          />
+        </div>
+        {features.includes("pull-requests") && (
+          <div className="grid-item">
+            <PieChart
+              title="Pull requests state summary"
+              data={datapullRequests}
+              colors={colorsPR}
+            />
           </div>
-        </>
-      )}
+        )}
+        {features.includes("issues") && (
+          <div className="grid-item">
+            <PieChart
+              title="Issues state summary"
+              data={dataissues}
+              colors={colorsIssues}
+            />
+          </div>
+        )}
+        {features.includes("projects") && (
+          <div className="grid-item">
+            <PieChart
+              title="Project tasks state summary"
+              data={dataTasks}
+              colors={colorsProject}
+            />
+          </div>
+        )}
+      </div>
+    ) : (
+      <div>
+      <div className='only-commits-wrapper'>
+          <div className='only-commits-container'>
+            <GaugeChart
+            user = "non-anonymous" 
+            percentage={data.commits.total > 0 ? (data.commits.total - data.commits.anonymous) / data.commits.total : 0 }
+            totalPeople={1}
+          />
+        </div>
+        { historicData ?
+        (<div className='only-commits-line-container'>
+        <LineChart
+            xData={xData}
+            yData={yData}
+            xLabel="Date"
+            yLabel="Commits"
+            title="Commits Over Time"
+          />
+        </div>) : <div style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            fontSize: "1.8rem",
+            }}>
+            No s'ha trobat historic_metrics.json.<br />
+            Si és el primer dia, torna demà un cop<br />
+            s'hagi fet la primera execució del<br />
+            workflow Daily Metrics.
+            </div>}
+      </div>
+      </div>
+    )}
+  </>
+)}
+
   
       {showHistorical && (
         <div>
-          <h1>Historical Data</h1>
           {historicData ? (
             <div className='radar-charts-wrapper'>
               <div className='radar-chart-container'>
@@ -207,6 +265,7 @@ const transformPRDataForAreaChart = (data) => {
                   title="Commits Over Time"
                 />
               </div>
+               {/*
               <div className='radar-chart-container'>
                 <BarChart
                   xData={xData}
@@ -225,7 +284,7 @@ const transformPRDataForAreaChart = (data) => {
                   yLabel="Commits"
                   title="Commits Over Time"
                 />
-              </div>
+              </div>*/}
               {features.includes("issues") && (
               <div className='radar-chart-container'>
                 <AreaChart

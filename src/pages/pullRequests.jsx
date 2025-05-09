@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import GaugeChart from '../components/gaugeChart';
 import '../styles/commits.css';
-import RadarPieToggle
- from '../components/RadarPieToggle';
-function PullRequests({ data,features }) {
+import RadarPieToggle from '../components/RadarPieToggle';
+import LineChartMultiple from '../components/lineChartMultiple';
+
+function PullRequests({ data,historicData,features }) {
+  const [showHistorical, setShowHistorical] = useState(false);
   const pullRequests = data.pull_requests
   const createdby = pullRequests.created
   const mergedby = pullRequests.merged_per_member
@@ -13,19 +15,82 @@ function PullRequests({ data,features }) {
   const total = pullRequests.total
   const totalPeople = Object.keys(createdby).length;
   const merges = data.commit_merges
+
+  const transformCreatedPRsDataForLineChart = (data) => {
+    const xDataCreated = [];
+    const userSeries = {};
+  
+    for (const date in data) {
+      xDataCreated.push(date);
+      const created = data[date].pull_requests.created;
+  
+      for (const user in created) {
+        if (!userSeries[user]) {
+          userSeries[user] = [];
+        }
+        userSeries[user].push(created[user]);
+      }
+    }
+    const seriesDataCreated = Object.keys(userSeries).map(user => ({
+      name: user,
+      data: userSeries[user]
+    }));
+  
+    return { xDataCreated, seriesDataCreated };
+  };
+
+  const { xDataCreated, seriesDataCreated } = transformCreatedPRsDataForLineChart(historicData);
+
+  const transformMergedPRsDataForLineChart = (data) => {
+    const xDataMerged = [];
+    const userSeries = {};
+  
+    for (const date in data) {
+      xDataMerged.push(date);
+      const merged = data[date].pull_requests.merged_per_member;
+  
+      for (const user in merged) {
+        if (!userSeries[user]) {
+          userSeries[user] = [];
+        }
+        userSeries[user].push(merged[user]);
+      }
+    }
+    const seriesDataMerged = Object.keys(userSeries).map(user => ({
+      name: user,
+      data: userSeries[user]
+    }));
+  
+    return { xDataMerged, seriesDataMerged };
+  };
+
+  const { xDataMerged, seriesDataMerged } = transformMergedPRsDataForLineChart(historicData);
+
   return (
     <div className="commits-container">
       <h1>Pull requests</h1>
+      <div className="chart-toggle-wrapper-index">
+      <div className="chart-toggle-buttons">
+        <button 
+          onClick={() => setShowHistorical(false)}
+          className={!showHistorical ? 'selected' : ''}
+        >
+          Current
+        </button>
+        <button 
+          onClick={() => setShowHistorical(true)}
+          className={showHistorical ? 'selected' : ''}
+        >
+          Historical
+        </button>
+      </div>
+    </div>
+
+    {!showHistorical && (
+      <>
       <div className="section-background">
       <h2>Summary</h2>
       <div className="summary-charts-container">
-        <div className='chart-item'>
-        <RadarPieToggle
-          radarData={createdby}
-          pieData={Object.entries(createdby)}
-          title={"Created Pull Requests distribution"}
-        />
-        </div>
         <div className='chart-item'>
         <RadarPieToggle
           radarData={createdby}
@@ -58,7 +123,7 @@ function PullRequests({ data,features }) {
       </div> 
       <div> 
       <h2 className="section-title">
-        Pull requests not merged by author
+        Pull requests reviewed
         <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">
@@ -67,7 +132,7 @@ function PullRequests({ data,features }) {
         </span>
       </h2>
             <GaugeChart
-              user="Non-author merges"
+              user="Pull requests reviewed"
               percentage={totalMerged > 0 ? totalMergedNotByAuthor / totalMerged : 0}
               totalPeople={1}
             />
@@ -105,6 +170,7 @@ function PullRequests({ data,features }) {
           const percentage = total > 0 ? userPRs / total : 0;
           return (
           <GaugeChart
+            key={`created-${user}`}
             user={user}
             percentage={percentage}
             totalPeople={totalPeople}
@@ -125,6 +191,7 @@ function PullRequests({ data,features }) {
           const percentage = totalMerged > 0 ? userMergedPRs / totalMerged : 0;
           return (
             <GaugeChart
+              key={`merged-${user}`}
               user={user}
               percentage={percentage}
               totalPeople={totalPeople}
@@ -133,6 +200,50 @@ function PullRequests({ data,features }) {
         })}
         </div>
         </div>
+        </>
+      )}
+      {showHistorical && (
+        <>
+        {historicData ? (
+        <>
+        <div className="section-background">
+        <div className='radar-charts-wrapper'>
+        <div className='radar-chart-container'>
+        <LineChartMultiple
+            xData={xDataCreated}
+            seriesData={seriesDataCreated}
+            xLabel="Data"
+            yLabel="Pull requests"
+            title="Created pull requests distribution over time"
+          />
+          </div>
+          <div className='radar-chart-container'>
+        <LineChartMultiple
+            xData={xDataMerged}
+            seriesData={seriesDataMerged}
+            xLabel="Data"
+            yLabel="Pull requests"
+            title="Merged pull requests distribution over time"
+          />
+          </div>
+          </div>
+          </div>
+
+        </>)  : (
+            <div style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            fontSize: "1.8rem",
+            }}>
+            No s'ha trobat historic_metrics.json.<br />
+            Si és el primer dia, torna demà un cop
+            s'hagi fet la primera execució del
+            workflow Daily Metrics.
+            </div>)}
+         </>
+      )}
     </div>
   );
 }

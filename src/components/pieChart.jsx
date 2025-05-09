@@ -70,15 +70,26 @@ const PieChart = ({ title, data, colors }) => {
           },
         ],
         aria: {
-          enabled: usePatterns,
+          enabled: true,
           decal: {
-            show: usePatterns,
+            show: true,
           },
         },
       };
 
       chart.setOption(option);
 
+      chart.on('legendselectchanged', function (event) {
+        chart.setOption({
+          legend: {
+            selected: chartData.reduce((acc, item) => {
+              acc[item.name] = true;
+              return acc;
+            }, {})
+          }
+        });
+      });
+      
       return () => {
         chart.dispose();
       };
@@ -91,36 +102,6 @@ const PieChart = ({ title, data, colors }) => {
 
   return (
     <div style={{ width: '100%', textAlign: 'center' }}>
-      <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span>Trames</span>
-          <div
-            onClick={() => setUsePatterns((prev) => !prev)}
-            style={{
-              position: 'relative',
-              width: '42px',
-              height: '24px',
-              borderRadius: '999px',
-              background: usePatterns ? '#4CAF50' : '#ccc',
-              cursor: 'pointer',
-              transition: 'background 0.3s',
-            }}
-          >
-            <div
-              style={{
-                position: 'absolute',
-                top: '2px',
-                left: usePatterns ? '20px' : '2px',
-                width: '20px',
-                height: '20px',
-                background: 'white',
-                borderRadius: '50%',
-                transition: 'left 0.3s',
-              }}
-            />
-          </div>
-        </label>
-      </div>
 
       <div ref={chartRef} style={{ width: '100%', height: '350px' }}></div>
     </div>

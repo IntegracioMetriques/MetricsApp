@@ -3,7 +3,7 @@ import GaugeChart from '../components/gaugeChart';
 import RadarPieToggle from '../components/RadarPieToggle';
 import '../styles/commits.css';
 
-function Projects({ data,features }) {
+function Projects({ data,historicData,features }) {
   const taskData = data.project;
   const totalTasks = taskData.total;
   const totalInProgress = taskData.in_progress
@@ -26,13 +26,6 @@ function Projects({ data,features }) {
               radarData={assignedPerMember}
               pieData={Object.entries(assignedPerMember)}
               title={"Assigned Tasks distribution"}
-            />
-        </div>
-        <div className='chart-item'>
-          <RadarPieToggle
-              radarData={donePerMember}
-              pieData={Object.entries(donePerMember)}
-              title={"Assigned Tasks Done distribution"}
             />
         </div>
         <div>
@@ -79,7 +72,7 @@ function Projects({ data,features }) {
         })}
       </div>
       <h2 className="section-title">
-      In Progress tasks per user
+      Tasks In Progress per user
       <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">
@@ -103,7 +96,7 @@ function Projects({ data,features }) {
         })}
       </div>
       <h2 className="section-title">
-      Done tasks per user
+      Tasks Done per user
       <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">

@@ -55,9 +55,8 @@ const RadarChart = ({ data, title,max = null }) => {
             
               return formattedName;
             },
-            textStyle: {
-              align: 'center', 
-            },
+            align: 'center',
+            color: '#000000'
           },
         },
         series: [
