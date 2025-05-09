@@ -6,6 +6,7 @@ import LineChart from '../components/lineChart';
 import BarChart from '../components/barChart';
 import BarLineChart from '../components/barLineChart';
 import AreaChart from '../components/areaChart';
+import GaugeChart from '../components/gaugeChart';
 import AreaChartMultiple from '../components/areaChartMultiple';
 
 function Index({data,historicData,features}) {
@@ -14,9 +15,9 @@ function Index({data,historicData,features}) {
   const open = pullRequests.total - pullRequests.merged - pullRequests.closed
   const issues = data.issues
   const datapullRequests = [
-    ["Merged", pullRequests.merged],
     ["Open", open],
     ["Closed", pullRequests.closed],
+    ["Merged", pullRequests.merged],
   ];
   const dataissues = [
     ["Open",issues.total - issues.total_closed],
@@ -33,7 +34,7 @@ function Index({data,historicData,features}) {
     ["In Progress",totalInProgress],
     ["Done", totalDone]
   ]
-  const colorsPR = ["green", "red","orange"]; 
+  const colorsPR = ["red", "orange","green"];  
   const colorsIssues = ["red","green"];
   const colorsProject = ["red", "orange","green"]; 
   const nonAnonymousCommits = data.commits.total - data.commits.anonymous / data.commits.total
@@ -138,6 +139,7 @@ const transformPRDataForAreaChart = (data) => {
               </div>
             </div>
           </div>
+          {(features.includes("issues") || features.includes("pull-requests")) && (
           <div className="chart-toggle-wrapper-index">
             <div className="chart-toggle-buttons">
               <button 
@@ -153,44 +155,71 @@ const transformPRDataForAreaChart = (data) => {
                 Historical
               </button>
             </div>
-          </div>
+          </div>)}
           {!showHistorical && (
-        <>
-          <div className="grid-container">
-            <div className="grid-item">
-              <RadarChart
-                data={radarData}
-                title="General Metrics"
-                max={1}
-              />
-            </div>
-            {features.includes("pull-requests") && (
-            <div className="grid-item">
-              <PieChart
-                title="Pull requests state summary"
-                data={datapullRequests}
-                colors={colorsPR}
-              />
-            </div>)}
-            {features.includes("issues") && (
-            <div className="grid-item">
-              <PieChart
-                title="Issues state summary"
-                data={dataissues}
-                colors={colorsIssues}
-              />
-            </div>)}
-            {features.includes("projects") && (
-            <div className="grid-item">
-              <PieChart
-                title="Project tasks state summary"
-                data={dataTasks}
-                colors={colorsProject}
-              />
-            </div>)}
+  <>
+    {(features.includes("issues") || features.includes("pull-requests")) ? (
+      <div className="grid-container">
+        <div className="grid-item">
+          <RadarChart
+            data={radarData}
+            title="General Metrics"
+            max={1}
+          />
+        </div>
+        {features.includes("pull-requests") && (
+          <div className="grid-item">
+            <PieChart
+              title="Pull requests state summary"
+              data={datapullRequests}
+              colors={colorsPR}
+            />
           </div>
-        </>
-      )}
+        )}
+        {features.includes("issues") && (
+          <div className="grid-item">
+            <PieChart
+              title="Issues state summary"
+              data={dataissues}
+              colors={colorsIssues}
+            />
+          </div>
+        )}
+        {features.includes("projects") && (
+          <div className="grid-item">
+            <PieChart
+              title="Project tasks state summary"
+              data={dataTasks}
+              colors={colorsProject}
+            />
+          </div>
+        )}
+      </div>
+    ) : (
+      <div>
+      <div className='radar-charts-wrapper'>
+          <div className='radar-chart-container'>
+            <GaugeChart
+            user = "non-anonymous" 
+            percentage={data.commits.total > 0 ? (data.commits.total - data.commits.anonymous) / data.commits.total : 0 }
+            totalPeople={1}
+          />
+        </div>
+        <div className='radar-chart-container'>
+        <LineChart
+            xData={xData}
+            yData={yData}
+            xLabel="Date"
+            yLabel="Commits"
+            title="Commits Over Time"
+          />
+        </div>
+      </div>
+      </div>
+    )}
+  </>
+)}
+
   
       {showHistorical && (
         <div>
