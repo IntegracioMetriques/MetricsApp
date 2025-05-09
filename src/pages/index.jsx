@@ -62,7 +62,7 @@ function Index({data,historicData,features}) {
       'Pull Requests Merges': data.pull_requests.merged / data.commit_merges,
     };
   }
-  else if (features.includes('issues') && (features.includes('pull-requests'))) {
+  else if (features.includes('issues') && !(features.includes('pull-requests'))) {
     radarData = {
       'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
       'Issues Assigned': (data.issues.total - data.issues.assigned.non_assigned) / data.issues.total,
