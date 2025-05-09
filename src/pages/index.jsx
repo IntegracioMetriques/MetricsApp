@@ -66,7 +66,6 @@ function Index({data,historicData,features}) {
     radarData = {
       'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
       'Issues Assigned': (data.issues.total - data.issues.assigned.non_assigned) / data.issues.total,
-      'Issues associated PR': data.issues.have_pull_request / data.issues.total_closed,
     };
   } else {
     radarData = {
@@ -217,15 +216,15 @@ const transformPRDataForAreaChart = (data) => {
       </div>
     ) : (
       <div>
-      <div className='radar-charts-wrapper'>
-          <div className='radar-chart-container'>
+      <div className='only-commits-wrapper'>
+          <div className='only-commits-container'>
             <GaugeChart
             user = "non-anonymous" 
             percentage={data.commits.total > 0 ? (data.commits.total - data.commits.anonymous) / data.commits.total : 0 }
             totalPeople={1}
           />
         </div>
-        <div className='radar-chart-container'>
+        <div className='only-commits-line-container'>
         <LineChart
             xData={xData}
             yData={yData}
@@ -254,6 +253,7 @@ const transformPRDataForAreaChart = (data) => {
                   title="Commits Over Time"
                 />
               </div>
+               {/*
               <div className='radar-chart-container'>
                 <BarChart
                   xData={xData}
@@ -272,7 +272,7 @@ const transformPRDataForAreaChart = (data) => {
                   yLabel="Commits"
                   title="Commits Over Time"
                 />
-              </div>
+              </div>*/}
               {features.includes("issues") && (
               <div className='radar-chart-container'>
                 <AreaChart
