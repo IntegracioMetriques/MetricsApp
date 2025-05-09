@@ -279,6 +279,8 @@ function Individual({ data, historicData, features }) {
                 title="Modified Lines Over Time"
                 />
               </div>
+            {features.includes("issues") && (
+
               <div className='radar-chart-container'>
              <LineChart
                 xData={xDataAssignedIssues}
@@ -287,7 +289,8 @@ function Individual({ data, historicData, features }) {
                 yLabel="Issues"
                 title="Assigned Issues Over Time"
                 />
-              </div>
+              </div>)}
+            {features.includes("issues") && (
               <div className='radar-chart-container'>
              <LineChart
                 xData={xDataClosedIssues}
@@ -296,7 +299,8 @@ function Individual({ data, historicData, features }) {
                 yLabel="Issues"
                 title="Clossed Issues Over Time"
                 />
-              </div>
+              </div>)}
+            {features.includes("pull-requests") && (
               <div className='radar-chart-container'>
              <LineChart
                 xData={xDataCreatedPRs}
@@ -305,7 +309,8 @@ function Individual({ data, historicData, features }) {
                 yLabel="Pull Requests"
                 title="Pull Requests Created Over Time"
                 />
-              </div>
+              </div>)}
+              {features.includes("pull-requests") && (
               <div className='radar-chart-container'>
              <LineChart
                 xData={xDataMergedPRs}
@@ -314,7 +319,7 @@ function Individual({ data, historicData, features }) {
                 yLabel="Pull Requests"
                 title="Pull Requests Merged Over Time"
                 />
-              </div>
+              </div>)}
           </div>
       </>) : (
             <div style={{

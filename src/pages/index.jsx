@@ -224,7 +224,8 @@ const transformPRDataForAreaChart = (data) => {
             totalPeople={1}
           />
         </div>
-        <div className='only-commits-line-container'>
+        { historicData ?
+        (<div className='only-commits-line-container'>
         <LineChart
             xData={xData}
             yData={yData}
@@ -232,7 +233,18 @@ const transformPRDataForAreaChart = (data) => {
             yLabel="Commits"
             title="Commits Over Time"
           />
-        </div>
+        </div>) : <div style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            fontSize: "1.8rem",
+            }}>
+            No s'ha trobat historic_metrics.json.<br />
+            Si és el primer dia, torna demà un cop<br />
+            s'hagi fet la primera execució del<br />
+            workflow Daily Metrics.
+            </div>}
       </div>
       </div>
     )}
