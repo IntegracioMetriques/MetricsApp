@@ -123,7 +123,7 @@ function PullRequests({ data,historicData,features }) {
       </div> 
       <div> 
       <h2 className="section-title">
-        Pull requests not merged by author
+        Pull requests reviewed
         <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">
@@ -132,7 +132,7 @@ function PullRequests({ data,historicData,features }) {
         </span>
       </h2>
             <GaugeChart
-              user="Non-author merges"
+              user="Pull requests reviewed"
               percentage={totalMerged > 0 ? totalMergedNotByAuthor / totalMerged : 0}
               totalPeople={1}
             />
