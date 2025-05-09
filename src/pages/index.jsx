@@ -43,16 +43,36 @@ function Index({data,historicData,features}) {
   const pullRequestsMerged = data.pull_requests.merged / data.pull_requests.total - data.pull_requests.closed
   const pullRequestsReviewed = data.pull_requests.not_merged_by_author / data.pull_requests.merged
   const pullRequestsMerges = data.pull_requests.merged / data.commit_merges
-
-  const radarData = {
-    'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
-    'Issues Assigned': (data.issues.total - data.issues.assigned.non_assigned) / data.issues.total,
-    'Issues associated PR': data.issues.have_pull_request / data.issues.total_closed,
-    'Pull Requests Merged': data.pull_requests.merged / (data.pull_requests.total - data.pull_requests.closed),
-    'Pull Requests Reviewed': data.pull_requests.not_merged_by_author / data.pull_requests.merged,
-    'Pull Requests Merges': data.pull_requests.merged / data.commit_merges,
-  };
-
+  let radarData;
+  if (features.includes('issues') && features.includes('pull-requests')) {
+    radarData = {
+      'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
+      'Issues Assigned': (data.issues.total - data.issues.assigned.non_assigned) / data.issues.total,
+      'Issues associated PR': data.issues.have_pull_request / data.issues.total_closed,
+      'Pull Requests Merged': data.pull_requests.merged / (data.pull_requests.total - data.pull_requests.closed),
+      'Pull Requests Reviewed': data.pull_requests.not_merged_by_author / data.pull_requests.merged,
+      'Pull Requests Merges': data.pull_requests.merged / data.commit_merges,
+    };
+  }
+  else if (!(features.includes('issues')) && features.includes('pull-requests')) {
+    radarData = {
+      'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
+      'Pull Requests Merged': data.pull_requests.merged / (data.pull_requests.total - data.pull_requests.closed),
+      'Pull Requests Reviewed': data.pull_requests.not_merged_by_author / data.pull_requests.merged,
+      'Pull Requests Merges': data.pull_requests.merged / data.commit_merges,
+    };
+  }
+  else if (features.includes('issues') && (features.includes('pull-requests'))) {
+    radarData = {
+      'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
+      'Issues Assigned': (data.issues.total - data.issues.assigned.non_assigned) / data.issues.total,
+      'Issues associated PR': data.issues.have_pull_request / data.issues.total_closed,
+    };
+  } else {
+    radarData = {
+      'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
+    };
+  }
   const transformDataForLineChart = (data) => {
     const xData = []; 
     const yData = []; 
