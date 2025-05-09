@@ -120,6 +120,7 @@
     border-radius: 5px;
     font-size: 1em;
     background-color: #1c3d5d;
+    color: #ffffff;
   }
 
   .user-selector:focus {
