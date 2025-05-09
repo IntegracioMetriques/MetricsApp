@@ -70,15 +70,27 @@ const LineChartMultiple = ({ xData, seriesData, xLabel, yLabel, title }) => {
     };
 
     chart.setOption(option);
-
+    
     chart.on('legendselectchanged', function (params) {
       const selectedName = params.name;
       const allNames = seriesData.map(s => s.name);
+      const selected = params.selected;
+       console.log( selected)
+      const selectedCount = Object.values(selected).filter(v => v).length;
 
-      const newSelection = {};
-      allNames.forEach(name => {
-        newSelection[name] = name === selectedName;
-      });
+      let newSelection = {};
+          console.log(selectedCount)
+
+      if (selectedCount === 0) {
+        allNames.forEach(name => {
+          newSelection[name] = true;
+        });
+      } else {
+        allNames.forEach(name => {
+          console.log(name)
+          newSelection[name] = name === selectedName;
+        });
+      }
 
       chart.setOption({
         legend: {
