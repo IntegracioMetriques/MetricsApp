@@ -11,6 +11,7 @@ import AreaChartMultiple from '../components/areaChartMultiple';
 
 function Index({data,historicData,features}) {
   const [showHistorical, setShowHistorical] = useState(false);
+  const [dateRange, setDateRange] = useState("7");
   const pullRequests = data.pull_requests;
   const open = pullRequests.total - pullRequests.merged - pullRequests.closed
   const issues = data.issues
@@ -23,6 +24,24 @@ function Index({data,historicData,features}) {
     ["Open",issues.total - issues.total_closed],
     ["Closed",issues.total_closed]
   ]
+  const filterHistoricData = (data, days) => {
+    if (days === "lifetime") return data;
+
+    const today = new Date();
+    const cutoff = new Date(today);
+    cutoff.setDate(today.getDate() - parseInt(days));
+    const cutoffDateString = cutoff.toISOString().split("T")[0];
+    console.log(cutoffDateString)
+    const filtered = {};
+    for (const date in data) {
+      if (date >= cutoffDateString) {
+        filtered[date] = data[date];
+      }
+    }
+
+    return filtered;
+  };
+  const filteredhistoricaData = filterHistoricData(historicData,dateRange)
 
   const taskData = data.project;
   const totalTasks = taskData.total;
@@ -82,7 +101,7 @@ function Index({data,historicData,features}) {
       
     return { xData, yData };
     };
-const { xData, yData } = transformDataForLineChart(historicData);
+const { xData, yData } = transformDataForLineChart(filteredhistoricaData);
 const transformIssuesDataForAreaChart = (data) => {
   const xDataIssues = [];
   const closedIssues = [];
@@ -98,7 +117,7 @@ const transformIssuesDataForAreaChart = (data) => {
     }
     return { xDataIssues, closedIssues, openIssues };
   };
-const { xDataIssues, closedIssues, openIssues } = transformIssuesDataForAreaChart(historicData);
+const { xDataIssues, closedIssues, openIssues } = transformIssuesDataForAreaChart(filteredhistoricaData);
 const transformPRDataForAreaChart = (data) => {
   const xDataPRs = [];
   const mergedPRs = [];
@@ -115,7 +134,7 @@ const transformPRDataForAreaChart = (data) => {
     }
     return { xDataPRs, mergedPRs, openPRs };
   };
-  const { xDataPRs, mergedPRs, openPRs } = transformPRDataForAreaChart(historicData);
+  const { xDataPRs, mergedPRs, openPRs } = transformPRDataForAreaChart(filteredhistoricaData);
   
   const transformTaskDataForAreaChart = (data) => {
     const xDataTask = [];
@@ -135,7 +154,7 @@ const transformPRDataForAreaChart = (data) => {
       }
       return { xDataTask, doneTask, inProgressTask,toDoTask };
     };
-  const { xDataTask, doneTask, inProgressTask,toDoTask } = transformTaskDataForAreaChart(historicData);
+  const { xDataTask, doneTask, inProgressTask,toDoTask } = transformTaskDataForAreaChart(filteredhistoricaData);
   return (
     <div>
       <h1>General overview</h1>
@@ -175,6 +194,23 @@ const transformPRDataForAreaChart = (data) => {
               </button>
             </div>
           </div>)}
+            
+          {showHistorical && (
+            <div className = "day-selector-wrapper">
+            <select className='day-selector'
+              onChange={(e) => setDateRange(e.target.value)} 
+              value={dateRange}
+              style={{ marginLeft: '1rem' }}
+            >
+              <option value="7">Last 7 days</option>
+              <option value="15">Last 15 days</option>
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 3 months</option>
+              <option value="lifetime">Lifetime</option>
+            </select>
+            </div>
+          )}
+          
           {!showHistorical && (
   <>
     {(features.includes("issues") || features.includes("pull-requests")) ? (
