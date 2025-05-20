@@ -132,6 +132,26 @@
     border-radius: 50%;
     margin-bottom: 10px;
   }
+
+  .day-selector-indv {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 1em;
+    background-color: #1c3d5d;
+    color: #ffffff;
+
+  }
+
+  .day-selector-wrapper-indv {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .day-selector-indv:focus {
+    outline: none;
+  }
+
   
   .individual-user-card.horizontal-layout {
     display: flex;

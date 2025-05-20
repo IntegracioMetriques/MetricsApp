@@ -6,7 +6,25 @@ import GaugeChart from '../components/gaugeChart';
 function Individual({ data, historicData, features }) {
   const [selectedUser, setSelectedUser] = useState(Object.keys(data.commits).filter(user => user !== 'anonymous' && user !== 'total')[0]);
   const [showHistorical, setShowHistorical] = useState(false);
+  const [dateRange, setDateRange] = useState("7");
+  const filterHistoricData = (data, days) => {
+    if (days === "lifetime") return data;
 
+    const today = new Date();
+    const cutoff = new Date(today);
+    cutoff.setDate(today.getDate() - parseInt(days));
+    const cutoffDateString = cutoff.toISOString().split("T")[0];
+    console.log(cutoffDateString)
+    const filtered = {};
+    for (const date in data) {
+      if (date >= cutoffDateString) {
+        filtered[date] = data[date];
+      }
+    }
+
+    return filtered;
+  };
+  const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
   const users = Object.keys(data.commits).filter(user => user !== 'anonymous' && user !== 'total');
   const avatar = data.avatars[selectedUser] || "";
   const commits = data.commits[selectedUser] || 0;
@@ -46,7 +64,7 @@ function Individual({ data, historicData, features }) {
     return { xDataCommits, yDataCommits };
   };
 
-  const { xDataCommits, yDataCommits } = transformCommitsDataForUser(historicData, selectedUser)
+  const { xDataCommits, yDataCommits } = transformCommitsDataForUser(filteredhistoricaData, selectedUser)
   
   const transformModifiedLinesDataForUser = (data, username) => {
     const xDataModifiedLines = [];
@@ -60,7 +78,7 @@ function Individual({ data, historicData, features }) {
   
     return { xDataModifiedLines, yDataModifiedLines };
   };
-  const { xDataModifiedLines, yDataModifiedLines } = transformModifiedLinesDataForUser(historicData, selectedUser)
+  const { xDataModifiedLines, yDataModifiedLines } = transformModifiedLinesDataForUser(filteredhistoricaData, selectedUser)
 
   const transformAssignedIssuesDataForUser = (data, username) => {
     const xDataAssignedIssues = [];
@@ -73,7 +91,7 @@ function Individual({ data, historicData, features }) {
   
     return { xDataAssignedIssues, yDataAssignedIssues };
   };
-  const { xDataAssignedIssues, yDataAssignedIssues } = transformAssignedIssuesDataForUser(historicData, selectedUser);
+  const { xDataAssignedIssues, yDataAssignedIssues } = transformAssignedIssuesDataForUser(filteredhistoricaData, selectedUser);
 
   const transformClosedIssuesDataForUser = (data, username) => {
     const xDataClosedIssues = [];
@@ -87,7 +105,7 @@ function Individual({ data, historicData, features }) {
     return { xDataClosedIssues, yDataClosedIssues };
   };
 
-  const { xDataClosedIssues, yDataClosedIssues } = transformClosedIssuesDataForUser(historicData, selectedUser);
+  const { xDataClosedIssues, yDataClosedIssues } = transformClosedIssuesDataForUser(filteredhistoricaData, selectedUser);
 
 
   const transformCreatedPRsDataForUser = (data, username) => {
@@ -101,7 +119,7 @@ function Individual({ data, historicData, features }) {
   
     return { xDataCreatedPRs, yDataCreatedPRs };
   };
-  const { xDataCreatedPRs, yDataCreatedPRs } = transformCreatedPRsDataForUser(historicData, selectedUser);
+  const { xDataCreatedPRs, yDataCreatedPRs } = transformCreatedPRsDataForUser(filteredhistoricaData, selectedUser);
 
   const transformMergedPRsDataForUser = (data, username) => {
     const xDataMergedPRs = [];
@@ -114,7 +132,7 @@ function Individual({ data, historicData, features }) {
   
     return { xDataMergedPRs, yDataMergedPRs };
   };
-  const { xDataMergedPRs, yDataMergedPRs } = transformMergedPRsDataForUser(historicData, selectedUser);
+  const { xDataMergedPRs, yDataMergedPRs } = transformMergedPRsDataForUser(filteredhistoricaData, selectedUser);
 
   return (
     <div>
@@ -163,6 +181,23 @@ function Individual({ data, historicData, features }) {
         </button>
       </div>
     </div>
+
+    {showHistorical && (
+            <div className = "day-selector-wrapper-indv">
+            <select className='day-selector-indv'
+              onChange={(e) => setDateRange(e.target.value)} 
+              value={dateRange}
+              style={{ marginLeft: '1rem' }}
+            >
+              <option value="7">Last 7 days</option>
+              <option value="15">Last 15 days</option>
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 3 months</option>
+              <option value="lifetime">Lifetime</option>
+            </select>
+            </div>
+          )}
+
     {!showHistorical && (
       <>
       <div className="grid-container">

@@ -1,12 +1,32 @@
 import React, { useState } from 'react';
 import GaugeChart from '../components/gaugeChart';
-import RadarPieToggle from '../components/RadarPieToggle';
+import RadarPieToggle from '../components/radarPieToggle';
 import LineChartMultiple from '../components/lineChartMultiple';
 
 import '../styles/commits.css';
 
 function Issues({ data,historicData,features }) {
   const [showHistorical, setShowHistorical] = useState(false);
+    const [dateRange, setDateRange] = useState("7");
+    const filterHistoricData = (data, days) => {
+      if (days === "lifetime") return data;
+  
+      const today = new Date();
+      const cutoff = new Date(today);
+      cutoff.setDate(today.getDate() - parseInt(days));
+      const cutoffDateString = cutoff.toISOString().split("T")[0];
+      console.log(cutoffDateString)
+      const filtered = {};
+      for (const date in data) {
+        if (date >= cutoffDateString) {
+          filtered[date] = data[date];
+        }
+      }
+  
+      return filtered;
+    };
+    const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
+
   const issuesData = data.issues;
   const totalIssues = issuesData.total;
   const totalClosed = issuesData.total_closed
@@ -41,7 +61,7 @@ function Issues({ data,historicData,features }) {
     return { xDataAssigned, seriesDataAssigned};
   };
 
-    const { xDataAssigned, seriesDataAssigned } = transformAssignedPRsDataForLineChart(historicData);
+    const { xDataAssigned, seriesDataAssigned } = transformAssignedPRsDataForLineChart(filteredhistoricaData);
 
 
   return (
@@ -63,6 +83,23 @@ function Issues({ data,historicData,features }) {
         </button>
       </div>
     </div>
+
+    {showHistorical && (
+        <div className = "day-selector-wrapper-comm">
+        <select className='day-selector-comm'
+          onChange={(e) => setDateRange(e.target.value)} 
+          value={dateRange}
+          style={{ marginLeft: '1rem' }}
+        >
+          <option value="7">Last 7 days</option>
+          <option value="15">Last 15 days</option>
+          <option value="30">Last 30 days</option>
+          <option value="90">Last 3 months</option>
+          <option value="lifetime">Lifetime</option>
+        </select>
+        </div>
+      )}
+
         {!showHistorical && (
       <>
       <div className='section-background'>

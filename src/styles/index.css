@@ -73,6 +73,25 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+.day-selector {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 1em;
+    background-color: #1c3d5d;
+    color: #ffffff;
+
+}
+
+.day-selector-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.day-selector:focus {
+    outline: none;
+  }
+
 .chart-toggle-wrapper-index {
   display: flex;
   align-items: center;

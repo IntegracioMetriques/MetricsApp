@@ -1,9 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import GaugeChart from '../components/gaugeChart';
-import RadarPieToggle from '../components/RadarPieToggle';
+import RadarPieToggle from '../components/radarPieToggle';
+import LineChartMultiple  from '../components/lineChartMultiple';
 import '../styles/commits.css';
 
 function Projects({ data,historicData,features }) {
+  const [showHistorical, setShowHistorical] = useState(false);
+  const [dateRange, setDateRange] = useState("7");
+  const filterHistoricData = (data, days) => {
+    if (days === "lifetime") return data;
+  
+    const today = new Date();
+    const cutoff = new Date(today);
+    cutoff.setDate(today.getDate() - parseInt(days));
+    const cutoffDateString = cutoff.toISOString().split("T")[0];
+    console.log(cutoffDateString)
+    const filtered = {};
+    for (const date in data) {
+      if (date >= cutoffDateString) {
+        filtered[date] = data[date];
+      }
+    }
+  
+      return filtered;
+    };
+  const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
+
   const taskData = data.project;
   const totalTasks = taskData.total;
   const totalInProgress = taskData.in_progress
@@ -15,9 +37,71 @@ function Projects({ data,historicData,features }) {
   const inProgresPerMember = taskData.in_progress_per_member;
   const donePerMember = taskData.done_per_member;
   const totalPeople = Object.keys(assignedPerMember).length;
+
+  const transformAssignedPRsDataForLineChart = (data) => {
+  const xDataAssigned = [];
+  const userSeries = {};
+  
+  for (const date in data) {
+    xDataAssigned.push(date);
+    const tasks = data[date].project.assigned_per_member;
+      
+    for (const user in tasks) {
+      if(user === 'non_assigned') continue;
+        if (!userSeries[user]) {
+          userSeries[user] = [];
+        }
+        userSeries[user].push(tasks[user]);
+      }
+    }
+    const seriesDataAssigned = Object.keys(userSeries).map(user => ({
+      name: user,
+      data: userSeries[user]
+    }));
+  
+    return { xDataAssigned, seriesDataAssigned};
+  };
+
+    const { xDataAssigned, seriesDataAssigned } = transformAssignedPRsDataForLineChart(filteredhistoricaData);
+
   return (
+    
     <div className="commits-container">
       <h1>Projects</h1>
+       <div className="chart-toggle-wrapper-index">
+      <div className="chart-toggle-buttons">
+        <button 
+          onClick={() => setShowHistorical(false)}
+          className={!showHistorical ? 'selected' : ''}
+        >
+          Current
+        </button>
+        <button 
+          onClick={() => setShowHistorical(true)}
+          className={showHistorical ? 'selected' : ''}
+        >
+          Historical
+        </button>
+      </div>
+    </div>
+
+        {showHistorical && (
+        <div className = "day-selector-wrapper-comm">
+        <select className='day-selector-comm'
+          onChange={(e) => setDateRange(e.target.value)} 
+          value={dateRange}
+          style={{ marginLeft: '1rem' }}
+        >
+          <option value="7">Last 7 days</option>
+          <option value="15">Last 15 days</option>
+          <option value="30">Last 30 days</option>
+          <option value="90">Last 3 months</option>
+          <option value="lifetime">Lifetime</option>
+        </select>
+        </div>
+      )}
+      {!showHistorical && (
+      <>
       <div className='section-background'>
       <h2>Summary</h2>
       <div className="summary-charts-container">
@@ -119,6 +203,40 @@ function Projects({ data,historicData,features }) {
         })}
       </div>
     </div>
+      </>)} 
+
+      {showHistorical && (
+        <>
+        {historicData ? (
+        <>
+        <div className="section-background">
+        <div className='radar-charts-wrapper'>
+        <div className='radar-chart-container'>
+        <LineChartMultiple
+            xData={xDataAssigned}
+            seriesData={seriesDataAssigned}
+            xLabel="Data"
+            yLabel="Tasks"
+            title="Assigned tasks distribution over time"
+          />
+          </div>
+          </div>
+          </div>
+        </>)  : (
+            <div style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            fontSize: "1.8rem",
+            }}>
+            No s'ha trobat historic_metrics.json.<br />
+            Si és el primer dia, torna demà un cop
+            s'hagi fet la primera execució del
+            workflow Daily Metrics.
+            </div>)}
+         </>
+      )}
     </div>
   );
 }
