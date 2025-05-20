@@ -8,10 +8,11 @@ import BarLineChart from '../components/barLineChart';
 import AreaChart from '../components/areaChart';
 import GaugeChart from '../components/gaugeChart';
 import AreaChartMultiple from '../components/areaChartMultiple';
+import usePersistentStateSession  from '../components/usePersistentStateSession';
 
 function Index({data,historicData,features}) {
-  const [showHistorical, setShowHistorical] = useState(false);
-  const [dateRange, setDateRange] = useState("7");
+  const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalIndex', false);
+  const [dateRange, setDateRange] = usePersistentStateSession('dateRangeIndex', "7");
   const pullRequests = data.pull_requests;
   const open = pullRequests.total - pullRequests.merged - pullRequests.closed
   const issues = data.issues
@@ -31,7 +32,6 @@ function Index({data,historicData,features}) {
     const cutoff = new Date(today);
     cutoff.setDate(today.getDate() - parseInt(days));
     const cutoffDateString = cutoff.toISOString().split("T")[0];
-    console.log(cutoffDateString)
     const filtered = {};
     for (const date in data) {
       if (date >= cutoffDateString) {

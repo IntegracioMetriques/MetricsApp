@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import "../styles/individual.css";
 import LineChart from '../components/lineChart';
 import GaugeChart from '../components/gaugeChart';
+import usePersistentStateSession  from '../components/usePersistentStateSession';
+import usePersistentState  from '../components/usePersistentState';
 
 function Individual({ data, historicData, features }) {
-  const [selectedUser, setSelectedUser] = useState(Object.keys(data.commits).filter(user => user !== 'anonymous' && user !== 'total')[0]);
-  const [showHistorical, setShowHistorical] = useState(false);
-  const [dateRange, setDateRange] = useState("7");
+  const [selectedUser, setSelectedUser] = usePersistentState("selectedUser",Object.keys(data.commits).filter(user => user !== 'anonymous' && user !== 'total')[0]);
+  const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalIndividual', false);
+  const [dateRange, setDateRange] = usePersistentStateSession('dateRangeIndividual', "7");
   const filterHistoricData = (data, days) => {
     if (days === "lifetime") return data;
 
@@ -14,7 +16,6 @@ function Individual({ data, historicData, features }) {
     const cutoff = new Date(today);
     cutoff.setDate(today.getDate() - parseInt(days));
     const cutoffDateString = cutoff.toISOString().split("T")[0];
-    console.log(cutoffDateString)
     const filtered = {};
     for (const date in data) {
       if (date >= cutoffDateString) {

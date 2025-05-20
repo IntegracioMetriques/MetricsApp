@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import GaugeChart from '../components/gaugeChart';
 import RadarPieToggle from '../components/radarPieToggle';
 import LineChartMultiple  from '../components/lineChartMultiple';
+import usePersistentStateSession  from '../components/usePersistentStateSession';
+
 import '../styles/commits.css';
 
 function Projects({ data,historicData,features }) {
-  const [showHistorical, setShowHistorical] = useState(false);
-  const [dateRange, setDateRange] = useState("7");
+  const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalProject', false);
+  const [dateRange, setDateRange] = usePersistentStateSession('dateRangeProject', "7");
   const filterHistoricData = (data, days) => {
     if (days === "lifetime") return data;
   
@@ -14,7 +16,6 @@ function Projects({ data,historicData,features }) {
     const cutoff = new Date(today);
     cutoff.setDate(today.getDate() - parseInt(days));
     const cutoffDateString = cutoff.toISOString().split("T")[0];
-    console.log(cutoffDateString)
     const filtered = {};
     for (const date in data) {
       if (date >= cutoffDateString) {
