@@ -1,0 +1,133 @@
+.commits-container {
+    text-align: center; 
+  }
+  
+  .gauge-charts-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center; 
+    gap: 20px; 
+    padding: 20px;
+    margin-top: 20px;
+  }
+
+  .summary-charts-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center; 
+    gap: 40px; 
+    padding: 20px;
+    margin-top: 20px;
+  }
+  
+  .gauge-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 250px;
+    height: 200px;
+  }
+
+  .chart-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 400px;
+  }
+  
+  h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+  }
+
+  .day-selector-comm {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 1em;
+    background-color: #1c3d5d;
+    color: #ffffff;
+  }
+
+  .day-selector-wrapper-comm {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 0.5rem;
+  }
+
+  .day-selector-comm:focus {
+    outline: none;
+  }
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0.5rem;
+  margin-top: 0rem;
+  color: #333;
+  justify-content: center;
+}
+
+
+.section-background {
+  background-color: #ffffff;
+  margin: 0 auto;
+  padding: 0.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  width: 85vw;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem
+}
+
+.custom-tooltip {
+  position: relative;
+  display: inline-block;
+  font-size: 0.85rem;
+  color: #888;
+  cursor: pointer;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: max-content;
+  max-width: 250px;
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  padding: 6px 10px;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  font-size: 0.75rem;
+  white-space: normal;
+}
+
+.custom-tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.radar-charts-wrapper {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.radar-chart-container {
+  width: 450px;
+  height: 350px;
+}
