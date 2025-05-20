@@ -41,7 +41,7 @@ function Index({data,historicData,features}) {
 
     return filtered;
   };
-  const filteredhistoricaData = filterHistoricData(historicData,dateRange)
+  const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
 
   const taskData = data.project;
   const totalTasks = taskData.total;

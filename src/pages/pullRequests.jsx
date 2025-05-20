@@ -6,6 +6,26 @@ import LineChartMultiple from '../components/lineChartMultiple';
 
 function PullRequests({ data,historicData,features }) {
   const [showHistorical, setShowHistorical] = useState(false);
+    const [dateRange, setDateRange] = useState("7");
+    const filterHistoricData = (data, days) => {
+      if (days === "lifetime") return data;
+  
+      const today = new Date();
+      const cutoff = new Date(today);
+      cutoff.setDate(today.getDate() - parseInt(days));
+      const cutoffDateString = cutoff.toISOString().split("T")[0];
+      console.log(cutoffDateString)
+      const filtered = {};
+      for (const date in data) {
+        if (date >= cutoffDateString) {
+          filtered[date] = data[date];
+        }
+      }
+  
+      return filtered;
+    };
+  const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
+
   const pullRequests = data.pull_requests
   const createdby = pullRequests.created
   const mergedby = pullRequests.merged_per_member
@@ -39,7 +59,7 @@ function PullRequests({ data,historicData,features }) {
     return { xDataCreated, seriesDataCreated };
   };
 
-  const { xDataCreated, seriesDataCreated } = transformCreatedPRsDataForLineChart(historicData);
+  const { xDataCreated, seriesDataCreated } = transformCreatedPRsDataForLineChart(filteredhistoricaData);
 
   const transformMergedPRsDataForLineChart = (data) => {
     const xDataMerged = [];
@@ -64,7 +84,7 @@ function PullRequests({ data,historicData,features }) {
     return { xDataMerged, seriesDataMerged };
   };
 
-  const { xDataMerged, seriesDataMerged } = transformMergedPRsDataForLineChart(historicData);
+  const { xDataMerged, seriesDataMerged } = transformMergedPRsDataForLineChart(filteredhistoricaData);
 
   return (
     <div className="commits-container">
@@ -85,6 +105,22 @@ function PullRequests({ data,historicData,features }) {
         </button>
       </div>
     </div>
+
+        {showHistorical && (
+        <div className = "day-selector-wrapper-comm">
+        <select className='day-selector-comm'
+          onChange={(e) => setDateRange(e.target.value)} 
+          value={dateRange}
+          style={{ marginLeft: '1rem' }}
+        >
+          <option value="7">Last 7 days</option>
+          <option value="15">Last 15 days</option>
+          <option value="30">Last 30 days</option>
+          <option value="90">Last 3 months</option>
+          <option value="lifetime">Lifetime</option>
+        </select>
+        </div>
+      )}
 
     {!showHistorical && (
       <>

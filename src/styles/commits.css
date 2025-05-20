@@ -42,6 +42,25 @@
     margin-bottom: 20px;
   }
 
+  .day-selector-comm {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 1em;
+    background-color: #1c3d5d;
+    color: #ffffff;
+  }
+
+  .day-selector-wrapper-comm {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 0.5rem;
+  }
+
+  .day-selector-comm:focus {
+    outline: none;
+  }
+
 .section-title {
   font-size: 1.1rem;
   font-weight: 600;

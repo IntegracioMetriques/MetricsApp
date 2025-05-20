@@ -1,9 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import GaugeChart from '../components/gaugeChart';
 import RadarPieToggle from '../components/RadarPieToggle';
 import '../styles/commits.css';
 
 function Projects({ data,historicData,features }) {
+  const [showHistorical, setShowHistorical] = useState(false);
+  const [dateRange, setDateRange] = useState("7");
+  const filterHistoricData = (data, days) => {
+    if (days === "lifetime") return data;
+  
+    const today = new Date();
+    const cutoff = new Date(today);
+    cutoff.setDate(today.getDate() - parseInt(days));
+    const cutoffDateString = cutoff.toISOString().split("T")[0];
+    console.log(cutoffDateString)
+    const filtered = {};
+    for (const date in data) {
+      if (date >= cutoffDateString) {
+        filtered[date] = data[date];
+      }
+    }
+  
+      return filtered;
+    };
+  const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
+
   const taskData = data.project;
   const totalTasks = taskData.total;
   const totalInProgress = taskData.in_progress
