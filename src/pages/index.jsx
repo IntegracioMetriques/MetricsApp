@@ -8,10 +8,11 @@ import BarLineChart from '../components/barLineChart';
 import AreaChart from '../components/areaChart';
 import GaugeChart from '../components/gaugeChart';
 import AreaChartMultiple from '../components/areaChartMultiple';
+import usePersistentState  from '../components/usePersistentState';
 
 function Index({data,historicData,features}) {
-  const [showHistorical, setShowHistorical] = useState(false);
-  const [dateRange, setDateRange] = useState("7");
+  const [showHistorical, setShowHistorical] = usePersistentState('showHistoricalIndex', false);
+  const [dateRange, setDateRange] = usePersistentState('dateRangeIndex', "7");
   const pullRequests = data.pull_requests;
   const open = pullRequests.total - pullRequests.merged - pullRequests.closed
   const issues = data.issues

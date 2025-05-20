@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import GaugeChart from '../components/gaugeChart';
 import RadarPieToggle from '../components/radarPieToggle';
 import LineChartMultiple from '../components/lineChartMultiple';
+import usePersistentState  from '../components/usePersistentState';
 
 import '../styles/commits.css';
 
 function Issues({ data,historicData,features }) {
-  const [showHistorical, setShowHistorical] = useState(false);
-    const [dateRange, setDateRange] = useState("7");
+  const [showHistorical, setShowHistorical] = usePersistentState('showHistoricalIssues', false);
+  const [dateRange, setDateRange] = usePersistentState('dateRangeIssues', "7");
     const filterHistoricData = (data, days) => {
       if (days === "lifetime") return data;
   

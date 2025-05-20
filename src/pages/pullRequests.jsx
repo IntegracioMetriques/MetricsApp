@@ -3,10 +3,11 @@ import GaugeChart from '../components/gaugeChart';
 import '../styles/commits.css';
 import RadarPieToggle from '../components/radarPieToggle';
 import LineChartMultiple from '../components/lineChartMultiple';
+import usePersistentState  from '../components/usePersistentState';
 
 function PullRequests({ data,historicData,features }) {
-  const [showHistorical, setShowHistorical] = useState(false);
-    const [dateRange, setDateRange] = useState("7");
+  const [showHistorical, setShowHistorical] = usePersistentState('showHistoricalPR', false);
+  const [dateRange, setDateRange] = usePersistentState('dateRangePR', "7");
     const filterHistoricData = (data, days) => {
       if (days === "lifetime") return data;
   
