@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import GaugeChart from '../components/gaugeChart';
-import RadarPieToggle from '../components/RadarPieToggle';
+import RadarPieToggle from '../components/radarPieToggle';
 import LineChartMultiple from '../components/lineChartMultiple';
 
 import '../styles/commits.css';

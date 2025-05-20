@@ -183,8 +183,8 @@ function Individual({ data, historicData, features }) {
     </div>
 
     {showHistorical && (
-            <div className = "day-selector-wrapper-inv">
-            <select className='day-selector-inv'
+            <div className = "day-selector-wrapper-indv">
+            <select className='day-selector-indv'
               onChange={(e) => setDateRange(e.target.value)} 
               value={dateRange}
               style={{ marginLeft: '1rem' }}

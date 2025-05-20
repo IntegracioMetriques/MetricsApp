@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import GaugeChart from '../components/gaugeChart';
 import '../styles/commits.css';
-import RadarPieToggle from '../components/RadarPieToggle';
+import RadarPieToggle from '../components/radarPieToggle';
 import LineChartMultiple from '../components/lineChartMultiple';
 
 function Commits({ data, historicData, features}) {
