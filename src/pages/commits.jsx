@@ -3,15 +3,15 @@ import GaugeChart from '../components/gaugeChart';
 import '../styles/commits.css';
 import RadarPieToggle from '../components/radarPieToggle';
 import LineChartMultiple from '../components/lineChartMultiple';
-import usePersistentState  from '../components/usePersistentState';
+import usePersistentStateSession  from '../components/usePersistentStateSession';
 
 function Commits({ data, historicData, features}) {
   const commitsData = data.commits;
   const totalCommits = commitsData.total;
   const modifiedLinesData = data.modified_lines
   const radarChartModifiedLines = {};
-  const [showHistorical, setShowHistorical] = usePersistentState('showHistoricalCommits', false);
-  const [dateRange, setDateRange] = usePersistentState('dateRangeCommits', "7");
+  const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalCommits', false);
+  const [dateRange, setDateRange] = usePersistentStateSession('dateRangeCommits', "7");
   const filterHistoricData = (data, days) => {
     if (days === "lifetime") return data;
 
@@ -19,7 +19,6 @@ function Commits({ data, historicData, features}) {
     const cutoff = new Date(today);
     cutoff.setDate(today.getDate() - parseInt(days));
     const cutoffDateString = cutoff.toISOString().split("T")[0];
-    console.log(cutoffDateString)
     const filtered = {};
     for (const date in data) {
       if (date >= cutoffDateString) {

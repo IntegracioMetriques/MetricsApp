@@ -3,11 +3,11 @@ import GaugeChart from '../components/gaugeChart';
 import '../styles/commits.css';
 import RadarPieToggle from '../components/radarPieToggle';
 import LineChartMultiple from '../components/lineChartMultiple';
-import usePersistentState  from '../components/usePersistentState';
+import usePersistentStateSession  from '../components/usePersistentStateSession';
 
 function PullRequests({ data,historicData,features }) {
-  const [showHistorical, setShowHistorical] = usePersistentState('showHistoricalPR', false);
-  const [dateRange, setDateRange] = usePersistentState('dateRangePR', "7");
+  const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalPR', false);
+  const [dateRange, setDateRange] = usePersistentStateSession('dateRangePR', "7");
     const filterHistoricData = (data, days) => {
       if (days === "lifetime") return data;
   
@@ -15,7 +15,6 @@ function PullRequests({ data,historicData,features }) {
       const cutoff = new Date(today);
       cutoff.setDate(today.getDate() - parseInt(days));
       const cutoffDateString = cutoff.toISOString().split("T")[0];
-      console.log(cutoffDateString)
       const filtered = {};
       for (const date in data) {
         if (date >= cutoffDateString) {
