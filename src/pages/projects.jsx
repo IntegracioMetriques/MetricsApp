@@ -9,6 +9,26 @@ import '../styles/commits.css';
 function Projects({ data,historicData,features }) {
   const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalProject', false);
   const [dateRange, setDateRange] = usePersistentStateSession('dateRangeProject', "7");
+  const today = new Date();
+
+const getActiveIteration = () => {
+  const has_iterations = data.project.has_iterations;
+  if (!has_iterations) return "total";
+  const iterations = data.project.iterations
+  for (const key in iterations) {
+    const { startDate, endDate } = iterations[key];
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (today >= start && today <= end) {
+      return key;
+    }
+  }
+  return "total";
+  };
+
+  const [selectedIteration, setSelectedIteration] = usePersistentStateSession("activeIteration",getActiveIteration());
+
   const filterHistoricData = (data, days) => {
     if (days === "lifetime") return data;
   
@@ -25,9 +45,40 @@ function Projects({ data,historicData,features }) {
   
       return filtered;
     };
-  const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
+  const filterHistoricDataByIteration = (dataHist, iterationName) => {
+  if (!data) return null;
+  if (iterationName === "total") return dataHist;
 
-  const taskData = data.project;
+  const iteration = data.project.iterations[iterationName] || null;
+  if (!iteration) return dataHist;
+
+  const startDate = new Date(iteration.startDate);
+  const endDate = new Date(iteration.endDate);
+
+  const filtered = {};
+  for (const dateStr in dataHist) {
+    const date = new Date(dateStr);
+    if (date >= startDate && date <= endDate) {
+      filtered[dateStr] = dataHist[dateStr];
+    }
+  }
+  return filtered;
+  };
+  
+  const iterationsOrdered = Object.keys(data.project.iterations);
+  const iterations = Object.keys(data.project.metrics_by_iteration);
+
+  const sortedIterationNames = [
+    ...iterationsOrdered,
+    ...iterations.filter(name => name === "total"),
+  ];
+
+  const filteredhistoricaData = historicData
+  ? (selectedIteration === "total"
+      ? filterHistoricData(historicData, dateRange) 
+      : filterHistoricDataByIteration(historicData, selectedIteration)) 
+  : null;
+  const taskData = data.project.metrics_by_iteration[selectedIteration];
   const totalTasks = taskData.total;
   const totalInProgress = taskData.in_progress
   const totalDone = taskData.done
@@ -39,32 +90,79 @@ function Projects({ data,historicData,features }) {
   const donePerMember = taskData.done_per_member;
   const totalPeople = Object.keys(assignedPerMember).length;
 
-  const transformAssignedPRsDataForLineChart = (data) => {
-  const xDataAssigned = [];
-  const userSeries = {};
-  
-  for (const date in data) {
-    xDataAssigned.push(date);
-    const tasks = data[date].project.assigned_per_member;
-      
-    for (const user in tasks) {
-      if(user === 'non_assigned') continue;
-        if (!userSeries[user]) {
-          userSeries[user] = [];
-        }
-        userSeries[user].push(tasks[user]);
-      }
+  const transformAssignedPRsDataForLineChart = (dataHistoric, selectedIteration, iterations) => {
+  let allDates = [];
+  if (!dataHistoric) return { xDataAssigned: [], seriesDataAssigned: [] }
+
+  if (selectedIteration === "total") {
+    allDates = Object.keys(dataHistoric).sort((a,b) => new Date(a) - new Date(b));
+  } else {
+    const iteration = iterations[selectedIteration];
+    if (!iteration) return { xDataAssigned: [], seriesDataAssigned: [] };
+
+    const startDate = new Date(iteration.startDate);
+    const endDate = new Date(iteration.endDate);
+
+    const dates = [];
+    let currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      dates.push(dateStr);
+      currentDate.setDate(currentDate.getDate() + 1);
     }
-    const seriesDataAssigned = Object.keys(userSeries).map(user => ({
-      name: user,
-      data: userSeries[user]
-    }));
-  
-    return { xDataAssigned, seriesDataAssigned};
-  };
+    allDates = dates;
+  }
 
-    const { xDataAssigned, seriesDataAssigned } = transformAssignedPRsDataForLineChart(filteredhistoricaData);
+  const userSeries = {};
+  const allUsers = new Set();
 
+const assignedPerMember = data.project.metrics_by_iteration["total"]?.assigned_per_member || {};
+
+Object.keys(assignedPerMember)
+  .filter(u => u !== "non_assigned")
+  .forEach(u => allUsers.add(u));
+
+  allUsers.forEach(u => {
+    userSeries[u] = [];
+  });
+
+  for (const date of allDates) {
+    const dayData = dataHistoric[date];
+    const iterationData = dayData?.project?.metrics_by_iteration?.[selectedIteration];
+    const assignedPerMember = iterationData?.assigned_per_member || {};
+    allUsers.forEach(u => {
+      userSeries[u].push(assignedPerMember[u] || null);
+    });
+  }
+
+  const seriesDataAssigned = Array.from(allUsers).map(u => ({
+    name: u,
+    data: userSeries[u],
+  }));
+
+  return { xDataAssigned: allDates, seriesDataAssigned };
+};
+
+  const { xDataAssigned, seriesDataAssigned } = transformAssignedPRsDataForLineChart(
+    filteredhistoricaData,
+    selectedIteration,
+    data.project.iterations
+  );  
+  function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+  function getDateRangeForIteration(iterationName) {
+    console.log(iterationName)
+  const iteration = data.project.iterations[iterationName];
+      console.log(iteration)
+
+  if (!iteration) return '';
+  return `${formatDate(iteration.startDate)} - ${formatDate(iteration.endDate)}`;
+}
   return (
     
     <div className="commits-container">
@@ -87,22 +185,61 @@ function Projects({ data,historicData,features }) {
     </div>
 
         {showHistorical && (
-        <div className = "day-selector-wrapper-comm">
-        <select className='day-selector-comm'
-          onChange={(e) => setDateRange(e.target.value)} 
-          value={dateRange}
+            <>
+      <div className="day-selector-wrapper-comm">
+        <select
+          className="day-selector-comm"
+          onChange={(e) => setSelectedIteration(e.target.value)}
+          value={selectedIteration}
           style={{ marginLeft: '1rem' }}
         >
-          <option value="7">Last 7 days</option>
-          <option value="15">Last 15 days</option>
-          <option value="30">Last 30 days</option>
-          <option value="90">Last 3 months</option>
-          <option value="lifetime">Lifetime</option>
-        </select>
+          {sortedIterationNames.map((iterationName) => (
+            <option key={iterationName} value={iterationName}>
+              {iterationName}
+            </option>
+          ))}
+        </select> 
+      </div>
+      {selectedIteration === "total" && (
+        <div className="day-selector-wrapper-comm">
+          <select
+            className="day-selector-comm"
+            onChange={(e) => setDateRange(e.target.value)}
+            value={dateRange}
+            style={{ marginLeft: '1rem' }}
+          >
+            <option value="7">Last 7 days</option>
+            <option value="15">Last 15 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 3 months</option>
+            <option value="lifetime">Lifetime</option>
+          </select>
         </div>
       )}
+      </>
+      )}
+
+
+
       {!showHistorical && (
       <>
+      <div className="day-selector-wrapper-comm">
+        <select
+          className="day-selector-comm"
+          onChange={(e) => setSelectedIteration(e.target.value)}
+          value={selectedIteration}
+          style={{ marginLeft: '1rem' }}
+        >
+          {sortedIterationNames.map((iterationName) => (
+            <option key={iterationName} value={iterationName}>
+              {iterationName}
+            </option>
+          ))}
+        </select> 
+      </div>
+        <div style={{ marginTop: '0.5rem', marginLeft: '1rem', marginBottom: '1rem',fontSize: '1.15rem', color: '#555' }}>
+          {getDateRangeForIteration(selectedIteration)}
+        </div>
       <div className='section-background'>
       <h2>Summary</h2>
       <div className="summary-charts-container">
@@ -122,7 +259,6 @@ function Projects({ data,historicData,features }) {
               </span>
             </h2>
               <GaugeChart
-                key="assigned"
                 user="assigned"
                 percentage={totalTasks > 0 ? totalAssigned / totalTasks : 0}
                 totalPeople= {1}
@@ -146,7 +282,6 @@ function Projects({ data,historicData,features }) {
             const percentage = totalAssigned > 0 ? userTasks / totalAssigned : 0;
             return (
               <GaugeChart
-                key={user}
                 user={user}
                 percentage={percentage}
                 totalPeople={totalPeople}
