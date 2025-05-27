@@ -79,15 +79,18 @@ const getActiveIteration = () => {
       : filterHistoricDataByIteration(historicData, selectedIteration)) 
   : null;
   const taskData = data.project.metrics_by_iteration[selectedIteration];
-  const totalTasks = taskData.total;
+  const totalTasks = taskData.total_tasks;
   const totalInProgress = taskData.in_progress
   const totalDone = taskData.done
-  const totalToDo = totalTasks - totalDone - totalInProgress
+  const totalToDo = taskData.todo
+
+  const totalStandardStatuses = totalInProgress + totalDone + totalToDo
   
   const { non_assigned, ...assignedPerMember } = taskData.assigned_per_member;
   const totalAssigned = Object.values(assignedPerMember).reduce((sum, current) => sum + current, 0);
   const inProgresPerMember = taskData.in_progress_per_member;
   const donePerMember = taskData.done_per_member;
+  const todoPerMember = taskData.todo_per_member;
   const totalPeople = Object.keys(assignedPerMember).length;
 
   const totalIssues = taskData.total_issues
@@ -328,6 +331,20 @@ Object.keys(assignedPerMember)
                 totalPeople= {1}
               />
         </div>
+                <div>
+          <h2 className="section-title">
+            Tasks with Standard Status
+              <span className="custom-tooltip">
+                ⓘ
+                <span className="tooltip-text">Percentage of tasks that have a standard status (ToDo, In Progress, Done) to the total of tasks</span>
+              </span>
+            </h2>
+              <GaugeChart
+                user="assigned"
+                percentage={totalTasks > 0 ? totalStandardStatuses / totalTasks : 0}
+                totalPeople= {1}
+              />
+        </div>
         <div>
           <h2 className="section-title">
             Issues
@@ -437,6 +454,35 @@ Object.keys(assignedPerMember)
           const percentage = assigned > 0 ? doneCount / assigned : 0;
           return (
             <GaugeChart
+              user={user}
+              percentage={percentage}
+              totalPeople={1}
+            />
+          );
+        })}
+      </div>
+
+      <h2 className="section-title">
+        Tasks with Standard Status per user
+        <span className="custom-tooltip">
+          ⓘ
+          <span className="tooltip-text">
+            Percentage of tasks with standard status (ToDo, In Progress, Done) per user relative to their assigned tasks
+          </span>
+        </span>
+      </h2>
+      <div className="gauge-charts-container">
+        {Object.keys(assignedPerMember).map((user) => {
+          const assigned = assignedPerMember[user] || 0;
+          const inProgress = inProgresPerMember[user] || 0;
+          const doneCount = donePerMember[user] || 0;
+          const todoCount = todoPerMember[user] || 0;
+          const standardTotal = inProgress + doneCount + todoCount;
+          const percentage = assigned > 0 ? standardTotal / assigned : 0;
+
+          return (
+            <GaugeChart
+              key={user}
               user={user}
               percentage={percentage}
               totalPeople={1}
