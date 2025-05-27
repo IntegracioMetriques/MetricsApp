@@ -43,7 +43,7 @@ function Index({data,historicData,features}) {
   };
   const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
 
-  const taskData = data.project;
+  const taskData = data.project.metrics_by_iteration.total;
   const totalTasks = taskData.total;
   const totalInProgress = taskData.in_progress
   const totalDone = taskData.done

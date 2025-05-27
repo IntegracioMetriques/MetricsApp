@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import GaugeChart from '../components/gaugeChart';
 import RadarPieToggle from '../components/radarPieToggle';
+import PieChart from '../components/pieChart';
 import LineChartMultiple  from '../components/lineChartMultiple';
 import usePersistentStateSession  from '../components/usePersistentStateSession';
 
@@ -28,7 +29,6 @@ const getActiveIteration = () => {
   };
 
   const [selectedIteration, setSelectedIteration] = usePersistentStateSession("activeIteration",getActiveIteration());
-
   const filterHistoricData = (data, days) => {
     if (days === "lifetime") return data;
   
@@ -83,13 +83,21 @@ const getActiveIteration = () => {
   const totalInProgress = taskData.in_progress
   const totalDone = taskData.done
   const totalToDo = totalTasks - totalDone - totalInProgress
-
+  
   const { non_assigned, ...assignedPerMember } = taskData.assigned_per_member;
   const totalAssigned = Object.values(assignedPerMember).reduce((sum, current) => sum + current, 0);
   const inProgresPerMember = taskData.in_progress_per_member;
   const donePerMember = taskData.done_per_member;
   const totalPeople = Object.keys(assignedPerMember).length;
 
+  const totalIssues = taskData.total_issues
+  const totalIssuesWithType = taskData.total_issues_with_type
+  const totalDraftIssues =  taskData.total
+  
+  const taskDataNoIteration = data.project.metrics_by_iteration['no_iteration']
+  const taskDataTotal = data.project.metrics_by_iteration['total']
+  const draftIssuesTotal = taskDataTotal.total
+  const draftIssuesNoIteration = taskDataNoIteration.total
   const transformAssignedPRsDataForLineChart = (dataHistoric, selectedIteration, iterations) => {
   let allDates = [];
   if (!dataHistoric) return { xDataAssigned: [], seriesDataAssigned: [] }
@@ -156,13 +164,55 @@ Object.keys(assignedPerMember)
     return `${day}/${month}/${year}`;
   }
   function getDateRangeForIteration(iterationName) {
-    console.log(iterationName)
-  const iteration = data.project.iterations[iterationName];
-      console.log(iteration)
+    const iteration = data.project.iterations[iterationName];
 
-  if (!iteration) return '';
-  return `${formatDate(iteration.startDate)} - ${formatDate(iteration.endDate)}`;
-}
+    if (!iteration) return '';
+    return `${formatDate(iteration.startDate)} - ${formatDate(iteration.endDate)}`;
+  }
+  
+  function getTypeDataForChart(projectData,selectedIteration) {
+    
+    const iterationData = projectData?.project?.metrics_by_iteration?.[selectedIteration];
+
+    if (!iterationData) return [];
+
+    const {
+      total_tasks = 0,
+      total_bugs = 0,
+      total_features = 0,
+    } = iterationData;
+
+    return [
+      ['Tasks', total_tasks],
+      ['Features', total_features],
+      ['Bugs', total_bugs],
+    ];
+  };
+
+  function getFeatureDataForChart(projectData,selectedIteration) {
+    
+    const iterationData = projectData?.project?.metrics_by_iteration?.[selectedIteration];
+
+    if (!iterationData) return [];
+
+    const {
+      total_features,
+      total_features_done = 0,
+      total_features_in_progress = 0,
+    } = iterationData;
+    const total_features_todo = total_features - total_features_done - total_features_in_progress
+    return [
+      ['ToDo', total_features_todo],
+      ['In Progress', total_features_in_progress],
+      ['Done', total_features_done],
+    ];
+  };
+  
+  const typePieChartData = getTypeDataForChart(data, selectedIteration);
+  const typeColorsPieChart = ["orange", "#0f58ff","red"];  
+
+  const featurePieChartData = getFeatureDataForChart(data, selectedIteration);
+  const featureColorsPieChart = ["green", "orange","red"];  
   return (
     
     <div className="commits-container">
@@ -250,6 +300,20 @@ Object.keys(assignedPerMember)
               title={"Assigned Tasks distribution"}
             />
         </div>
+        <div className='chart-item'>
+          <PieChart
+            title="Issue types"
+            data={typePieChartData}
+            colors = {typeColorsPieChart}
+          />
+        </div>
+        <div className='chart-item'>
+          <PieChart
+            title="Features state"
+            data={featurePieChartData}
+            colors = {featureColorsPieChart}
+          />
+        </div>
         <div>
           <h2 className="section-title">
             Tasks assigned
@@ -261,6 +325,48 @@ Object.keys(assignedPerMember)
               <GaugeChart
                 user="assigned"
                 percentage={totalTasks > 0 ? totalAssigned / totalTasks : 0}
+                totalPeople= {1}
+              />
+        </div>
+        <div>
+          <h2 className="section-title">
+            Issues
+              <span className="custom-tooltip">
+                ⓘ
+                <span className="tooltip-text">Percentage of DraftIssues that are Issues</span>
+              </span>
+            </h2>
+              <GaugeChart
+                user="Issues"
+                percentage={totalDraftIssues > 0 ? totalIssues / totalDraftIssues : 0}
+                totalPeople= {1}
+              />
+        </div>
+        <div>
+          <h2 className="section-title">
+            Issues with type
+              <span className="custom-tooltip">
+                ⓘ
+                <span className="tooltip-text">Percentage of Issues that have a type</span>
+              </span>
+            </h2>
+              <GaugeChart
+                user="Issues"
+                percentage={totalIssues > 0 ? totalIssuesWithType / totalIssues : 0}
+                totalPeople= {1}
+              />
+        </div>
+        <div>
+          <h2 className="section-title">
+            DraftIssues with iteration
+              <span className="custom-tooltip">
+                ⓘ
+                <span className="tooltip-text">Percentage of DraftIssues that have an iteration</span>
+              </span>
+            </h2>
+              <GaugeChart
+                user="Issues"
+                percentage={draftIssuesTotal > 0 ? (draftIssuesTotal - draftIssuesNoIteration) / draftIssuesTotal : 0}
                 totalPeople= {1}
               />
         </div>
