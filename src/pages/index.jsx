@@ -143,9 +143,9 @@ const transformPRDataForAreaChart = (data) => {
     const toDoTask = []
     
     for (const date in data) {
-      const total = data[date].project.total || 0;
-      const done = data[date].project.done || 0;
-      const inProgress = data[date].project.in_progress || 0;
+      const total = data[date].project.metrics_by_iteration.total.total || 0;
+      const done = data[date].project.metrics_by_iteration.total.done || 0;
+      const inProgress = data[date].project.metrics_by_iteration.total.in_progress || 0;
       const todo = total - done - inProgress
       xDataTask.push(date);
       doneTask.push(done);
