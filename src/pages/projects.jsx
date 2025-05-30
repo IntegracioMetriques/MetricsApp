@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import GaugeChart from '../components/gaugeChart';
 import RadarPieToggle from '../components/radarPieToggle';
+import PieChart from '../components/pieChart';
 import LineChartMultiple  from '../components/lineChartMultiple';
 import usePersistentStateSession  from '../components/usePersistentStateSession';
 
@@ -9,6 +10,25 @@ import '../styles/commits.css';
 function Projects({ data,historicData,features }) {
   const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalProject', false);
   const [dateRange, setDateRange] = usePersistentStateSession('dateRangeProject', "7");
+  const today = new Date();
+
+const getActiveIteration = () => {
+  const has_iterations = data.project.has_iterations;
+  if (!has_iterations) return "total";
+  const iterations = data.project.iterations
+  for (const key in iterations) {
+    const { startDate, endDate } = iterations[key];
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (today >= start && today <= end) {
+      return key;
+    }
+  }
+  return "total";
+  };
+
+  const [selectedIteration, setSelectedIteration] = usePersistentStateSession("activeIteration",getActiveIteration());
   const filterHistoricData = (data, days) => {
     if (days === "lifetime") return data;
   
@@ -25,46 +45,177 @@ function Projects({ data,historicData,features }) {
   
       return filtered;
     };
-  const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
+  const filterHistoricDataByIteration = (dataHist, iterationName) => {
+  if (!data) return null;
+  if (iterationName === "total") return dataHist;
 
-  const taskData = data.project;
-  const totalTasks = taskData.total;
+  const iteration = data.project.iterations[iterationName] || null;
+  if (!iteration) return dataHist;
+
+  const startDate = new Date(iteration.startDate);
+  const endDate = new Date(iteration.endDate);
+
+  const filtered = {};
+  for (const dateStr in dataHist) {
+    const date = new Date(dateStr);
+    if (date >= startDate && date <= endDate) {
+      filtered[dateStr] = dataHist[dateStr];
+    }
+  }
+  return filtered;
+  };
+  
+  const iterationsOrdered = Object.keys(data.project.iterations);
+  const iterations = Object.keys(data.project.metrics_by_iteration);
+
+  const sortedIterationNames = [
+    ...iterationsOrdered,
+    ...iterations.filter(name => name === "total"),
+  ];
+
+  const filteredhistoricaData = historicData
+  ? (selectedIteration === "total"
+      ? filterHistoricData(historicData, dateRange) 
+      : filterHistoricDataByIteration(historicData, selectedIteration)) 
+  : null;
+  const taskData = data.project.metrics_by_iteration[selectedIteration];
+  const totalTasks = taskData.total_tasks;
   const totalInProgress = taskData.in_progress
   const totalDone = taskData.done
-  const totalToDo = totalTasks - totalDone - totalInProgress
+  const totalToDo = taskData.todo
 
+  const totalStandardStatuses = totalInProgress + totalDone + totalToDo
+  
   const { non_assigned, ...assignedPerMember } = taskData.assigned_per_member;
   const totalAssigned = Object.values(assignedPerMember).reduce((sum, current) => sum + current, 0);
   const inProgresPerMember = taskData.in_progress_per_member;
   const donePerMember = taskData.done_per_member;
+  const todoPerMember = taskData.todo_per_member;
   const totalPeople = Object.keys(assignedPerMember).length;
 
-  const transformAssignedPRsDataForLineChart = (data) => {
-  const xDataAssigned = [];
-  const userSeries = {};
+  const totalIssues = taskData.total_issues
+  const totalIssuesWithType = taskData.total_issues_with_type
+  const totalDraftIssues =  taskData.total
   
-  for (const date in data) {
-    xDataAssigned.push(date);
-    const tasks = data[date].project.assigned_per_member;
-      
-    for (const user in tasks) {
-      if(user === 'non_assigned') continue;
-        if (!userSeries[user]) {
-          userSeries[user] = [];
-        }
-        userSeries[user].push(tasks[user]);
-      }
+  const taskDataNoIteration = data.project.metrics_by_iteration['no_iteration']
+  const taskDataTotal = data.project.metrics_by_iteration['total']
+  const draftIssuesTotal = taskDataTotal.total
+  const draftIssuesNoIteration = taskDataNoIteration.total
+  const transformAssignedPRsDataForLineChart = (dataHistoric, selectedIteration, iterations) => {
+  let allDates = [];
+  if (!dataHistoric) return { xDataAssigned: [], seriesDataAssigned: [] }
+
+  if (selectedIteration === "total") {
+    allDates = Object.keys(dataHistoric).sort((a,b) => new Date(a) - new Date(b));
+  } else {
+    const iteration = iterations[selectedIteration];
+    if (!iteration) return { xDataAssigned: [], seriesDataAssigned: [] };
+
+    const startDate = new Date(iteration.startDate);
+    const endDate = new Date(iteration.endDate);
+
+    const dates = [];
+    let currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      dates.push(dateStr);
+      currentDate.setDate(currentDate.getDate() + 1);
     }
-    const seriesDataAssigned = Object.keys(userSeries).map(user => ({
-      name: user,
-      data: userSeries[user]
-    }));
+    allDates = dates;
+  }
+
+  const userSeries = {};
+  const allUsers = new Set();
+
+const assignedPerMember = data.project.metrics_by_iteration["total"]?.assigned_per_member || {};
+
+Object.keys(assignedPerMember)
+  .filter(u => u !== "non_assigned")
+  .forEach(u => allUsers.add(u));
+
+  allUsers.forEach(u => {
+    userSeries[u] = [];
+  });
+
+  for (const date of allDates) {
+    const dayData = dataHistoric[date];
+    const iterationData = dayData?.project?.metrics_by_iteration?.[selectedIteration];
+    const assignedPerMember = iterationData?.assigned_per_member || {};
+    allUsers.forEach(u => {
+      userSeries[u].push(assignedPerMember[u] || null);
+    });
+  }
+
+  const seriesDataAssigned = Array.from(allUsers).map(u => ({
+    name: u,
+    data: userSeries[u],
+  }));
+
+  return { xDataAssigned: allDates, seriesDataAssigned };
+};
+
+  const { xDataAssigned, seriesDataAssigned } = transformAssignedPRsDataForLineChart(
+    filteredhistoricaData,
+    selectedIteration,
+    data.project.iterations
+  );  
+  function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+  function getDateRangeForIteration(iterationName) {
+    const iteration = data.project.iterations[iterationName];
+
+    if (!iteration) return '';
+    return `${formatDate(iteration.startDate)} - ${formatDate(iteration.endDate)}`;
+  }
   
-    return { xDataAssigned, seriesDataAssigned};
+  function getTypeDataForChart(projectData,selectedIteration) {
+    
+    const iterationData = projectData?.project?.metrics_by_iteration?.[selectedIteration];
+
+    if (!iterationData) return [];
+
+    const {
+      total_tasks = 0,
+      total_bugs = 0,
+      total_features = 0,
+    } = iterationData;
+
+    return [
+      ['Tasks', total_tasks],
+      ['Features', total_features],
+      ['Bugs', total_bugs],
+    ];
   };
 
-    const { xDataAssigned, seriesDataAssigned } = transformAssignedPRsDataForLineChart(filteredhistoricaData);
+  function getFeatureDataForChart(projectData,selectedIteration) {
+    
+    const iterationData = projectData?.project?.metrics_by_iteration?.[selectedIteration];
 
+    if (!iterationData) return [];
+
+    const {
+      total_features,
+      total_features_done = 0,
+      total_features_in_progress = 0,
+    } = iterationData;
+    const total_features_todo = total_features - total_features_done - total_features_in_progress
+    return [
+      ['ToDo', total_features_todo],
+      ['In Progress', total_features_in_progress],
+      ['Done', total_features_done],
+    ];
+  };
+  
+  const typePieChartData = getTypeDataForChart(data, selectedIteration);
+  const typeColorsPieChart = ["orange", "#0f58ff","red"];  
+
+  const featurePieChartData = getFeatureDataForChart(data, selectedIteration);
+  const featureColorsPieChart = ["green", "orange","red"];  
   return (
     
     <div className="commits-container">
@@ -87,22 +238,61 @@ function Projects({ data,historicData,features }) {
     </div>
 
         {showHistorical && (
-        <div className = "day-selector-wrapper-comm">
-        <select className='day-selector-comm'
-          onChange={(e) => setDateRange(e.target.value)} 
-          value={dateRange}
+            <>
+      <div className="day-selector-wrapper-comm">
+        <select
+          className="day-selector-comm"
+          onChange={(e) => setSelectedIteration(e.target.value)}
+          value={selectedIteration}
           style={{ marginLeft: '1rem' }}
         >
-          <option value="7">Last 7 days</option>
-          <option value="15">Last 15 days</option>
-          <option value="30">Last 30 days</option>
-          <option value="90">Last 3 months</option>
-          <option value="lifetime">Lifetime</option>
-        </select>
+          {sortedIterationNames.map((iterationName) => (
+            <option key={iterationName} value={iterationName}>
+              {iterationName}
+            </option>
+          ))}
+        </select> 
+      </div>
+      {selectedIteration === "total" && (
+        <div className="day-selector-wrapper-comm">
+          <select
+            className="day-selector-comm"
+            onChange={(e) => setDateRange(e.target.value)}
+            value={dateRange}
+            style={{ marginLeft: '1rem' }}
+          >
+            <option value="7">Last 7 days</option>
+            <option value="15">Last 15 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 3 months</option>
+            <option value="lifetime">Lifetime</option>
+          </select>
         </div>
       )}
+      </>
+      )}
+
+
+
       {!showHistorical && (
       <>
+      <div className="day-selector-wrapper-comm">
+        <select
+          className="day-selector-comm"
+          onChange={(e) => setSelectedIteration(e.target.value)}
+          value={selectedIteration}
+          style={{ marginLeft: '1rem' }}
+        >
+          {sortedIterationNames.map((iterationName) => (
+            <option key={iterationName} value={iterationName}>
+              {iterationName}
+            </option>
+          ))}
+        </select> 
+      </div>
+        <div style={{ marginTop: '0.5rem', marginLeft: '1rem', marginBottom: '1rem',fontSize: '1.15rem', color: '#555' }}>
+          {getDateRangeForIteration(selectedIteration)}
+        </div>
       <div className='section-background'>
       <h2>Summary</h2>
       <div className="summary-charts-container">
@@ -113,6 +303,20 @@ function Projects({ data,historicData,features }) {
               title={"Assigned Tasks distribution"}
             />
         </div>
+        <div className='chart-item'>
+          <PieChart
+            title="Issue types"
+            data={typePieChartData}
+            colors = {typeColorsPieChart}
+          />
+        </div>
+        <div className='chart-item'>
+          <PieChart
+            title="Features state"
+            data={featurePieChartData}
+            colors = {featureColorsPieChart}
+          />
+        </div>
         <div>
           <h2 className="section-title">
             Tasks assigned
@@ -122,9 +326,64 @@ function Projects({ data,historicData,features }) {
               </span>
             </h2>
               <GaugeChart
-                key="assigned"
                 user="assigned"
                 percentage={totalTasks > 0 ? totalAssigned / totalTasks : 0}
+                totalPeople= {1}
+              />
+        </div>
+                <div>
+          <h2 className="section-title">
+            Tasks with Standard Status
+              <span className="custom-tooltip">
+                ⓘ
+                <span className="tooltip-text">Percentage of tasks that have a standard status (ToDo, In Progress, Done) to the total of tasks</span>
+              </span>
+            </h2>
+              <GaugeChart
+                user="assigned"
+                percentage={totalTasks > 0 ? totalStandardStatuses / totalTasks : 0}
+                totalPeople= {1}
+              />
+        </div>
+        <div>
+          <h2 className="section-title">
+            Issues
+              <span className="custom-tooltip">
+                ⓘ
+                <span className="tooltip-text">Percentage of DraftIssues that are Issues</span>
+              </span>
+            </h2>
+              <GaugeChart
+                user="Issues"
+                percentage={totalDraftIssues > 0 ? totalIssues / totalDraftIssues : 0}
+                totalPeople= {1}
+              />
+        </div>
+        <div>
+          <h2 className="section-title">
+            Issues with type
+              <span className="custom-tooltip">
+                ⓘ
+                <span className="tooltip-text">Percentage of Issues that have a type</span>
+              </span>
+            </h2>
+              <GaugeChart
+                user="Issues"
+                percentage={totalIssues > 0 ? totalIssuesWithType / totalIssues : 0}
+                totalPeople= {1}
+              />
+        </div>
+        <div>
+          <h2 className="section-title">
+            DraftIssues with iteration
+              <span className="custom-tooltip">
+                ⓘ
+                <span className="tooltip-text">Percentage of DraftIssues that have an iteration</span>
+              </span>
+            </h2>
+              <GaugeChart
+                user="Issues"
+                percentage={draftIssuesTotal > 0 ? (draftIssuesTotal - draftIssuesNoIteration) / draftIssuesTotal : 0}
                 totalPeople= {1}
               />
         </div>
@@ -146,7 +405,6 @@ function Projects({ data,historicData,features }) {
             const percentage = totalAssigned > 0 ? userTasks / totalAssigned : 0;
             return (
               <GaugeChart
-                key={user}
                 user={user}
                 percentage={percentage}
                 totalPeople={totalPeople}
@@ -196,6 +454,35 @@ function Projects({ data,historicData,features }) {
           const percentage = assigned > 0 ? doneCount / assigned : 0;
           return (
             <GaugeChart
+              user={user}
+              percentage={percentage}
+              totalPeople={1}
+            />
+          );
+        })}
+      </div>
+
+      <h2 className="section-title">
+        Tasks with Standard Status per user
+        <span className="custom-tooltip">
+          ⓘ
+          <span className="tooltip-text">
+            Percentage of tasks with standard status (ToDo, In Progress, Done) per user relative to their assigned tasks
+          </span>
+        </span>
+      </h2>
+      <div className="gauge-charts-container">
+        {Object.keys(assignedPerMember).map((user) => {
+          const assigned = assignedPerMember[user] || 0;
+          const inProgress = inProgresPerMember[user] || 0;
+          const doneCount = donePerMember[user] || 0;
+          const todoCount = todoPerMember[user] || 0;
+          const standardTotal = inProgress + doneCount + todoCount;
+          const percentage = assigned > 0 ? standardTotal / assigned : 0;
+
+          return (
+            <GaugeChart
+              key={user}
               user={user}
               percentage={percentage}
               totalPeople={1}
