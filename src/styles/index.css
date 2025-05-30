@@ -222,6 +222,13 @@ button:focus-visible {
   height: 350px;
 }
 
+.only-commits-lines {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
 @media (max-width: 768px) { 
   .general-stats.horizontal-layout {
       width: 90%;
