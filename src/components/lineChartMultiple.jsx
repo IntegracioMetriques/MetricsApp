@@ -13,11 +13,10 @@ const LineChartMultiple = ({ xData, seriesData, xLabel, yLabel, title }) => {
       title: {
         text: title,
         left: 'center',
-        fontSize: 18,
-        fontWeight: 'bold'
       },
       grid: {
         bottom: 90,
+        left: 60
       },
       tooltip: {
         trigger: 'axis',
@@ -50,7 +49,14 @@ const LineChartMultiple = ({ xData, seriesData, xLabel, yLabel, title }) => {
         type: 'value',
         name: yLabel || 'Eix Y',
         axisLabel: {
-          fontSize: 12
+          fontSize: 12,
+          formatter: (value) => {
+            const v = Number(value);
+            if (value >= 1e12) return (value / 1e12)+ 'T';
+            if (value >= 1e9) return (value / 1e9) + 'B';
+            if (value >= 1e6) return (value / 1e6) + 'M';
+            return value;
+          }
         }
       },
       series: seriesData.map((serie) => ({
