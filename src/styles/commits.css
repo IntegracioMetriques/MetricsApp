@@ -90,8 +90,8 @@
 .custom-tooltip {
   position: relative;
   display: inline-block;
-  font-size: 0.85rem;
-  color: #888;
+  font-size: 0.95rem;
+  color: #58a6ff;
   cursor: pointer;
 }
 

@@ -51,7 +51,7 @@ const AreaChartMultiple = ({ xData, seriesData, xLabel, yLabel, title }) => {
         symbolSize: 6,
         areaStyle: { color: s.color },
         lineStyle: { color: s.color, width: 2 },
-        color: s.color.replace('0.4', '1'),
+        color: typeof s.color === 'string' ? s.color.replace('0.4', '1') : undefined,
         data: s.data,
       })),
       aria: {

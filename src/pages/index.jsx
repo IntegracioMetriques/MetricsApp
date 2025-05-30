@@ -43,16 +43,29 @@ function Index({data,historicData,features}) {
   };
   const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
 
-  const taskData = data.project;
+  const taskData = data.project.metrics_by_iteration.total;
   const totalTasks = taskData.total;
-  const totalInProgress = taskData.in_progress
-  const totalDone = taskData.done
-  const totalToDo = totalTasks - totalDone - totalInProgress
+  const totalInProgress = taskData.in_progress;
+  const totalDone = taskData.done;
+  const totalToDo = taskData.todo;
   const dataTasks = [
     ["Todo",totalToDo],
     ["In Progress",totalInProgress],
     ["Done", totalDone]
   ]
+
+  for (const [key, value] of Object.entries(taskData)) {
+    if (
+      !["todo", "in_progress", "done", "total"].includes(key) &&
+      !key.startsWith("total_") &&
+      !key.startsWith("total") &&
+      typeof value === "number" &&
+      Number.isInteger(value)
+    ) {
+      const label = key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      dataTasks.push([label, value]);
+    }
+  }
   const colorsPR = ["red", "orange","green"];  
   const colorsIssues = ["red","green"];
   const colorsProject = ["red", "orange","green"]; 
@@ -141,20 +154,60 @@ const transformPRDataForAreaChart = (data) => {
     const doneTask = [];
     const inProgressTask = [];
     const toDoTask = []
-    
+    const otherKeysData = {}
+    const allOtherKeys = new Set();
+
     for (const date in data) {
-      const total = data[date].project.total || 0;
-      const done = data[date].project.done || 0;
-      const inProgress = data[date].project.in_progress || 0;
-      const todo = total - done - inProgress
+      const metrics = data[date].project.metrics_by_iteration.total;
+      for (const [key, value] of Object.entries(metrics)) {
+        if (
+          !['done', 'in_progress', 'todo', 'total'].includes(key) &&
+          !key.startsWith('total_') &&
+          !key.startsWith('total') &&
+          typeof value === 'number' &&
+          Number.isInteger(value)
+        ) {
+          allOtherKeys.add(key);
+        }
+      }
+    }
+
+    for (const key of allOtherKeys) {
+      otherKeysData[key] = [];
+    }
+    for (const date in data) {
+      const metrics = data[date].project.metrics_by_iteration.total;
+      const done = metrics.done || 0;
+      const todo = metrics.todo || 0;
+      const inProgress = metrics.in_progress || 0;
+
       xDataTask.push(date);
       doneTask.push(done);
       inProgressTask.push(inProgress);
       toDoTask.push(todo)
+      for (const key of allOtherKeys) {
+        const value = metrics[key];
+          otherKeysData[key].push(Number.isInteger(value) ? value : 0);
       }
-      return { xDataTask, doneTask, inProgressTask,toDoTask };
+      }      
+      return { xDataTask, doneTask, inProgressTask,toDoTask,otherKeysData };
     };
-  const { xDataTask, doneTask, inProgressTask,toDoTask } = transformTaskDataForAreaChart(filteredhistoricaData);
+  const { xDataTask, doneTask, inProgressTask,toDoTask,otherKeysData } = transformTaskDataForAreaChart(filteredhistoricaData);
+  
+  const baseSeries = [
+    { label: 'To Do', data: toDoTask, color: "rgb(255, 0, 0)" },
+    { label: 'In Progress', data: inProgressTask, color: 'orange' },
+    { label: 'Done', data: doneTask, color: "rgb(0, 255, 0)" }
+  ];
+
+  const otherSeries = Object.entries(otherKeysData).map(([key, data]) => ({
+    label: key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), // formatea la etiqueta bonito
+    data,
+  }));
+
+  const allSeries = [...baseSeries, ...otherSeries];
+
+  
   return (
     <div>
       <h1>General overview</h1>
@@ -355,11 +408,7 @@ const transformPRDataForAreaChart = (data) => {
               <div className='radar-chart-container'>
                 <AreaChartMultiple
                 xData={xDataTask}
-                seriesData={[
-                  { label: 'To Do', data: toDoTask, color: "rgb(255, 0, 0)" },
-                  { label: 'In Progress', data: inProgressTask, color: 'orange' },
-                  { label: 'Done', data: doneTask, color: "rgb(0, 255, 0)" }
-                ]}
+                seriesData={allSeries}
                 xLabel="Date"
                 yLabel="Tasks"
                 title="Tasks Over Time"

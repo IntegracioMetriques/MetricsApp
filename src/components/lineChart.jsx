@@ -13,8 +13,6 @@ const LineChart = ({ xData, yData, xLabel, yLabel, title }) => {
       title: {
         text: title,
         left: 'center',
-        fontSize: 18,
-        fontWeight: 'bold'
       },
       tooltip: {
         trigger: 'axis',
@@ -24,6 +22,9 @@ const LineChart = ({ xData, yData, xLabel, yLabel, title }) => {
             color: '#999'
           }
         }
+      },
+      grid: {
+        left:60
       },
       xAxis: {
         type: 'category',
@@ -38,7 +39,14 @@ const LineChart = ({ xData, yData, xLabel, yLabel, title }) => {
         type: 'value',
         name: yLabel || 'Eix Y',
         axisLabel: {
-          fontSize: 12
+          fontSize: 12,
+          formatter: (value) => {
+            const v = Number(value);
+            if (value >= 1e12) return (value / 1e12) + 'T';
+            if (value >= 1e9) return (value / 1e9) + 'B';
+            if (value >= 1e6) return (value / 1e6) + 'M';
+            return value;
+          }
         }
       },
       series: [{
