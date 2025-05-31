@@ -86,7 +86,7 @@ function Commits({ data, historicData, features}) {
     radarChartModifiedLines[user] = modified;
   }
   const totalModifiedLines = modifiedLinesData.total.modified
-  const totalPeople = Object.keys(commitsData).length - 2;
+  const totalPeople = Object.keys(data.avatars).length;
   const dataPieChartCommits = Object.entries(commitsData)
   .filter(([user]) => user !== 'total' && user !== 'anonymous')
   .map(([user, count]) => [user, count]);

@@ -91,7 +91,7 @@ const getActiveIteration = () => {
   const inProgresPerMember = taskData.in_progress_per_member || 0;
   const donePerMember = taskData.done_per_member || 0;
   const todoPerMember = taskData.todo_per_member || 0;
-  const totalPeople = Object.keys(assignedPerMember).length;
+  const totalPeople = Object.keys(data.avatars).length;
 
   const totalIssues = taskData.total_issues
   const totalIssuesWithType = taskData.total_issues_with_type

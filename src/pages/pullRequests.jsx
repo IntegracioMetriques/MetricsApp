@@ -33,7 +33,7 @@ function PullRequests({ data,historicData,features }) {
   const totalMergedNotByAuthor = pullRequests.not_merged_by_author
   const totalClosed = pullRequests.closed 
   const total = pullRequests.total
-  const totalPeople = Object.keys(createdby).length;
+  const totalPeople = Object.keys(data.avatars).length;
   const merges = data.commit_merges
 
   const transformCreatedPRsDataForLineChart = (data) => {
