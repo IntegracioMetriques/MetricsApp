@@ -6,7 +6,7 @@ import usePersistentStateSession  from '../components/usePersistentStateSession'
 import usePersistentState  from '../components/usePersistentState';
 
 function Individual({ data, historicData, features }) {
-  const [selectedUser, setSelectedUser] = usePersistentState("selectedUser",Object.keys(data.commits).filter(user => user !== 'anonymous' && user !== 'total')[0]);
+  const [selectedUser, setSelectedUser] = usePersistentState("selectedUser",Object.keys(data.avatars)[0]);
   const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalIndividual', false);
   const [dateRange, setDateRange] = usePersistentStateSession('dateRangeIndividual', "7");
   const filterHistoricData = (data, days) => {
@@ -26,7 +26,7 @@ function Individual({ data, historicData, features }) {
     return filtered;
   };
   const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
-  const users = Object.keys(data.commits).filter(user => user !== 'anonymous' && user !== 'total');
+  const users = Object.keys(data.avatars);
   const avatar = data.avatars[selectedUser] || "";
   const commits = data.commits[selectedUser] || 0;
   const modifiedLines = data.modified_lines[selectedUser] || { additions: 0, deletions: 0, modified: 0 };
