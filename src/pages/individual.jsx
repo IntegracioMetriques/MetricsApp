@@ -36,8 +36,12 @@ function Individual({ data, historicData, features }) {
   const issuesClosed = data.issues.closed[selectedUser] || 0;
   const totalCommits = data.commits['total']
   const totalModifiedLines = data.modified_lines['total'].modified
-  const totalPeople = Object.keys(data.commits).length - 2;
-
+  const totalPeople = Object.keys(data.avatars).length;
+  const tasksAssigned = data.project.metrics_by_iteration.total.assigned_per_member[selectedUser] || 0
+  const tasksClosed = data.project.metrics_by_iteration.total.done_per_member[selectedUser] || 0
+  const tasksInProgress = data.project.metrics_by_iteration.total.in_progress_per_member[selectedUser] || 0
+  const tasksTodo = data.project.metrics_by_iteration.total.todo_per_member[selectedUser] || 0
+  const tasksStandard = tasksClosed + tasksInProgress + tasksTodo
   const truncateName = (name, maxLength = 18) => {
     return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
   };
@@ -52,8 +56,12 @@ function Individual({ data, historicData, features }) {
   const percentageIssuesClosed = issuesAssigned > 0 ? issuesClosed/issuesAssigned: 0
   const percentageCreated = data.pull_requests.total > 0 ? data.pull_requests.created[selectedUser] / data.pull_requests.total: 0
   const percentageMerged = data.pull_requests.merged > 0 ? data.pull_requests.merged_per_member[selectedUser] / data.pull_requests.merged: 0
-  const tasksAssigned = data.project.metrics_by_iteration.total.assigned_per_member[selectedUser]
-  const tasksClosed = data.project.metrics_by_iteration.total.done_per_member[selectedUser]
+  const { non_assigned, ...assignedPerMember } = data.project.metrics_by_iteration.total.assigned_per_member;
+  const totalAssigned = Object.values(assignedPerMember).reduce((sum, current) => sum + current, 0);
+  const percentageTasksAssigned = totalAssigned > 0 ? tasksAssigned / totalAssigned : 0;
+  const percentageTasksDone = tasksAssigned > 0 ? tasksClosed / tasksAssigned : 0;
+  const percentageTasksInProgress = tasksInProgress > 0 ? tasksInProgress / tasksInProgress : 0;
+  const percentageTasksStandard = tasksAssigned > 0 ? tasksStandard / tasksAssigned : 0;
   const transformCommitsDataForUser = (data, username) => {
     const xDataCommits = [];
     const yDataCommits = [];
@@ -165,8 +173,14 @@ function Individual({ data, historicData, features }) {
               <div><strong>Pull requests merged:</strong> {pullRequestsMerged}</div>)}
               {features.includes("projects") && (
               <div><strong>Tasks assigned:</strong> {tasksAssigned}</div>)}
+                {features.includes("projects") && (
+              <div><strong>Tasks todo:</strong> {tasksTodo}</div>)}
               {features.includes("projects") && (
-              <div><strong>Tasks assigned:</strong> {tasksClosed}</div>)}
+              <div><strong>Tasks in progress:</strong> {tasksInProgress}</div>)}
+              {features.includes("projects") && (
+              <div><strong>Tasks done:</strong> {tasksClosed}</div>)}
+              {features.includes("projects") && (
+              <div><strong>Tasks with Standard Status:</strong> {tasksStandard}</div>)}
             </div>
         </div>
       </div>
@@ -292,6 +306,70 @@ function Individual({ data, historicData, features }) {
           <GaugeChart
                     user={selectedUser}
                     percentage= {percentageMerged}
+                    totalPeople= {totalPeople}
+                  /> 
+        </div>)}
+        {features.includes("projects") && (
+        <div>
+          <h2 className="section-title">
+            Tasks assigned
+            <span className="custom-tooltip">
+              ⓘ
+              <span className="tooltip-text">Percentage of tasks assigned to the user relative to the number of assigned tasks</span>
+            </span>
+          </h2>
+          <GaugeChart
+                    user={selectedUser}
+                    percentage= {percentageTasksAssigned}
+                    totalPeople= {totalPeople}
+                  /> 
+        </div>)}
+        {features.includes("projects") && (
+        <div>
+          <h2 className="section-title">
+            Tasks In Progress
+            <span className="custom-tooltip">
+              ⓘ
+              <span className="tooltip-text">
+                Shows if the user is actively working on at least one task.
+                If the gauge is at 100%, the user has at least one task in progress.
+                If it's at 0%, the user currently has no tasks in progress.          
+              </span>
+            </span>
+          </h2>
+          <GaugeChart
+                    user={selectedUser}
+                    percentage= {percentageTasksInProgress}
+                    totalPeople= {totalPeople}
+                  /> 
+        </div>)}
+        {features.includes("projects") && (
+        <div>
+          <h2 className="section-title">
+            Tasks Done
+            <span className="custom-tooltip">
+              ⓘ
+              <span className="tooltip-text">Percentage of tasks done by the user relative to the tasks assigned to the user</span>
+            </span>
+          </h2>
+          <GaugeChart
+                    user={selectedUser}
+                    percentage= {percentageTasksDone}
+                    totalPeople= {totalPeople}
+                  /> 
+        </div>)}
+        {features.includes("projects") && (
+        <div>
+          <h2 className="section-title">
+          Tasks with Standard Status
+            <span className="custom-tooltip">
+              ⓘ
+              <span className="tooltip-text">Percentage of tasks with standard status (ToDo, In Progress, Done) of the user relative to the user assigned tasks</span>
+            </span>
+          </h2>
+          <GaugeChart
+                    user={selectedUser}
+                    percentage= {percentageTasksStandard}
                     totalPeople= {totalPeople}
                   /> 
         </div>)}
