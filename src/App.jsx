@@ -6,7 +6,6 @@ import Commits from "./pages/commits";
 import Issues from "./pages/issues";
 import Individual from "./pages/individual";
 import Projects from "./pages/projects";
-import Historic from "./pages/historic";
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 function App() {
