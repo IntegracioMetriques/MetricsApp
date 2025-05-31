@@ -67,34 +67,28 @@ function Index({data,historicData,features}) {
   const colorsPR = ["red", "orange","green"];  
   const colorsIssues = ["red","green"];
   const colorsProject = ["red", "orange","green"]; 
-  let radarData;
-  if (features.includes('issues') && features.includes('pull-requests')) {
-    radarData = {
-      'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
-      'Issues Assigned': (data.issues.total - data.issues.assigned.non_assigned) / data.issues.total,
-      'Issues associated PR': data.issues.have_pull_request / data.issues.total_closed,
-      'Pull Requests Merged': data.pull_requests.merged / (data.pull_requests.total - data.pull_requests.closed),
-      'Pull Requests Reviewed': data.pull_requests.not_merged_by_author / data.pull_requests.merged,
-      'Pull Requests Merges': data.pull_requests.merged / data.commit_merges,
-    };
+  let radarData = {};
+
+  radarData['Non-Anonymous Commits'] = 
+    (data.commits.total - data.commits.anonymous) / data.commits.total;
+
+  if (features.includes('issues')) {
+    radarData['Issues Assigned'] = 
+      (data.issues.total - data.issues.assigned.non_assigned) / data.issues.total;
+
+    radarData['Issues associated PR'] = 
+      data.issues.have_pull_request / data.issues.total_closed;
   }
-  else if (!(features.includes('issues')) && features.includes('pull-requests')) {
-    radarData = {
-      'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
-      'Pull Requests Merged': data.pull_requests.merged / (data.pull_requests.total - data.pull_requests.closed),
-      'Pull Requests Reviewed': data.pull_requests.not_merged_by_author / data.pull_requests.merged,
-      'Pull Requests Merges': data.pull_requests.merged / data.commit_merges,
-    };
-  }
-  else if (features.includes('issues') && !(features.includes('pull-requests'))) {
-    radarData = {
-      'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
-      'Issues Assigned': (data.issues.total - data.issues.assigned.non_assigned) / data.issues.total,
-    };
-  } else {
-    radarData = {
-      'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
-    };
+
+  if (features.includes('pull-requests')) {
+    radarData['Pull Requests Merged'] = 
+      data.pull_requests.merged / (data.pull_requests.total - data.pull_requests.closed);
+
+    radarData['Pull Requests Reviewed'] = 
+      data.pull_requests.not_merged_by_author / data.pull_requests.merged;
+
+    radarData['Pull Requests Merges'] = 
+      data.pull_requests.merged / data.commit_merges;
   }
   const transformDataForLineChart = (data) => {
     const xData = []; 
@@ -232,6 +226,10 @@ function Index({data,historicData,features}) {
                 <div><strong>Total Deletions:</strong> {data.modified_lines.total.deletions}</div>
                 <div><strong>Total Modifications:</strong> {data.modified_lines.total.modified}</div>
                 <div><strong>Total Lines of code:</strong> {data.modified_lines.total.additions - data.modified_lines.total.deletions}</div>
+                {features.includes("projects") && (
+                <div><strong>Total Tasks:</strong> {data.project.metrics_by_iteration.total.total_tasks}</div>)}
+                {features.includes("projects") && (
+                <div><strong>Total Features:</strong> {data.project.metrics_by_iteration.total.total_features}</div>)}
               </div>
             </div>
           </div>

@@ -170,7 +170,7 @@ button:focus-visible {
 .general-stats.horizontal-layout {
   display: flex;
   flex-direction: column;
-  width: 550px;
+  width: fit-content;
   align-items: center;
   justify-content: flex-start;
   background: #fff;
@@ -187,9 +187,11 @@ button:focus-visible {
 }
 
 .general-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .general-stats-grid div {
@@ -199,6 +201,7 @@ button:focus-visible {
   text-align: left;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   justify-content: center;
+  min-width: 200px;
 }
 
 .only-commits-wrapper {
@@ -243,26 +246,12 @@ button:focus-visible {
   }
 
   .general-stats-grid {
-      grid-template-columns: 1fr 1fr;  
+        display: grid;
+        grid-auto-flow: row;
+        grid-template-columns: 1fr;  
   }
 
   .general-stats-grid div {
       padding: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .general-stats.horizontal-layout {
-      width: 100%;
-      padding: 10px;
-  }
-
-  .general-stats-grid {
-      grid-template-columns: 1fr;
-  }
-
-  .general-stats-grid div {
-      font-size: 0.9em;
-      padding: 8px;
   }
 }

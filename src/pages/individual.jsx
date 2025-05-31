@@ -52,7 +52,8 @@ function Individual({ data, historicData, features }) {
   const percentageIssuesClosed = issuesAssigned > 0 ? issuesClosed/issuesAssigned: 0
   const percentageCreated = data.pull_requests.total > 0 ? data.pull_requests.created[selectedUser] / data.pull_requests.total: 0
   const percentageMerged = data.pull_requests.merged > 0 ? data.pull_requests.merged_per_member[selectedUser] / data.pull_requests.merged: 0
-  
+  const tasksAssigned = data.project.metrics_by_iteration.total.assigned_per_member[selectedUser]
+  const tasksClosed = data.project.metrics_by_iteration.total.done_per_member[selectedUser]
   const transformCommitsDataForUser = (data, username) => {
     const xDataCommits = [];
     const yDataCommits = [];
@@ -162,6 +163,10 @@ function Individual({ data, historicData, features }) {
               <div><strong>Pull requests Created:</strong> {pullRequestsCreated}</div>)}
               {features.includes("pull-requests") && (
               <div><strong>Pull requests merged:</strong> {pullRequestsMerged}</div>)}
+              {features.includes("projects") && (
+              <div><strong>Tasks assigned:</strong> {tasksAssigned}</div>)}
+              {features.includes("projects") && (
+              <div><strong>Tasks assigned:</strong> {tasksClosed}</div>)}
             </div>
         </div>
       </div>

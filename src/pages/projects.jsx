@@ -79,18 +79,18 @@ const getActiveIteration = () => {
       : filterHistoricDataByIteration(historicData, selectedIteration)) 
   : null;
   const taskData = data.project.metrics_by_iteration[selectedIteration];
-  const totalTasks = taskData.total_tasks;
-  const totalInProgress = taskData.in_progress
-  const totalDone = taskData.done
-  const totalToDo = taskData.todo
+  const totalTasks = taskData.total_tasks || 0
+  const totalInProgress = taskData.in_progress || 0
+  const totalDone = taskData.done || 0
+  const totalToDo = taskData.todo || 0
 
   const totalStandardStatuses = totalInProgress + totalDone + totalToDo
   
   const { non_assigned, ...assignedPerMember } = taskData.assigned_per_member;
   const totalAssigned = Object.values(assignedPerMember).reduce((sum, current) => sum + current, 0);
-  const inProgresPerMember = taskData.in_progress_per_member;
-  const donePerMember = taskData.done_per_member;
-  const todoPerMember = taskData.todo_per_member;
+  const inProgresPerMember = taskData.in_progress_per_member || 0;
+  const donePerMember = taskData.done_per_member || 0;
+  const todoPerMember = taskData.todo_per_member || 0;
   const totalPeople = Object.keys(assignedPerMember).length;
 
   const totalIssues = taskData.total_issues
@@ -127,9 +127,9 @@ const getActiveIteration = () => {
   const userSeries = {};
   const allUsers = new Set();
 
-const assignedPerMember = data.project.metrics_by_iteration["total"]?.assigned_per_member || {};
+  const assignedPerMember = data.project.metrics_by_iteration["total"]?.assigned_per_member || {};
 
-Object.keys(assignedPerMember)
+  Object.keys(assignedPerMember)
   .filter(u => u !== "non_assigned")
   .forEach(u => allUsers.add(u));
 
@@ -199,7 +199,7 @@ Object.keys(assignedPerMember)
     if (!iterationData) return [];
 
     const {
-      total_features,
+      total_features = 0,
       total_features_done = 0,
       total_features_in_progress = 0,
     } = iterationData;
