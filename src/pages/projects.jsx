@@ -3,6 +3,7 @@ import GaugeChart from '../components/gaugeChart';
 import RadarPieToggle from '../components/radarPieToggle';
 import PieChart from '../components/pieChart';
 import LineChartMultiple  from '../components/lineChartMultiple';
+import AreaChartMultiple  from '../components/areaChartMultiple';
 import usePersistentStateSession  from '../components/usePersistentStateSession';
 
 import '../styles/commits.css';
@@ -159,6 +160,93 @@ const getActiveIteration = () => {
     selectedIteration,
     data.project.iterations
   );
+
+  const transformFeatureDataForAreaChart = (data) => {
+    const xDataFeature = [];
+    const knownKeys = {
+      total_features_done: 'Done',
+      total_features_in_progress: 'In Progress',
+      total_features_todo: 'To Do',
+    };
+
+    const baseFeatureData = {
+      Done: [],
+      'In Progress': [],
+      'To Do': [],
+    };
+
+    const otherKeysData = {};
+    const allOtherKeys = new Set();
+
+    for (const date in data) {
+      const metrics = data[date]?.project?.metrics_by_iteration?.total;
+      if (!metrics) continue;
+
+      for (const [key, value] of Object.entries(metrics)) {
+        if (
+          !Object.keys(knownKeys).includes(key) &&
+          typeof value === 'number' &&
+          key.startsWith('total_features_') &&
+          Number.isInteger(value)
+        ) {
+          allOtherKeys.add(key);
+        }
+      }
+    }
+
+    for (const key of allOtherKeys) {
+      otherKeysData[key] = [];
+    }
+
+    for (const date in data) {
+      const metrics = data[date]?.project?.metrics_by_iteration?.total || {};
+
+      xDataFeature.push(date);
+
+      for (const [key, label] of Object.entries(knownKeys)) {
+        baseFeatureData[label].push(metrics[key] || 0);
+      }
+
+      for (const key of allOtherKeys) {
+        const value = metrics[key];
+        otherKeysData[key].push(Number.isInteger(value) ? value : 0);
+      }
+    }
+
+    return {
+      xDataFeature,
+      doneFeature: baseFeatureData['Done'],
+      inProgressFeature: baseFeatureData['In Progress'],
+      toDoFeature: baseFeatureData['To Do'],
+      otherKeysData,
+    };
+  };
+
+
+  const {
+    xDataFeature,
+    doneFeature,
+    inProgressFeature,
+    toDoFeature,
+    otherKeysData
+  } = transformFeatureDataForAreaChart(filteredhistoricaData);
+
+  const baseSeries = [
+    { label: 'Done', data: doneFeature, color: 'rgb(0, 255, 0)' },
+    { label: 'In Progress', data: inProgressFeature, color: 'orange' },
+    { label: 'To Do', data: toDoFeature, color: 'rgb(255, 0, 0)' }
+  ];
+
+  const otherSeries = Object.entries(otherKeysData).map(([key, data]) => ({
+    label: key.replace('total_features_', '')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase()),
+    data
+  }));
+
+  const allSeries = [...baseSeries, ...otherSeries];
+
+
   function formatDate(dateStr) {
     const d = new Date(dateStr);
     const day = String(d.getDate()).padStart(2, '0');
@@ -526,6 +614,15 @@ function getFeatureDataForChart(projectData, selectedIteration) {
             xLabel="Data"
             yLabel="Tasks"
             title="Assigned tasks distribution over time"
+          />
+          </div>
+          <div className='radar-chart-container'>
+          <AreaChartMultiple
+            xData={xDataFeature}
+            seriesData={allSeries}
+            xLabel="Date"
+            yLabel="Features"
+            title="Features Over Time"
           />
           </div>
           </div>
