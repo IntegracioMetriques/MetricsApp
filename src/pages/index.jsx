@@ -70,26 +70,56 @@ function Index({data,historicData,features}) {
   let radarData = {};
 
   radarData['Non-Anonymous Commits'] = 
-    (data.commits.total - data.commits.anonymous) / data.commits.total;
+     data.commits.total > 0 ? (data.commits.total - data.commits.anonymous) / data.commits.total : 0;
 
   if (features.includes('issues')) {
     radarData['Issues Assigned'] = 
-      (data.issues.total - data.issues.assigned.non_assigned) / data.issues.total;
+       data.issues.total > 0 ? (data.issues.total - data.issues.assigned.non_assigned) / data.issues.total : 0;
 
     radarData['Issues associated PR'] = 
-      data.issues.have_pull_request / data.issues.total_closed;
+      data.issues.total_closed > 0 ?  data.issues.have_pull_request / data.issues.total_closed : 0;
   }
 
   if (features.includes('pull-requests')) {
     radarData['Pull Requests Merged'] = 
-      data.pull_requests.merged / (data.pull_requests.total - data.pull_requests.closed);
+      (data.pull_requests.total - data.pull_requests.closed) > 0 ? data.pull_requests.merged / (data.pull_requests.total - data.pull_requests.closed) : 0;
 
     radarData['Pull Requests Reviewed'] = 
-      data.pull_requests.not_merged_by_author / data.pull_requests.merged;
+      data.pull_requests.merged > 0 ? data.pull_requests.not_merged_by_author / data.pull_requests.merged : 0;
 
     radarData['Pull Requests Merges'] = 
-      data.pull_requests.merged / data.commit_merges;
+      data.commit_merges > 0 ? data.pull_requests.merged / data.commit_merges : 0;
   }
+  if (features.includes('projects')) {
+    const taskData = data.project.metrics_by_iteration.total;
+    const { non_assigned, ...assignedPerMember } = taskData.assigned_per_member;
+    const totalAssigned = Object.values(assignedPerMember).reduce((sum, current) => sum + current, 0);
+    const totalTasks = taskData.total_tasks;
+    radarData['Tasks Assigned'] =
+      totalTasks > 0 ? totalAssigned / totalTasks : 0
+
+    const todo = taskData.todo
+    const inProgress = taskData.in_progress
+    const done = taskData.done 
+    const standard = todo + inProgress + done;
+    radarData['Tasks With Standard Status'] = 
+      totalTasks > 0 ? standard / totalTasks : 0
+
+    const totalDraftIssues = taskData.total 
+    const totalIssues = taskData.total_issues
+    radarData['DrafIssues that are Issues'] = 
+      totalDraftIssues > 0 ? totalIssues / totalDraftIssues : 0
+    const IssuesWithType = taskData.total_issues_with_type
+    radarData['Projects Issues with type'] = 
+      totalIssues > 0 ? IssuesWithType / totalIssues : 0
+    if(data.project.has_iterations) {
+      const noIterationDraftIssues = data.project.metrics_by_iteration.no_iteration.total
+      const iterationDraftIssues = totalDraftIssues - noIterationDraftIssues
+      radarData['DraftIssues with iteration'] = 
+        totalDraftIssues > 0 ? iterationDraftIssues / totalDraftIssues : 0
+    }
+  }
+
   const transformDataForLineChart = (data) => {
     const xData = []; 
     const yData = []; 
@@ -194,9 +224,9 @@ function Index({data,historicData,features}) {
   const { xDataTask, doneTask, inProgressTask,toDoTask,otherKeysData } = transformTaskDataForAreaChart(filteredhistoricaData);
   
   const baseSeries = [
-    { label: 'To Do', data: toDoTask, color: "rgb(255, 0, 0)" },
+    { label: 'Done', data: doneTask, color: "rgb(0, 255, 0)" },
     { label: 'In Progress', data: inProgressTask, color: 'orange' },
-    { label: 'Done', data: doneTask, color: "rgb(0, 255, 0)" }
+    { label: 'To Do', data: toDoTask, color: "rgb(255, 0, 0)" }
   ];
 
   const otherSeries = Object.entries(otherKeysData).map(([key, data]) => ({
