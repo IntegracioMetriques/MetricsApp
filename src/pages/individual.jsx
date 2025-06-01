@@ -143,6 +143,81 @@ function Individual({ data, historicData, features }) {
     return { xDataMergedPRs, yDataMergedPRs };
   };
   const { xDataMergedPRs, yDataMergedPRs } = transformMergedPRsDataForUser(filteredhistoricaData, selectedUser);
+  const transformTasksAssignedDataForUser = (data, username) => {
+    const xDataTasksAssigned = [];
+    const yDataTasksAssigned = [];
+
+    for (const date in data) {
+      xDataTasksAssigned.push(date);
+      const assigned = data[date]?.project?.metrics_by_iteration?.total?.assigned_per_member?.[username] || 0;
+      yDataTasksAssigned.push(assigned);
+    }
+
+    return { xDataTasksAssigned, yDataTasksAssigned };
+  };
+
+  const { xDataTasksAssigned, yDataTasksAssigned } = transformTasksAssignedDataForUser(filteredhistoricaData, selectedUser);
+  
+    
+  const transformTasksToDoDataForUser = (data, username) => {
+    const xDataTasksToDo = [];
+    const yDataTasksToDo = [];
+
+    for (const date in data) {
+      xDataTasksToDo.push(date);
+      yDataTasksToDo.push(data[date].project?.metrics_by_iteration?.total?.todo_per_member?.[username] || 0);
+    }
+
+    return { xDataTasksToDo, yDataTasksToDo };
+  };
+
+  const { xDataTasksToDo, yDataTasksToDo } = transformTasksToDoDataForUser(filteredhistoricaData, selectedUser);
+
+  const transformTasksInProgressDataForUser = (data, username) => {
+    const xDataTasksInProgress = [];
+    const yDataTasksInProgress = [];
+
+    for (const date in data) {
+      xDataTasksInProgress.push(date);
+      yDataTasksInProgress.push(data[date].project?.metrics_by_iteration?.total?.in_progress_per_member?.[username] || 0);
+    }
+
+    return { xDataTasksInProgress, yDataTasksInProgress };
+  };
+  
+  const { xDataTasksInProgress, yDataTasksInProgress } = transformTasksInProgressDataForUser(filteredhistoricaData, selectedUser);
+
+  const transformTasksDoneDataForUser = (data, username) => {
+  const xDataTasksDone = [];
+  const yDataTasksDone = [];
+
+  for (const date in data) {
+    xDataTasksDone.push(date);
+    const done = data[date]?.project?.metrics_by_iteration?.total?.done_per_member?.[username] || 0;
+    yDataTasksDone.push(done);
+  }
+
+  return { xDataTasksDone, yDataTasksDone };
+  };
+
+  const { xDataTasksDone, yDataTasksDone } = transformTasksDoneDataForUser(filteredhistoricaData, selectedUser);
+
+  const transformTasksStandardDataForUser = (data, username) => {
+    const xDataTasksStandard = [];
+    const yDataTasksStandard = [];
+
+    for (const date in data) {
+      xDataTasksStandard.push(date);
+      const todo = data[date]?.project?.metrics_by_iteration?.total?.todo_per_member?.[username] || 0;
+      const inProgress = data[date]?.project?.metrics_by_iteration?.total?.in_progress_per_member?.[username] || 0;
+      const done = data[date]?.project?.metrics_by_iteration?.total?.done_per_member?.[username] || 0;
+      yDataTasksStandard.push(todo + inProgress + done);
+    }
+
+    return { xDataTasksStandard, yDataTasksStandard };
+  };
+  
+  const { xDataTasksStandard, yDataTasksStandard } = transformTasksStandardDataForUser(filteredhistoricaData, selectedUser);
 
   return (
     <div>
@@ -340,7 +415,7 @@ function Individual({ data, historicData, features }) {
           <GaugeChart
                     user={selectedUser}
                     percentage= {percentageTasksInProgress}
-                    totalPeople= {totalPeople}
+                    totalPeople= {1}
                   /> 
         </div>)}
         {features.includes("projects") && (
@@ -355,7 +430,7 @@ function Individual({ data, historicData, features }) {
           <GaugeChart
                     user={selectedUser}
                     percentage= {percentageTasksDone}
-                    totalPeople= {totalPeople}
+                    totalPeople= {1}
                   /> 
         </div>)}
         {features.includes("projects") && (
@@ -370,7 +445,7 @@ function Individual({ data, historicData, features }) {
           <GaugeChart
                     user={selectedUser}
                     percentage= {percentageTasksStandard}
-                    totalPeople= {totalPeople}
+                    totalPeople= {1}
                   /> 
         </div>)}
       </div>
@@ -380,65 +455,121 @@ function Individual({ data, historicData, features }) {
       {historicData ? (
         <>
       <div className='radar-charts-wrapper'>
-          <div className='radar-chart-container'>
-             <LineChart
-                xData={xDataCommits}
-                yData={yDataCommits}
-                xLabel="Date"
-                yLabel="Commits"
-                title="Commits Over Time"
-                />
+            <div className='radar-chart-container'>
+              <LineChart
+                  xData={xDataCommits}
+                  yData={yDataCommits}
+                  xLabel="Date"
+                  yLabel="Commits"
+                  title="Commits Over Time"
+                  />
               </div>
               <div className='radar-chart-container'>
-             <LineChart
-                xData={xDataModifiedLines}
-                yData={yDataModifiedLines}
-                xLabel="Date"
-                yLabel="Modified Lines"
-                title="Modified Lines Over Time"
-                />
-              </div>
+                <LineChart
+                    xData={xDataModifiedLines}
+                    yData={yDataModifiedLines}
+                    xLabel="Date"
+                    yLabel="Modified Lines"
+                    title="Modified Lines Over Time"
+                    />
+                  </div>
             {features.includes("issues") && (
 
               <div className='radar-chart-container'>
-             <LineChart
-                xData={xDataAssignedIssues}
-                yData={yDataAssignedIssues}
-                xLabel="Date"
-                yLabel="Issues"
-                title="Assigned Issues Over Time"
-                />
+                <LineChart
+                    xData={xDataAssignedIssues}
+                    yData={yDataAssignedIssues}
+                    xLabel="Date"
+                    yLabel="Issues"
+                    title="Assigned Issues Over Time"
+                    />
               </div>)}
             {features.includes("issues") && (
               <div className='radar-chart-container'>
-             <LineChart
-                xData={xDataClosedIssues}
-                yData={yDataClosedIssues}
-                xLabel="Date"
-                yLabel="Issues"
-                title="Clossed Issues Over Time"
-                />
+                <LineChart
+                    xData={xDataClosedIssues}
+                    yData={yDataClosedIssues}
+                    xLabel="Date"
+                    yLabel="Issues"
+                    title="Clossed Issues Over Time"
+                    />
               </div>)}
             {features.includes("pull-requests") && (
               <div className='radar-chart-container'>
-             <LineChart
-                xData={xDataCreatedPRs}
-                yData={yDataCreatedPRs}
-                xLabel="Date"
-                yLabel="Pull Requests"
-                title="Pull Requests Created Over Time"
+                <LineChart
+                    xData={xDataCreatedPRs}
+                    yData={yDataCreatedPRs}
+                    xLabel="Date"
+                    yLabel="Pull Requests"
+                    title="Pull Requests Created Over Time"
                 />
               </div>)}
               {features.includes("pull-requests") && (
               <div className='radar-chart-container'>
-             <LineChart
-                xData={xDataMergedPRs}
-                yData={yDataMergedPRs}
-                xLabel="Date"
-                yLabel="Pull Requests"
-                title="Pull Requests Merged Over Time"
-                />
+                <LineChart
+                    xData={xDataMergedPRs}
+                    yData={yDataMergedPRs}
+                    xLabel="Date"
+                    yLabel="Pull Requests"
+                    title="Pull Requests Merged Over Time"
+                  />
               </div>)}
+              {features.includes("projects") && (
+              <div className='radar-chart-container'>
+                <LineChart
+                  xData={xDataTasksAssigned}
+                  yData={yDataTasksAssigned}
+                  xLabel="Date"
+                  yLabel="Tasks Assigned"
+                  title="Tasks Assigned Over Time"
+                />
+              </div>
+              )}
+            {features.includes("projects") && (
+              <div className='radar-chart-container'>
+                <LineChart
+                  xData={xDataTasksToDo}
+                  yData={yDataTasksToDo}
+                  xLabel="Date"
+                  yLabel="Tasks ToDo"
+                  title="Tasks ToDo Over Time"
+                />
+              </div>
+            )}
+            {features.includes("projects") && (
+              <div className='radar-chart-container'>
+                <LineChart
+                  xData={xDataTasksInProgress}
+                  yData={yDataTasksInProgress}
+                  xLabel="Date"
+                  yLabel="Tasks In Progress"
+                  title="Tasks In Progress Over Time"
+                />
+              </div>
+            )}
+            {features.includes("projects") && (
+              <div className='radar-chart-container'>
+                <LineChart
+                  xData={xDataTasksDone}
+                  yData={yDataTasksDone}
+                  xLabel="Date"
+                  yLabel="Tasks Done"
+                  title="Tasks Done Over Time"
+                />
+              </div>
+            )}
+
+            {features.includes("projects") && (
+              <div className='radar-chart-container'>
+                <LineChart
+                  xData={xDataTasksStandard}
+                  yData={yDataTasksStandard}
+                  xLabel="Date"
+                  yLabel="Standard Tasks"
+                  title="Standard Tasks Over Time"
+                />
+              </div>
+            )}
           </div>
       </>) : (
             <div style={{
