@@ -5,9 +5,6 @@ const AreaChartMultiple = ({ xData, seriesData, xLabel, yLabel, title }) => {
   const chartRef = useRef(null);
 
   useEffect(() => {
-    if (!xData || !seriesData || xData.length === 0 || seriesData.length === 0) {
-        return <div>No hi ha dades</div>;
-      }
     const chart = echarts.init(chartRef.current);
 
     const option = {
