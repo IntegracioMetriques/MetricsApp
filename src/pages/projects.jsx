@@ -101,7 +101,7 @@ const getActiveIteration = () => {
   const taskDataTotal = data.project.metrics_by_iteration['total']
   const draftIssuesTotal = taskDataTotal.total
   const draftIssuesNoIteration = taskDataNoIteration.total
-  const transformAssignedPRsDataForLineChart = (dataHistoric, selectedIteration, iterations) => {
+  const transformAssignedDataForLineChart = (dataHistoric, selectedIteration, iterations) => {
   let allDates = [];
   if (!dataHistoric) return { xDataAssigned: [], seriesDataAssigned: [] }
 
@@ -154,11 +154,11 @@ const getActiveIteration = () => {
   return { xDataAssigned: allDates, seriesDataAssigned };
 };
 
-  const { xDataAssigned, seriesDataAssigned } = transformAssignedPRsDataForLineChart(
+  const { xDataAssigned, seriesDataAssigned } = transformAssignedDataForLineChart(
     filteredhistoricaData,
     selectedIteration,
     data.project.iterations
-  );  
+  );
   function formatDate(dateStr) {
     const d = new Date(dateStr);
     const day = String(d.getDate()).padStart(2, '0');
@@ -192,30 +192,49 @@ const getActiveIteration = () => {
     ];
   };
 
-  function getFeatureDataForChart(projectData,selectedIteration) {
-    
-    const iterationData = projectData?.project?.metrics_by_iteration?.[selectedIteration];
+function getFeatureDataForChart(projectData, selectedIteration) {
+  const iterationData = projectData?.project?.metrics_by_iteration?.[selectedIteration];
+  if (!iterationData) return { baseData: [], otherData: [] };
 
-    if (!iterationData) return [];
+  const baseData = [];
+  const otherData = [];
 
-    const {
-      total_features = 0,
-      total_features_done = 0,
-      total_features_in_progress = 0,
-    } = iterationData;
-    const total_features_todo = total_features - total_features_done - total_features_in_progress
-    return [
-      ['ToDo', total_features_todo],
-      ['In Progress', total_features_in_progress],
-      ['Done', total_features_done],
-    ];
+  const knownKeys = {
+    total_features_todo: 'To Do',
+    total_features_in_progress: 'In Progress',
+    total_features_done: 'Done',
   };
+
+  for (const [key, label] of Object.entries(knownKeys)) {
+    const value = iterationData[key] || 0;
+    baseData.push({ label, value });
+  }
+
+  for (const [key, value] of Object.entries(iterationData)) {
+    if (
+      key.startsWith('total_features_') &&
+      !knownKeys.hasOwnProperty(key)
+    ) {
+      const label = key
+        .replace('total_features_', '')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase());
+      otherData.push({ label, value });
+    }
+  }
+
+  return { baseData, otherData };
+}
   
   const typePieChartData = getTypeDataForChart(data, selectedIteration);
   const typeColorsPieChart = ["orange", "#0f58ff","red"];  
 
-  const featurePieChartData = getFeatureDataForChart(data, selectedIteration);
-  const featureColorsPieChart = ["green", "orange","red"];  
+  const { baseData, otherData } = getFeatureDataForChart(data, selectedIteration);
+
+  const featurePieChartData = [
+    ...baseData.map(item => [item.label, item.value]),
+    ...otherData.map(item => [item.label, item.value])
+  ];  const featureColorsPieChart = ["green", "orange","red"];  
   return (
     
     <div className="commits-container">
@@ -373,7 +392,8 @@ const getActiveIteration = () => {
                 totalPeople= {1}
               />
         </div>
-        <div>
+        {data.project.has_iterations && (
+          <div>
           <h2 className="section-title">
             DraftIssues with iteration
               <span className="custom-tooltip">
@@ -386,7 +406,7 @@ const getActiveIteration = () => {
                 percentage={draftIssuesTotal > 0 ? (draftIssuesTotal - draftIssuesNoIteration) / draftIssuesTotal : 0}
                 totalPeople= {1}
               />
-        </div>
+        </div>)}
       </div>
       </div>
       <div className='section-background'>
