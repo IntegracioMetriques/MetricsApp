@@ -395,11 +395,11 @@ function getFeatureDataForChart(projectData, selectedIteration) {
               {iterationName}
             </option>
           ))}
-        </select> 
-      </div>
-        <div style={{ marginTop: '0.5rem', marginLeft: '1rem', marginBottom: '1rem',fontSize: '1.15rem', color: '#555' }}>
+        </select>
+          <div className='date-range'>
           {getDateRangeForIteration(selectedIteration)}
-        </div>
+        </div> 
+      </div>
       <div className='section-background'>
       <h2>Summary</h2>
       <div className="summary-charts-container">
