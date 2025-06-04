@@ -96,12 +96,12 @@ const getActiveIteration = () => {
 
   const totalIssues = taskData.total_issues
   const totalIssuesWithType = taskData.total_issues_with_type
-  const totalDraftIssues =  taskData.total
+  const totalItems =  taskData.total
   
   const taskDataNoIteration = data.project.metrics_by_iteration['no_iteration']
   const taskDataTotal = data.project.metrics_by_iteration['total']
-  const draftIssuesTotal = taskDataTotal.total
-  const draftIssuesNoIteration = taskDataNoIteration.total
+  const itemsTotal = taskDataTotal.total
+  const itemsNoIteration = taskDataNoIteration.total
   const transformAssignedDataForLineChart = (dataHistoric, selectedIteration, iterations) => {
   let allDates = [];
   if (!dataHistoric) return { xDataAssigned: [], seriesDataAssigned: [] }
@@ -457,12 +457,12 @@ function getFeatureDataForChart(projectData, selectedIteration) {
             Issues
               <span className="custom-tooltip">
                 ⓘ
-                <span className="tooltip-text">Percentage of DraftIssues that are Issues</span>
+                <span className="tooltip-text">Percentage of Items that are Issues</span>
               </span>
             </h2>
               <GaugeChart
                 user="Issues"
-                percentage={totalDraftIssues > 0 ? totalIssues / totalDraftIssues : 0}
+                percentage={totalItems > 0 ? totalIssues / totalItems : 0}
                 totalPeople= {1}
               />
         </div>
@@ -471,7 +471,7 @@ function getFeatureDataForChart(projectData, selectedIteration) {
             Issues with type
               <span className="custom-tooltip">
                 ⓘ
-                <span className="tooltip-text">Percentage of Issues that have a type</span>
+                <span className="tooltip-text">Percentage of Issues that have a type assigned</span>
               </span>
             </h2>
               <GaugeChart
@@ -483,15 +483,15 @@ function getFeatureDataForChart(projectData, selectedIteration) {
         {data.project.has_iterations && (
           <div>
           <h2 className="section-title">
-            DraftIssues with iteration
+            Items with iteration
               <span className="custom-tooltip">
                 ⓘ
-                <span className="tooltip-text">Percentage of DraftIssues that have an iteration</span>
+                <span className="tooltip-text">Percentage of Items that are assigned to an iteration</span>
               </span>
             </h2>
               <GaugeChart
                 user="Issues"
-                percentage={draftIssuesTotal > 0 ? (draftIssuesTotal - draftIssuesNoIteration) / draftIssuesTotal : 0}
+                percentage={itemsTotal > 0 ? (itemsTotal - itemsNoIteration) / itemsTotal : 0}
                 totalPeople= {1}
               />
         </div>)}

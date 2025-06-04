@@ -107,7 +107,7 @@ function Index({data,historicData,features}) {
 
     const totalDraftIssues = taskData.total 
     const totalIssues = taskData.total_issues
-    radarData['DrafIssues that are Issues'] = 
+    radarData['Items that are Issues'] = 
       totalDraftIssues > 0 ? totalIssues / totalDraftIssues : 0
     const IssuesWithType = taskData.total_issues_with_type
     radarData['Projects Issues with type'] = 
@@ -115,7 +115,7 @@ function Index({data,historicData,features}) {
     if(data.project.has_iterations) {
       const noIterationDraftIssues = data.project.metrics_by_iteration.no_iteration.total
       const iterationDraftIssues = totalDraftIssues - noIterationDraftIssues
-      radarData['DraftIssues with iteration'] = 
+      radarData['Items with iteration'] = 
         totalDraftIssues > 0 ? iterationDraftIssues / totalDraftIssues : 0
     }
   }
