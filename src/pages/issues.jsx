@@ -3,67 +3,30 @@ import GaugeChart from '../components/gaugeChart';
 import RadarPieToggle from '../components/radarPieToggle';
 import LineChartMultiple from '../components/lineChartMultiple';
 import usePersistentStateSession  from '../components/usePersistentStateSession';
+import {
+  filterHistoricData,
+  transformAssignedIssuesDataForLineChart,
+  getRadarAndPieDataAssigned,
+  getGaugeDataAssigned,
+  getGaugeDataAssignedPerUser,
+  getGaugeDataClosedPerUser,
+  getGaugeDataHavePR
+} from '../domain/issues';
 
 import '../styles/commits.css';
 
 function Issues({ data,historicData,features }) {
   const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalIssues', false);
   const [dateRange, setDateRange] = usePersistentStateSession('dateRangeIssues', "7");
-    const filterHistoricData = (data, days) => {
-      if (days === "lifetime") return data;
   
-      const today = new Date();
-      const cutoff = new Date(today);
-      cutoff.setDate(today.getDate() - parseInt(days));
-      const cutoffDateString = cutoff.toISOString().split("T")[0];
-      const filtered = {};
-      for (const date in data) {
-        if (date >= cutoffDateString) {
-          filtered[date] = data[date];
-        }
-      }
-  
-      return filtered;
-    };
-    const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
-
-  const issuesData = data.issues;
-  const totalIssues = issuesData.total;
-  const totalClosed = issuesData.total_closed
-  const havePullRequest = issuesData.have_pull_request
-  const { non_assigned, ...filteredData } = issuesData.assigned;
+  const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
   const totalPeople = Object.keys(data.avatars).length;
-  const totalAssigned = totalIssues - issuesData.assigned['non_assigned']
-  const closedBy = issuesData.closed
-
-
-  const transformAssignedPRsDataForLineChart = (data) => {
-    const xDataAssigned = [];
-    const userSeries = {};
-  
-    for (const date in data) {
-      xDataAssigned.push(date);
-      const issues = data[date].issues.assigned;
-      
-      for (const user in issues) {
-        if(user === 'non_assigned') continue;
-        if (!userSeries[user]) {
-          userSeries[user] = [];
-        }
-        userSeries[user].push(issues[user]);
-      }
-    }
-    const seriesDataAssigned = Object.keys(userSeries).map(user => ({
-      name: user,
-      data: userSeries[user]
-    }));
-  
-    return { xDataAssigned, seriesDataAssigned};
-  };
-
-    const { xDataAssigned, seriesDataAssigned } = transformAssignedPRsDataForLineChart(filteredhistoricaData);
-
-
+  const { xDataAssigned, seriesDataAssigned } = transformAssignedIssuesDataForLineChart(filteredhistoricaData);
+  const percentageAssigned = getGaugeDataAssigned(data);
+  const gaugeDataHavePR = getGaugeDataHavePR(data);
+  const gaugeDataAssigned = getGaugeDataAssignedPerUser(data);
+  const gaugeDataClosed = getGaugeDataClosedPerUser(data);
+  const {radarData,pieData} = getRadarAndPieDataAssigned(data)
   return (
     <div className="commits-container">
       <h1>Issues</h1>
@@ -107,8 +70,8 @@ function Issues({ data,historicData,features }) {
       <div className="summary-charts-container">
         <div className='chart-item'>
           <RadarPieToggle
-              radarData={filteredData}
-              pieData={Object.entries(filteredData)}
+              radarData={radarData}
+              pieData={pieData}
               title={"Assigned Issues distribution"}
             />
         </div>
@@ -123,7 +86,7 @@ function Issues({ data,historicData,features }) {
               <GaugeChart
                 key="assigned"
                 user="assigned"
-                percentage={totalIssues > 0 ? totalAssigned / totalIssues : 0}
+                percentage={percentageAssigned}
                 totalPeople= {1}
               />
         </div>
@@ -141,7 +104,7 @@ function Issues({ data,historicData,features }) {
           <GaugeChart
             key="HavePr"
             user="Have Pull Request"
-            percentage={totalClosed > 0 ? havePullRequest / totalClosed : 0}
+            percentage={gaugeDataHavePR}
             totalPeople= {1}
             />    
         </div>)}
@@ -156,23 +119,16 @@ function Issues({ data,historicData,features }) {
             <span className="tooltip-text">Percentage of issues assigned per user relative to the number of assigned issues</span>
           </span>
         </h2>
-      <div className="gauge-charts-container">
-        {Object.keys(issuesData.assigned).map((user) => {
-          if (user !== 'non_assigned') {
-            const userIssues = issuesData.assigned[user];
-            const percentage = totalAssigned > 0 ? userIssues / totalAssigned : 0;
-            return (
+          <div className="gauge-charts-container">
+            {gaugeDataAssigned.map(({ user, percentage }) => (
               <GaugeChart
-                key={user}
+              key={`assigned-issues-${user}`}
                 user={user}
                 percentage={percentage}
                 totalPeople={totalPeople}
               />
-            );
-          }
-          return null;
-        })}
-      </div>
+            ))}
+          </div>
       <h2 className="section-title">
         Issues closed per user
         <span className="custom-tooltip">
@@ -181,22 +137,17 @@ function Issues({ data,historicData,features }) {
           Percentage of issues closed per user relative to the issues assigned to that user
           </span>
         </span>
-      </h2>
-      <div className="gauge-charts-container">
-        {Object.keys(closedBy).map((user) => {
-          const closedCount = closedBy[user];
-          const assigned = issuesData.assigned[user];
-          const percentage = assigned > 0 ? closedCount / assigned : 0;
-          return (
+      </h2>           
+        <div className="gauge-charts-container">
+          {gaugeDataClosed.map(({ user, percentage }) => (
             <GaugeChart
-              key={`closed-${user}`}
+              key={`closed-issues-${user}`}
               user={user}
               percentage={percentage}
               totalPeople={1}
             />
-          );
-        })}
-      </div>
+          ))}
+        </div>
     </div>
     </>)}
     
