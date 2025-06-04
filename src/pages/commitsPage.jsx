@@ -9,44 +9,40 @@ import {
   filterHistoricData,
   transformCommitsDataForLineChart,
   transformModifiedLinesDataForLineChart,
-  prepareRadarData,
-  getPieChartData,
-  getGaugeChartPercentages,
-  getGaugeChartModifiedLines
+  getPieChartDataCommits,
+  getPieChartDataModifiedLines,
+  getGaugeChartDataCommits,
+  getGaugeChartDataModifiedLines,
+  GetRadarDataCommits,
+  GetRadarDataModifiedLines,
 } from '../domain/commits.jsx';
 
 function CommitsPage({ data, historicData, features }) {
-  const commitsData = data.commits;
-  const modifiedLinesData = data.modified_lines;
-
   const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalCommits', false);
   const [dateRange, setDateRange] = usePersistentStateSession('dateRangeCommits', "7");
 
-  const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
-  const { xDataCommits, seriesDataCommits } = transformCommitsDataForLineChart(filteredhistoricaData);
-  const { xDataModified, seriesModified } = transformModifiedLinesDataForLineChart(filteredhistoricaData);
-  const radarChartModifiedLines = prepareRadarData(modifiedLinesData);
+  const filteredHistoricData = historicData ? filterHistoricData(historicData, dateRange) : null;
 
-  const totalCommits = commitsData.total;
-  const totalModifiedLines = modifiedLinesData.total.modified;
-  const totalPeople = Object.keys(data.avatars).length;
+  const { xData: xDataCommits, seriesData: seriesDataCommits } = transformCommitsDataForLineChart(filteredHistoricData || {});
+  const { xData: xDataModified, seriesData: seriesDataModified } = transformModifiedLinesDataForLineChart(filteredHistoricData || {});
 
-  const dataPieChartCommits = getPieChartData(commitsData);
-  const dataPieChartModifiedLines = getPieChartData(modifiedLinesData, 'modified');
-  const commitsGaugeData = getGaugeChartPercentages(commitsData, 'total', 'anonymous');
-  const modifiedLinesGaugeData = getGaugeChartModifiedLines(modifiedLinesData, 'total');
+  const dataPieChartCommits = getPieChartDataCommits(data);
+  const dataPieChartModifiedLines = getPieChartDataModifiedLines(data);
+  const commitsGaugeData = getGaugeChartDataCommits(data);
+  const modifiedLinesGaugeData = getGaugeChartDataModifiedLines(data);
+  const radarChartCommits = GetRadarDataCommits(data);
+  const radarChartModifiedLines = GetRadarDataModifiedLines(data);
+
+  const totalCommits = data.commits?.total || 0;
+  const totalPeople = Object.keys(data.avatars || {}).length || 1;
 
   return (
     <div className="commits-container">
       <h1>Commits</h1>
       <div className="chart-toggle-wrapper-index">
         <div className="chart-toggle-buttons">
-          <button onClick={() => setShowHistorical(false)} className={!showHistorical ? 'selected' : ''}>
-            Current
-          </button>
-          <button onClick={() => setShowHistorical(true)} className={showHistorical ? 'selected' : ''}>
-            Historical
-          </button>
+          <button onClick={() => setShowHistorical(false)} className={!showHistorical ? 'selected' : ''}>Current</button>
+          <button onClick={() => setShowHistorical(true)} className={showHistorical ? 'selected' : ''}>Historical</button>
         </div>
       </div>
 
@@ -73,10 +69,10 @@ function CommitsPage({ data, historicData, features }) {
             <h2>Summary</h2>
             <div className="summary-charts-container">
               <div className="chart-item">
-                <RadarPieToggle radarData={commitsData} pieData={dataPieChartCommits} title="Commits Distribution" />
+                <RadarPieToggle radarData={radarChartCommits} pieData={dataPieChartCommits} title="Commits Distribution" />
               </div>
               <div className="chart-item">
-                <RadarPieToggle radarData={radarChartModifiedLines} pieData={dataPieChartModifiedLines} title="Modified lines distribution" />
+                <RadarPieToggle radarData={radarChartModifiedLines} pieData={dataPieChartModifiedLines} title="Modified Lines Distribution" />
               </div>
               <div>
                 <h2 className="section-title">
@@ -89,7 +85,7 @@ function CommitsPage({ data, historicData, features }) {
                 <GaugeChart
                   key="non-anonymous"
                   user="non-anonymous"
-                  percentage={totalCommits > 0 ? (totalCommits - commitsData.anonymous) / totalCommits : 0}
+                  percentage={totalCommits > 0 ? (totalCommits - (data.commits?.anonymous || 0)) / totalCommits : 0}
                   totalPeople={1}
                 />
               </div>
@@ -98,6 +94,7 @@ function CommitsPage({ data, historicData, features }) {
 
           <div className="section-background">
             <h2>Metrics by User</h2>
+
             <h2 className="section-title">
               Commits per user
               <span className="custom-tooltip">
@@ -133,17 +130,17 @@ function CommitsPage({ data, historicData, features }) {
             <div className="section-background">
               <div className="radar-charts-wrapper">
                 <div className="radar-chart-container">
-                  <LineChartMultiple xData={xDataCommits} seriesData={seriesDataCommits} xLabel="Data" yLabel="Commits" title="Commits distribution over time" />
+                  <LineChartMultiple xData={xDataCommits} seriesData={seriesDataCommits} xLabel="Date" yLabel="Commits" title="Commits distribution over time" />
                 </div>
                 <div className="radar-chart-container">
-                  <LineChartMultiple xData={xDataModified} seriesData={seriesModified} xLabel="Data" yLabel="Modified Lines" title="Modified lines distribution over time" />
+                  <LineChartMultiple xData={xDataModified} seriesData={seriesDataModified} xLabel="Date" yLabel="Modified Lines" title="Modified lines distribution over time" />
                 </div>
               </div>
             </div>
           ) : (
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center", fontSize: "1.8rem" }}>
               No s'ha trobat <code>historic_metrics.json</code>.<br />
-              Si és el primer dia, torna demà un cop s'hagi fet la primera execució del workflow Daily Metrics.
+              Si és el primer dia, torna demà un cop s'hagi fet la primera execució del bot.
             </div>
           )}
         </>
