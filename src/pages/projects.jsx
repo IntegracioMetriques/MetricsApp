@@ -3,6 +3,7 @@ import GaugeChart from '../components/gaugeChart';
 import RadarPieToggle from '../components/radarPieToggle';
 import PieChart from '../components/pieChart';
 import LineChartMultiple  from '../components/lineChartMultiple';
+import AreaChartMultiple  from '../components/areaChartMultiple';
 import usePersistentStateSession  from '../components/usePersistentStateSession';
 
 import '../styles/commits.css';
@@ -79,29 +80,29 @@ const getActiveIteration = () => {
       : filterHistoricDataByIteration(historicData, selectedIteration)) 
   : null;
   const taskData = data.project.metrics_by_iteration[selectedIteration];
-  const totalTasks = taskData.total_tasks;
-  const totalInProgress = taskData.in_progress
-  const totalDone = taskData.done
-  const totalToDo = taskData.todo
+  const totalTasks = taskData.total_tasks || 0
+  const totalInProgress = taskData.in_progress || 0
+  const totalDone = taskData.done || 0
+  const totalToDo = taskData.todo || 0
 
   const totalStandardStatuses = totalInProgress + totalDone + totalToDo
   
   const { non_assigned, ...assignedPerMember } = taskData.assigned_per_member;
   const totalAssigned = Object.values(assignedPerMember).reduce((sum, current) => sum + current, 0);
-  const inProgresPerMember = taskData.in_progress_per_member;
-  const donePerMember = taskData.done_per_member;
-  const todoPerMember = taskData.todo_per_member;
-  const totalPeople = Object.keys(assignedPerMember).length;
+  const inProgresPerMember = taskData.in_progress_per_member || 0;
+  const donePerMember = taskData.done_per_member || 0;
+  const todoPerMember = taskData.todo_per_member || 0;
+  const totalPeople = Object.keys(data.avatars).length;
 
   const totalIssues = taskData.total_issues
   const totalIssuesWithType = taskData.total_issues_with_type
-  const totalDraftIssues =  taskData.total
+  const totalItems =  taskData.total
   
   const taskDataNoIteration = data.project.metrics_by_iteration['no_iteration']
   const taskDataTotal = data.project.metrics_by_iteration['total']
-  const draftIssuesTotal = taskDataTotal.total
-  const draftIssuesNoIteration = taskDataNoIteration.total
-  const transformAssignedPRsDataForLineChart = (dataHistoric, selectedIteration, iterations) => {
+  const itemsTotal = taskDataTotal.total
+  const itemsNoIteration = taskDataNoIteration.total
+  const transformAssignedDataForLineChart = (dataHistoric, selectedIteration, iterations) => {
   let allDates = [];
   if (!dataHistoric) return { xDataAssigned: [], seriesDataAssigned: [] }
 
@@ -127,9 +128,9 @@ const getActiveIteration = () => {
   const userSeries = {};
   const allUsers = new Set();
 
-const assignedPerMember = data.project.metrics_by_iteration["total"]?.assigned_per_member || {};
+  const assignedPerMember = data.project.metrics_by_iteration["total"]?.assigned_per_member || {};
 
-Object.keys(assignedPerMember)
+  Object.keys(assignedPerMember)
   .filter(u => u !== "non_assigned")
   .forEach(u => allUsers.add(u));
 
@@ -154,11 +155,98 @@ Object.keys(assignedPerMember)
   return { xDataAssigned: allDates, seriesDataAssigned };
 };
 
-  const { xDataAssigned, seriesDataAssigned } = transformAssignedPRsDataForLineChart(
+  const { xDataAssigned, seriesDataAssigned } = transformAssignedDataForLineChart(
     filteredhistoricaData,
     selectedIteration,
     data.project.iterations
-  );  
+  );
+
+  const transformFeatureDataForAreaChart = (data) => {
+    const xDataFeature = [];
+    const knownKeys = {
+      total_features_done: 'Done',
+      total_features_in_progress: 'In Progress',
+      total_features_todo: 'To Do',
+    };
+
+    const baseFeatureData = {
+      Done: [],
+      'In Progress': [],
+      'To Do': [],
+    };
+
+    const otherKeysData = {};
+    const allOtherKeys = new Set();
+
+    for (const date in data) {
+      const metrics = data[date]?.project?.metrics_by_iteration?.total;
+      if (!metrics) continue;
+
+      for (const [key, value] of Object.entries(metrics)) {
+        if (
+          !Object.keys(knownKeys).includes(key) &&
+          typeof value === 'number' &&
+          key.startsWith('total_features_') &&
+          Number.isInteger(value)
+        ) {
+          allOtherKeys.add(key);
+        }
+      }
+    }
+
+    for (const key of allOtherKeys) {
+      otherKeysData[key] = [];
+    }
+
+    for (const date in data) {
+      const metrics = data[date]?.project?.metrics_by_iteration?.total || {};
+
+      xDataFeature.push(date);
+
+      for (const [key, label] of Object.entries(knownKeys)) {
+        baseFeatureData[label].push(metrics[key] || 0);
+      }
+
+      for (const key of allOtherKeys) {
+        const value = metrics[key];
+        otherKeysData[key].push(Number.isInteger(value) ? value : 0);
+      }
+    }
+
+    return {
+      xDataFeature,
+      doneFeature: baseFeatureData['Done'],
+      inProgressFeature: baseFeatureData['In Progress'],
+      toDoFeature: baseFeatureData['To Do'],
+      otherKeysData,
+    };
+  };
+
+
+  const {
+    xDataFeature,
+    doneFeature,
+    inProgressFeature,
+    toDoFeature,
+    otherKeysData
+  } = transformFeatureDataForAreaChart(filteredhistoricaData);
+
+  const baseSeries = [
+    { label: 'Done', data: doneFeature, color: 'rgb(0, 255, 0)' },
+    { label: 'In Progress', data: inProgressFeature, color: 'orange' },
+    { label: 'To Do', data: toDoFeature, color: 'rgb(255, 0, 0)' }
+  ];
+
+  const otherSeries = Object.entries(otherKeysData).map(([key, data]) => ({
+    label: key.replace('total_features_', '')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase()),
+    data
+  }));
+
+  const allSeries = [...baseSeries, ...otherSeries];
+
+
   function formatDate(dateStr) {
     const d = new Date(dateStr);
     const day = String(d.getDate()).padStart(2, '0');
@@ -192,30 +280,49 @@ Object.keys(assignedPerMember)
     ];
   };
 
-  function getFeatureDataForChart(projectData,selectedIteration) {
-    
-    const iterationData = projectData?.project?.metrics_by_iteration?.[selectedIteration];
+function getFeatureDataForChart(projectData, selectedIteration) {
+  const iterationData = projectData?.project?.metrics_by_iteration?.[selectedIteration];
+  if (!iterationData) return { baseData: [], otherData: [] };
 
-    if (!iterationData) return [];
+  const baseData = [];
+  const otherData = [];
 
-    const {
-      total_features,
-      total_features_done = 0,
-      total_features_in_progress = 0,
-    } = iterationData;
-    const total_features_todo = total_features - total_features_done - total_features_in_progress
-    return [
-      ['ToDo', total_features_todo],
-      ['In Progress', total_features_in_progress],
-      ['Done', total_features_done],
-    ];
+  const knownKeys = {
+    total_features_todo: 'To Do',
+    total_features_in_progress: 'In Progress',
+    total_features_done: 'Done',
   };
+
+  for (const [key, label] of Object.entries(knownKeys)) {
+    const value = iterationData[key] || 0;
+    baseData.push({ label, value });
+  }
+
+  for (const [key, value] of Object.entries(iterationData)) {
+    if (
+      key.startsWith('total_features_') &&
+      !knownKeys.hasOwnProperty(key)
+    ) {
+      const label = key
+        .replace('total_features_', '')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase());
+      otherData.push({ label, value });
+    }
+  }
+
+  return { baseData, otherData };
+}
   
   const typePieChartData = getTypeDataForChart(data, selectedIteration);
   const typeColorsPieChart = ["orange", "#0f58ff","red"];  
 
-  const featurePieChartData = getFeatureDataForChart(data, selectedIteration);
-  const featureColorsPieChart = ["green", "orange","red"];  
+  const { baseData, otherData } = getFeatureDataForChart(data, selectedIteration);
+
+  const featurePieChartData = [
+    ...baseData.map(item => [item.label, item.value]),
+    ...otherData.map(item => [item.label, item.value])
+  ];  const featureColorsPieChart = ["green", "orange","red"];  
   return (
     
     <div className="commits-container">
@@ -288,11 +395,11 @@ Object.keys(assignedPerMember)
               {iterationName}
             </option>
           ))}
-        </select> 
-      </div>
-        <div style={{ marginTop: '0.5rem', marginLeft: '1rem', marginBottom: '1rem',fontSize: '1.15rem', color: '#555' }}>
+        </select>
+          <div className='date-range'>
           {getDateRangeForIteration(selectedIteration)}
-        </div>
+        </div> 
+      </div>
       <div className='section-background'>
       <h2>Summary</h2>
       <div className="summary-charts-container">
@@ -350,12 +457,12 @@ Object.keys(assignedPerMember)
             Issues
               <span className="custom-tooltip">
                 ⓘ
-                <span className="tooltip-text">Percentage of DraftIssues that are Issues</span>
+                <span className="tooltip-text">Percentage of Items that are Issues</span>
               </span>
             </h2>
               <GaugeChart
                 user="Issues"
-                percentage={totalDraftIssues > 0 ? totalIssues / totalDraftIssues : 0}
+                percentage={totalItems > 0 ? totalIssues / totalItems : 0}
                 totalPeople= {1}
               />
         </div>
@@ -364,7 +471,7 @@ Object.keys(assignedPerMember)
             Issues with type
               <span className="custom-tooltip">
                 ⓘ
-                <span className="tooltip-text">Percentage of Issues that have a type</span>
+                <span className="tooltip-text">Percentage of Issues that have a type assigned</span>
               </span>
             </h2>
               <GaugeChart
@@ -373,20 +480,21 @@ Object.keys(assignedPerMember)
                 totalPeople= {1}
               />
         </div>
-        <div>
+        {data.project.has_iterations && (
+          <div>
           <h2 className="section-title">
-            DraftIssues with iteration
+            Items with iteration
               <span className="custom-tooltip">
                 ⓘ
-                <span className="tooltip-text">Percentage of DraftIssues that have an iteration</span>
+                <span className="tooltip-text">Percentage of Items that are assigned to an iteration</span>
               </span>
             </h2>
               <GaugeChart
                 user="Issues"
-                percentage={draftIssuesTotal > 0 ? (draftIssuesTotal - draftIssuesNoIteration) / draftIssuesTotal : 0}
+                percentage={itemsTotal > 0 ? (itemsTotal - itemsNoIteration) / itemsTotal : 0}
                 totalPeople= {1}
               />
-        </div>
+        </div>)}
       </div>
       </div>
       <div className='section-background'>
@@ -506,6 +614,15 @@ Object.keys(assignedPerMember)
             xLabel="Data"
             yLabel="Tasks"
             title="Assigned tasks distribution over time"
+          />
+          </div>
+          <div className='radar-chart-container'>
+          <AreaChartMultiple
+            xData={xDataFeature}
+            seriesData={allSeries}
+            xLabel="Date"
+            yLabel="Features"
+            title="Features Over Time"
           />
           </div>
           </div>

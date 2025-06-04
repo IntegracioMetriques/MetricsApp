@@ -131,3 +131,13 @@
   width: 450px;
   height: 350px;
 }
+
+.date-range {
+  margin-top: 0.5rem;
+  margin-left: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1.15rem;
+  color: #555;
+  width: 220px;
+  height: 30px;
+}

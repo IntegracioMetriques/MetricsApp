@@ -3,8 +3,6 @@ import "../styles/index.css";
 import PieChart from '../components/pieChart';
 import RadarChart from '../components/radarChart';
 import LineChart from '../components/lineChart';
-import BarChart from '../components/barChart';
-import BarLineChart from '../components/barLineChart';
 import AreaChart from '../components/areaChart';
 import GaugeChart from '../components/gaugeChart';
 import AreaChartMultiple from '../components/areaChartMultiple';
@@ -69,41 +67,59 @@ function Index({data,historicData,features}) {
   const colorsPR = ["red", "orange","green"];  
   const colorsIssues = ["red","green"];
   const colorsProject = ["red", "orange","green"]; 
-  const nonAnonymousCommits = data.commits.total - data.commits.anonymous / data.commits.total
-  const issuesAssigned = data.issues.total - data.issues.assigned.non_assigned / data.issues.total
-  const issueswithPR = data.issues.have_pull_request / data.issues.total_closed
-  const pullRequestsMerged = data.pull_requests.merged / data.pull_requests.total - data.pull_requests.closed
-  const pullRequestsReviewed = data.pull_requests.not_merged_by_author / data.pull_requests.merged
-  const pullRequestsMerges = data.pull_requests.merged / data.commit_merges
-  let radarData;
-  if (features.includes('issues') && features.includes('pull-requests')) {
-    radarData = {
-      'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
-      'Issues Assigned': (data.issues.total - data.issues.assigned.non_assigned) / data.issues.total,
-      'Issues associated PR': data.issues.have_pull_request / data.issues.total_closed,
-      'Pull Requests Merged': data.pull_requests.merged / (data.pull_requests.total - data.pull_requests.closed),
-      'Pull Requests Reviewed': data.pull_requests.not_merged_by_author / data.pull_requests.merged,
-      'Pull Requests Merges': data.pull_requests.merged / data.commit_merges,
-    };
+  let radarData = {};
+
+  radarData['Non-Anonymous Commits'] = 
+     data.commits.total > 0 ? (data.commits.total - data.commits.anonymous) / data.commits.total : 0;
+
+  if (features.includes('issues')) {
+    radarData['Issues Assigned'] = 
+       data.issues.total > 0 ? (data.issues.total - data.issues.assigned.non_assigned) / data.issues.total : 0;
+
+    radarData['Issues associated PR'] = 
+      data.issues.total_closed > 0 ?  data.issues.have_pull_request / data.issues.total_closed : 0;
   }
-  else if (!(features.includes('issues')) && features.includes('pull-requests')) {
-    radarData = {
-      'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
-      'Pull Requests Merged': data.pull_requests.merged / (data.pull_requests.total - data.pull_requests.closed),
-      'Pull Requests Reviewed': data.pull_requests.not_merged_by_author / data.pull_requests.merged,
-      'Pull Requests Merges': data.pull_requests.merged / data.commit_merges,
-    };
+
+  if (features.includes('pull-requests')) {
+    radarData['Pull Requests Merged'] = 
+      (data.pull_requests.total - data.pull_requests.closed) > 0 ? data.pull_requests.merged / (data.pull_requests.total - data.pull_requests.closed) : 0;
+
+    radarData['Pull Requests Reviewed'] = 
+      data.pull_requests.merged > 0 ? data.pull_requests.not_merged_by_author / data.pull_requests.merged : 0;
+
+    radarData['Pull Requests Merges'] = 
+      data.commit_merges > 0 ? data.pull_requests.merged / data.commit_merges : 0;
   }
-  else if (features.includes('issues') && !(features.includes('pull-requests'))) {
-    radarData = {
-      'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
-      'Issues Assigned': (data.issues.total - data.issues.assigned.non_assigned) / data.issues.total,
-    };
-  } else {
-    radarData = {
-      'Non-Anonymous Commits': (data.commits.total - data.commits.anonymous) / data.commits.total,
-    };
+  if (features.includes('projects')) {
+    const taskData = data.project.metrics_by_iteration.total;
+    const { non_assigned, ...assignedPerMember } = taskData.assigned_per_member;
+    const totalAssigned = Object.values(assignedPerMember).reduce((sum, current) => sum + current, 0);
+    const totalTasks = taskData.total_tasks;
+    radarData['Tasks Assigned'] =
+      totalTasks > 0 ? totalAssigned / totalTasks : 0
+
+    const todo = taskData.todo
+    const inProgress = taskData.in_progress
+    const done = taskData.done 
+    const standard = todo + inProgress + done;
+    radarData['Tasks With Standard Status'] = 
+      totalTasks > 0 ? standard / totalTasks : 0
+
+    const totalDraftIssues = taskData.total 
+    const totalIssues = taskData.total_issues
+    radarData['Items that are Issues'] = 
+      totalDraftIssues > 0 ? totalIssues / totalDraftIssues : 0
+    const IssuesWithType = taskData.total_issues_with_type
+    radarData['Projects Issues with type'] = 
+      totalIssues > 0 ? IssuesWithType / totalIssues : 0
+    if(data.project.has_iterations) {
+      const noIterationDraftIssues = data.project.metrics_by_iteration.no_iteration.total
+      const iterationDraftIssues = totalDraftIssues - noIterationDraftIssues
+      radarData['Items with iteration'] = 
+        totalDraftIssues > 0 ? iterationDraftIssues / totalDraftIssues : 0
+    }
   }
+
   const transformDataForLineChart = (data) => {
     const xData = []; 
     const yData = []; 
@@ -114,41 +130,54 @@ function Index({data,historicData,features}) {
       
     return { xData, yData };
     };
-const { xData, yData } = transformDataForLineChart(filteredhistoricaData);
-const transformIssuesDataForAreaChart = (data) => {
-  const xDataIssues = [];
-  const closedIssues = [];
-  const openIssues = [];
-  
-  for (const date in data) {
-    const total = data[date].issues.total || 0;
-    const closed = data[date].issues.total_closed || 0;
-    const open = total - closed;
-    xDataIssues.push(date);
-    closedIssues.push(closed);
-    openIssues.push(open);
-    }
-    return { xDataIssues, closedIssues, openIssues };
+  const { xData, yData } = transformDataForLineChart(filteredhistoricaData);
+
+  const transformDataForLineChartModifiedLines = (data) => {
+    const xDataModifedLines = []; 
+    const yDataModifedLines = []; 
+    for (const date in data) {
+          xDataModifedLines.push(date);
+          yDataModifedLines.push(data[date].modified_lines.total.modified); 
+        }
+      
+    return { xDataModifedLines, yDataModifedLines };
   };
-const { xDataIssues, closedIssues, openIssues } = transformIssuesDataForAreaChart(filteredhistoricaData);
-const transformPRDataForAreaChart = (data) => {
-  const xDataPRs = [];
-  const mergedPRs = [];
-  const openPRs = [];
-  
-  for (const date in data) {
-    const total = data[date].pull_requests.total || 0;
-    const merged = data[date].pull_requests.merged || 0;
-    const closed = data[date].pull_requests.closed || 0;
-    const open = total - merged - closed;
-    xDataPRs.push(date);
-    mergedPRs.push(merged);
-    openPRs.push(open);
-    }
-    return { xDataPRs, mergedPRs, openPRs };
-  };
+  const { xDataModifedLines, yDataModifedLines } = transformDataForLineChartModifiedLines(filteredhistoricaData);
+
+  const transformIssuesDataForAreaChart = (data) => {
+    const xDataIssues = [];
+    const closedIssues = [];
+    const openIssues = [];
+    
+    for (const date in data) {
+      const total = data[date].issues.total || 0;
+      const closed = data[date].issues.total_closed || 0;
+      const open = total - closed;
+      xDataIssues.push(date);
+      closedIssues.push(closed);
+      openIssues.push(open);
+      }
+      return { xDataIssues, closedIssues, openIssues };
+    };
+  const { xDataIssues, closedIssues, openIssues } = transformIssuesDataForAreaChart(filteredhistoricaData);
+  const transformPRDataForAreaChart = (data) => {
+    const xDataPRs = [];
+    const mergedPRs = [];
+    const openPRs = [];
+    
+    for (const date in data) {
+      const total = data[date].pull_requests.total || 0;
+      const merged = data[date].pull_requests.merged || 0;
+      const closed = data[date].pull_requests.closed || 0;
+      const open = total - merged - closed;
+      xDataPRs.push(date);
+      mergedPRs.push(merged);
+      openPRs.push(open);
+      }
+      return { xDataPRs, mergedPRs, openPRs };
+    };
   const { xDataPRs, mergedPRs, openPRs } = transformPRDataForAreaChart(filteredhistoricaData);
-  
+    
   const transformTaskDataForAreaChart = (data) => {
     const xDataTask = [];
     const doneTask = [];
@@ -195,13 +224,13 @@ const transformPRDataForAreaChart = (data) => {
   const { xDataTask, doneTask, inProgressTask,toDoTask,otherKeysData } = transformTaskDataForAreaChart(filteredhistoricaData);
   
   const baseSeries = [
-    { label: 'To Do', data: toDoTask, color: "rgb(255, 0, 0)" },
+    { label: 'Done', data: doneTask, color: "rgb(0, 255, 0)" },
     { label: 'In Progress', data: inProgressTask, color: 'orange' },
-    { label: 'Done', data: doneTask, color: "rgb(0, 255, 0)" }
+    { label: 'To Do', data: toDoTask, color: "rgb(255, 0, 0)" }
   ];
 
   const otherSeries = Object.entries(otherKeysData).map(([key, data]) => ({
-    label: key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), // formatea la etiqueta bonito
+    label: key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
     data,
   }));
 
@@ -227,10 +256,14 @@ const transformPRDataForAreaChart = (data) => {
                 <div><strong>Total Deletions:</strong> {data.modified_lines.total.deletions}</div>
                 <div><strong>Total Modifications:</strong> {data.modified_lines.total.modified}</div>
                 <div><strong>Total Lines of code:</strong> {data.modified_lines.total.additions - data.modified_lines.total.deletions}</div>
+                {features.includes("projects") && (
+                <div><strong>Total Tasks:</strong> {data.project.metrics_by_iteration.total.total_tasks}</div>)}
+                {features.includes("projects") && (
+                <div><strong>Total Features:</strong> {data.project.metrics_by_iteration.total.total_features}</div>)}
               </div>
             </div>
           </div>
-          {(features.includes("issues") || features.includes("pull-requests")) && (
+          {(features.includes("issues") || features.includes("pull-requests") || features.includes("projects")) && (
           <div className="chart-toggle-wrapper-index">
             <div className="chart-toggle-buttons">
               <button 
@@ -266,7 +299,7 @@ const transformPRDataForAreaChart = (data) => {
           
           {!showHistorical && (
   <>
-    {(features.includes("issues") || features.includes("pull-requests")) ? (
+    {(features.includes("issues") || features.includes("pull-requests") || features.includes("projects")) ? (
       <div className="grid-container">
         <div className="grid-item">
           <RadarChart
@@ -306,7 +339,7 @@ const transformPRDataForAreaChart = (data) => {
     ) : (
       <div>
       <div className='only-commits-wrapper'>
-          <div className='only-commits-container'>
+        <div className='only-commits-container'>
             <GaugeChart
             user = "non-anonymous" 
             percentage={data.commits.total > 0 ? (data.commits.total - data.commits.anonymous) / data.commits.total : 0 }
@@ -314,14 +347,26 @@ const transformPRDataForAreaChart = (data) => {
           />
         </div>
         { historicData ?
-        (<div className='only-commits-line-container'>
-        <LineChart
-            xData={xData}
-            yData={yData}
-            xLabel="Date"
-            yLabel="Commits"
-            title="Commits Over Time"
-          />
+        
+        (<div className='only-commits-lines'> 
+          <div className='only-commits-line-container'>
+          <LineChart
+              xData={xData}
+              yData={yData}
+              xLabel="Date"
+              yLabel="Commits"
+              title="Commits Over Time"
+            />
+            </div>
+            <div className='only-commits-line-container'>
+              <LineChart
+              xData={xDataModifedLines}
+              yData={yDataModifedLines}
+              xLabel="Date"
+              yLabel="Modified"
+              title="Modified Lines Over Time"
+            />
+            </div>
         </div>) : <div style={{
             display: "flex",
             justifyContent: "center",
@@ -354,26 +399,15 @@ const transformPRDataForAreaChart = (data) => {
                   title="Commits Over Time"
                 />
               </div>
-               {/*
               <div className='radar-chart-container'>
-                <BarChart
-                  xData={xData}
-                  yData={yData}
-                  xLabel="Date"
-                  yLabel="Commits"
-                  title="Commits Over Time"
-                />
+                <LineChart
+                xData={xDataModifedLines}
+                yData={yDataModifedLines}
+                xLabel="Date"
+                yLabel="Modified Lines"
+                title="Modified Lines Over Time"
+              />
               </div>
-              <div className='radar-chart-container'>
-                <BarLineChart
-                  xData={xData}
-                  yDataBar={yData}
-                  yDataLine={yData}
-                  xLabel="Date"
-                  yLabel="Commits"
-                  title="Commits Over Time"
-                />
-              </div>*/}
               {features.includes("issues") && (
               <div className='radar-chart-container'>
                 <AreaChart
