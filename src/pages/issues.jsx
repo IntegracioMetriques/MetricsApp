@@ -32,7 +32,7 @@ function Issues({ data,historicData,features }) {
   const totalClosed = issuesData.total_closed
   const havePullRequest = issuesData.have_pull_request
   const { non_assigned, ...filteredData } = issuesData.assigned;
-  const totalPeople = Object.keys(issuesData.assigned).length - 1;
+  const totalPeople = Object.keys(data.avatars).length;
   const totalAssigned = totalIssues - issuesData.assigned['non_assigned']
   const closedBy = issuesData.closed
 
