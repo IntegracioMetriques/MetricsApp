@@ -17,7 +17,7 @@ import {
 } from '../domain/pullRequests'
 import { filterHistoricData } from '../domain/utils';
 
-function PullRequests({ data,historicData,features }) {
+function PullRequestsPage({ data,historicData,features }) {
   const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalPR', false);
   const [dateRange, setDateRange] = usePersistentStateSession('dateRangePR', "7");
   const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
@@ -233,4 +233,4 @@ function PullRequests({ data,historicData,features }) {
   );
 }
 
-export default PullRequests;
+export default PullRequestsPage;
