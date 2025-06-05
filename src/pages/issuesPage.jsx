@@ -4,7 +4,6 @@ import RadarPieToggle from '../components/radarPieToggle';
 import LineChartMultiple from '../components/lineChartMultiple';
 import usePersistentStateSession  from '../components/usePersistentStateSession';
 import {
-  filterHistoricData,
   transformAssignedIssuesDataForLineChart,
   getRadarAndPieDataAssigned,
   getGaugeDataAssigned,
@@ -12,6 +11,7 @@ import {
   getGaugeDataClosedPerUser,
   getGaugeDataHavePR
 } from '../domain/issues';
+import { filterHistoricData } from '../domain/utils.jsx';
 
 import '../styles/commits.css';
 

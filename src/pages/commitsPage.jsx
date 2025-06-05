@@ -6,7 +6,6 @@ import usePersistentStateSession from '../components/usePersistentStateSession.j
 import '../styles/commits.css';
 
 import {
-  filterHistoricData,
   transformCommitsDataForLineChart,
   transformModifiedLinesDataForLineChart,
   getPieChartDataCommits,
@@ -16,6 +15,8 @@ import {
   GetRadarDataCommits,
   GetRadarDataModifiedLines,
 } from '../domain/commits.jsx';
+
+import { filterHistoricData } from '../domain/utils.jsx';
 
 function CommitsPage({ data, historicData, features }) {
   const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalCommits', false);

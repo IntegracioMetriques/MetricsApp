@@ -1,5 +1,4 @@
 import {
-  filterHistoricData,
   transformCommitsDataForLineChart,
   transformModifiedLinesDataForLineChart,
   GetRadarDataCommits,
@@ -10,7 +9,7 @@ import {
   getGaugeChartDataModifiedLines,
 } from '../domain/commits';
 
-describe('commits utils', () => {
+describe('commits ', () => {
   const mockHistoricData = {
     '2025-06-01': {
       commits: {
@@ -39,21 +38,6 @@ describe('commits utils', () => {
       },
     },
   };
-
-  test('filterHistoricData returns full data for "lifetime"', () => {
-    expect(filterHistoricData(mockHistoricData, 'lifetime')).toEqual(mockHistoricData);
-  });
-
-  test('filterHistoricData filters correctly by days', () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2025-06-03'));
-
-    const filtered = filterHistoricData(mockHistoricData, '1');
-    expect(Object.keys(filtered)).toEqual(['2025-06-02']);
-
-    vi.useRealTimers();
-  });
-
   test('transformCommitsDataForLineChart works as expected', () => {
     const { xData, seriesData } = transformCommitsDataForLineChart(mockHistoricData);
     expect(xData).toEqual(['2025-06-01', '2025-06-02']);

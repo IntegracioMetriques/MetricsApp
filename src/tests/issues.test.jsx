@@ -1,5 +1,4 @@
 import {
-  filterHistoricData,
   transformAssignedIssuesDataForLineChart,
   getRadarAndPieDataAssigned,
   getGaugeDataAssigned,
@@ -8,7 +7,7 @@ import {
   getGaugeDataHavePR,
 } from '../domain/issues'; 
 
-describe('issues utils', () => {
+describe('issues', () => {
   const mockHistoricData = {
     '2025-06-01': {
       issues: {
@@ -38,20 +37,6 @@ describe('issues utils', () => {
       },
     },
   };
-
-  test('filterHistoricData returns full data for "lifetime"', () => {
-    expect(filterHistoricData(mockHistoricData, 'lifetime')).toEqual(mockHistoricData);
-  });
-
-  test('filterHistoricData filters correctly by days', () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2025-06-03'));
-
-    const filtered = filterHistoricData(mockHistoricData, '1');
-    expect(Object.keys(filtered)).toEqual(['2025-06-02']);
-
-    vi.useRealTimers();
-  });
 
   test('transformAssignedIssuesDataForLineChart returns expected structure', () => {
     expect(transformAssignedIssuesDataForLineChart(mockHistoricData)).toEqual({
