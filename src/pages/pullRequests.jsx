@@ -4,88 +4,45 @@ import '../styles/commits.css';
 import RadarPieToggle from '../components/radarPieToggle';
 import LineChartMultiple from '../components/lineChartMultiple';
 import usePersistentStateSession  from '../components/usePersistentStateSession';
+import {
+  transformCreatedPRsDataForLineChart,
+  transformMergedPRsDataForLineChart,
+  getRadarAndPieDataForCreatedPRs,
+  getRadarAndPieDataForMergedPRs,
+  getGaugeChartDataMergedPRs,
+  getGaugeChartDataReviewedPRs,
+  getGaugeChartDataMergesPRs,
+  getGaugeDataCreatedPRsPerUser,
+  getGaugeDataMergedPRsPerUser
+} from '../domain/pullRequests'
+import { filterHistoricData } from '../domain/utils';
 
 function PullRequests({ data,historicData,features }) {
   const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalPR', false);
   const [dateRange, setDateRange] = usePersistentStateSession('dateRangePR', "7");
-    const filterHistoricData = (data, days) => {
-      if (days === "lifetime") return data;
-  
-      const today = new Date();
-      const cutoff = new Date(today);
-      cutoff.setDate(today.getDate() - parseInt(days));
-      const cutoffDateString = cutoff.toISOString().split("T")[0];
-      const filtered = {};
-      for (const date in data) {
-        if (date >= cutoffDateString) {
-          filtered[date] = data[date];
-        }
-      }
-  
-      return filtered;
-    };
   const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
 
   const pullRequests = data.pull_requests
   const createdby = pullRequests.created
   const mergedby = pullRequests.merged_per_member
-  const totalMerged = pullRequests.merged 
-  const totalMergedNotByAuthor = pullRequests.not_merged_by_author
-  const totalClosed = pullRequests.closed 
-  const total = pullRequests.total
   const totalPeople = Object.keys(data.avatars).length;
-  const merges = data.commit_merges
-
-  const transformCreatedPRsDataForLineChart = (data) => {
-    const xDataCreated = [];
-    const userSeries = {};
-  
-    for (const date in data) {
-      xDataCreated.push(date);
-      const created = data[date].pull_requests.created;
-  
-      for (const user in created) {
-        if (!userSeries[user]) {
-          userSeries[user] = [];
-        }
-        userSeries[user].push(created[user]);
-      }
-    }
-    const seriesDataCreated = Object.keys(userSeries).map(user => ({
-      name: user,
-      data: userSeries[user]
-    }));
-  
-    return { xDataCreated, seriesDataCreated };
-  };
+  const total = data.pull_requests.total
+  const totalMerged =  data.pull_requests.merged 
 
   const { xDataCreated, seriesDataCreated } = transformCreatedPRsDataForLineChart(filteredhistoricaData);
 
-  const transformMergedPRsDataForLineChart = (data) => {
-    const xDataMerged = [];
-    const userSeries = {};
-  
-    for (const date in data) {
-      xDataMerged.push(date);
-      const merged = data[date].pull_requests.merged_per_member;
-  
-      for (const user in merged) {
-        if (!userSeries[user]) {
-          userSeries[user] = [];
-        }
-        userSeries[user].push(merged[user]);
-      }
-    }
-    const seriesDataMerged = Object.keys(userSeries).map(user => ({
-      name: user,
-      data: userSeries[user]
-    }));
-  
-    return { xDataMerged, seriesDataMerged };
-  };
-
   const { xDataMerged, seriesDataMerged } = transformMergedPRsDataForLineChart(filteredhistoricaData);
 
+  const {radarDataCreated,pieDataCreated} = getRadarAndPieDataForCreatedPRs(data);
+
+  const {radarDataMerged,pieDataMerged} = getRadarAndPieDataForMergedPRs(data);
+
+  const percentageMerged = getGaugeChartDataMergedPRs(data);
+  const percentatgeReviewed = getGaugeChartDataReviewedPRs(data);
+  const percentageMergesPR = getGaugeChartDataMergesPRs(data);
+
+  const gaugeDataCreatedPRs = getGaugeDataCreatedPRsPerUser(data)
+  const gaugeDataMergedPRs = getGaugeDataMergedPRsPerUser(data)
   return (
     <div className="commits-container">
       <h1>Pull requests</h1>
@@ -129,15 +86,15 @@ function PullRequests({ data,historicData,features }) {
       <div className="summary-charts-container">
         <div className='chart-item'>
         <RadarPieToggle
-          radarData={createdby}
-          pieData={Object.entries(createdby)}
+          radarData={radarDataCreated}
+          pieData={pieDataCreated}
           title={"Created Pull Requests distribution"}
         />
         </div>
         <div className='chart-item'>
         <RadarPieToggle
-          radarData={mergedby}
-          pieData={Object.entries(mergedby)}
+          radarData={radarDataMerged}
+          pieData={pieDataMerged}
           title={"Merged Pull Requests distribution"}
         />
         </div>
@@ -153,7 +110,7 @@ function PullRequests({ data,historicData,features }) {
       </h2>
         <GaugeChart
                 user="Merged"
-                percentage={(total - totalClosed) > 0 ? totalMerged / (total - totalClosed) : 0}
+                percentage={percentageMerged}
                 totalPeople= {1}
               />
       </div> 
@@ -169,7 +126,7 @@ function PullRequests({ data,historicData,features }) {
       </h2>
             <GaugeChart
               user="Pull requests reviewed"
-              percentage={totalMerged > 0 ? totalMergedNotByAuthor / totalMerged : 0}
+              percentage={percentatgeReviewed}
               totalPeople={1}
             />
     </div>
@@ -185,7 +142,7 @@ function PullRequests({ data,historicData,features }) {
       </h2>
             <GaugeChart
               user="Pull requests merges"
-              percentage={merges > 0 ? totalMerged / merges : 0}
+              percentage={percentageMergesPR}
               totalPeople={1}
             />
     </div>
@@ -201,18 +158,14 @@ function PullRequests({ data,historicData,features }) {
         </span>
       </h2>
       <div className="gauge-charts-container">
-        {Object.keys(createdby).map((user) => {
-          const userPRs = createdby[user];
-          const percentage = total > 0 ? userPRs / total : 0;
-          return (
-          <GaugeChart
-            key={`created-${user}`}
-            user={user}
-            percentage={percentage}
-            totalPeople={totalPeople}
-          />
-          );
-        })}
+          {gaugeDataCreatedPRs.map(({ user, percentage }) => (
+            <GaugeChart
+              key={`created-PR-${user}`}
+              user={user}
+              percentage={percentage}
+              totalPeople={totalPeople}
+            />
+          ))}
         </div>
         <h2 className="section-title">
        Pull requests merged per user
@@ -222,18 +175,14 @@ function PullRequests({ data,historicData,features }) {
         </span>
       </h2>
       <div className="gauge-charts-container">
-        {Object.keys(mergedby).map((user) => {
-          const userMergedPRs = mergedby[user];
-          const percentage = totalMerged > 0 ? userMergedPRs / totalMerged : 0;
-          return (
+          {gaugeDataMergedPRs.map(({ user, percentage }) => (
             <GaugeChart
-              key={`merged-${user}`}
+              key={`merged-PR-${user}`}
               user={user}
               percentage={percentage}
               totalPeople={totalPeople}
             />
-          );
-        })}
+          ))}
         </div>
         </div>
         </>

@@ -5,11 +5,11 @@ import LineChartMultiple from '../components/lineChartMultiple';
 import usePersistentStateSession  from '../components/usePersistentStateSession';
 import {
   transformAssignedIssuesDataForLineChart,
-  getRadarAndPieDataAssigned,
-  getGaugeDataAssigned,
-  getGaugeDataAssignedPerUser,
-  getGaugeDataClosedPerUser,
-  getGaugeDataHavePR
+  getRadarAndPieDataIssuesAssigned,
+  getGaugeDataIssuesAssigned,
+  getGaugeDataAssignedIssuesPerUser,
+  getGaugeDataClosedIssuesPerUser,
+  getGaugeDataIssuesHavePR
 } from '../domain/issues';
 import { filterHistoricData } from '../domain/utils.jsx';
 
@@ -22,11 +22,11 @@ function IssuesPage({ data,historicData,features }) {
   const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
   const totalPeople = Object.keys(data.avatars).length;
   const { xDataAssigned, seriesDataAssigned } = transformAssignedIssuesDataForLineChart(filteredhistoricaData);
-  const percentageAssigned = getGaugeDataAssigned(data);
-  const gaugeDataHavePR = getGaugeDataHavePR(data);
-  const gaugeDataAssigned = getGaugeDataAssignedPerUser(data);
-  const gaugeDataClosed = getGaugeDataClosedPerUser(data);
-  const {radarData,pieData} = getRadarAndPieDataAssigned(data)
+  const percentageAssigned = getGaugeDataIssuesAssigned(data);
+  const gaugeDataHavePR = getGaugeDataIssuesHavePR(data);
+  const gaugeDataAssigned = getGaugeDataAssignedIssuesPerUser(data);
+  const gaugeDataClosed = getGaugeDataClosedIssuesPerUser(data);
+  const {radarData,pieData} = getRadarAndPieDataIssuesAssigned(data)
   return (
     <div className="commits-container">
       <h1>Issues</h1>

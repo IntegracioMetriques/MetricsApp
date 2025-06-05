@@ -24,7 +24,7 @@ export const transformAssignedIssuesDataForLineChart = (data) => {
   return { xDataAssigned, seriesDataAssigned };
 };
 
-export const getRadarAndPieDataAssigned = (data) => {
+export const getRadarAndPieDataIssuesAssigned = (data) => {
   const radarData = {};
   const assigned = data.issues.assigned || {};
   for (const [user, val] of Object.entries(assigned)) {
@@ -36,14 +36,14 @@ export const getRadarAndPieDataAssigned = (data) => {
     return { radarData, pieData };
 };
 
-export const getGaugeDataAssigned = (data) => {
+export const getGaugeDataIssuesAssigned = (data) => {
   const total = data.issues.total || 0;
   const nonAssigned = data.issues.assigned['non_assigned'] || 0;
   const assigned = total - nonAssigned;
   return total > 0 ? assigned / total : 0;
 };
 
-export const getGaugeDataAssignedPerUser = (data) => {
+export const getGaugeDataAssignedIssuesPerUser = (data) => {
   const total = data.issues.total || 0;
   const nonAssigned = data.issues.assigned['non_assigned'] || 0;
   const totalAssigned = total - nonAssigned;
@@ -56,7 +56,7 @@ export const getGaugeDataAssignedPerUser = (data) => {
     }));
 };
 
-export const getGaugeDataClosedPerUser = (data) => {
+export const getGaugeDataClosedIssuesPerUser = (data) => {
   return Object.entries(data.issues.closed).map(([user, closed]) => {
     const assigned = data.issues.assigned[user] || 0;
     return {
@@ -66,7 +66,7 @@ export const getGaugeDataClosedPerUser = (data) => {
   });
 };
 
-export const getGaugeDataHavePR = (data) => {
+export const getGaugeDataIssuesHavePR = (data) => {
   const totalClosed = data.issues.total_closed || 0;
   const havePullRequest = data.issues.have_pull_request || 0;
   return totalClosed > 0 ? havePullRequest / totalClosed : 0;
