@@ -1,10 +1,10 @@
 import {
   transformAssignedIssuesDataForLineChart,
-  getRadarAndPieDataAssigned,
-  getGaugeDataAssigned,
-  getGaugeDataAssignedPerUser,
-  getGaugeDataClosedPerUser,
-  getGaugeDataHavePR,
+  getRadarAndPieDataIssuesAssigned,
+  getGaugeDataIssuesAssigned,
+  getGaugeDataAssignedIssuesPerUser,
+  getGaugeDataClosedIssuesPerUser,
+  getGaugeDataIssuesHavePR,
 } from '../domain/issues'; 
 
 describe('issues', () => {
@@ -49,31 +49,31 @@ describe('issues', () => {
   });
 
   test('getRadarAndPieDataAssigned returns radarData and pieData excluding non_assigned and total', () => {
-    expect(getRadarAndPieDataAssigned(mockData)).toEqual({
+    expect(getRadarAndPieDataIssuesAssigned(mockData)).toEqual({
       radarData: { pau: 5, lluis: 5 },
       pieData: [['pau', 5], ['lluis', 5]],
     });
   });
 
   test('getGaugeDataAssigned returns correct overall assigned percentage', () => {
-    expect(getGaugeDataAssigned(mockData)).toEqual((20 - 10) / 20);
+    expect(getGaugeDataIssuesAssigned(mockData)).toEqual((20 - 10) / 20);
   });
 
   test('getGaugeDataAssignedPerUser returns array with user and percentage', () => {
-    expect(getGaugeDataAssignedPerUser(mockData)).toEqual([
+    expect(getGaugeDataAssignedIssuesPerUser(mockData)).toEqual([
       { user: 'pau', percentage: 5 / 10 },
       { user: 'lluis', percentage: 5 / 10 },
     ]);
   });
 
   test('getGaugeDataClosedPerUser returns array with user and percentage', () => {
-    expect(getGaugeDataClosedPerUser(mockData)).toEqual([
+    expect(getGaugeDataClosedIssuesPerUser(mockData)).toEqual([
       { user: 'pau', percentage: 3 / 5 },
       { user: 'lluis', percentage: 2 / 5 },
     ]);
   });
 
-  test('getGaugeDataHavePR returns correct percentage of PRs', () => {
-    expect(getGaugeDataHavePR(mockData)).toEqual(7 / 10);
+  test('getGaugeDataIssuesHavePR returns correct percentage of PRs', () => {
+    expect(getGaugeDataIssuesHavePR(mockData)).toEqual(7 / 10);
   });
 });
