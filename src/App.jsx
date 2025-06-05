@@ -3,7 +3,7 @@ import Header from "./components/header";
 import Index from "./pages/index";
 import PullRequests from "./pages/pullRequests";
 import CommitsPage from "./pages/commitsPage";
-import Issues from "./pages/issues";
+import IssuesPage from "./pages/issuesPage";
 import Individual from "./pages/individual";
 import Projects from "./pages/projects";
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
@@ -85,7 +85,7 @@ function App() {
         <Route path="/" element={<Navigate to="/general" />} />
         <Route path="/general" element={<Index data={data} historicData={historicData} features={config.features} />} />
         <Route path="/commits" element={<CommitsPage data={data} historicData={historicData} features={config.features}/>} />
-        <Route path="/issues" element={<Issues data={data}  historicData={historicData} features={config.features}/>} />
+        <Route path="/issues" element={<IssuesPage data={data}  historicData={historicData} features={config.features}/>} />
         <Route path="/pull-requests" element={<PullRequests data={data}  historicData={historicData} features={config.features}/>} />
         <Route path="/projects" element={<Projects data={data}  historicData={historicData} features={config.features}/>} />
         <Route path="/individual" element={<Individual data={data} historicData={historicData} features={config.features}/>} />

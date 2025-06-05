@@ -15,7 +15,7 @@ import {
 
 import '../styles/commits.css';
 
-function Issues({ data,historicData,features }) {
+function IssuesPage({ data,historicData,features }) {
   const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalIssues', false);
   const [dateRange, setDateRange] = usePersistentStateSession('dateRangeIssues', "7");
   
@@ -189,4 +189,4 @@ function Issues({ data,historicData,features }) {
   );
 }
 
-export default Issues;
+export default IssuesPage;
