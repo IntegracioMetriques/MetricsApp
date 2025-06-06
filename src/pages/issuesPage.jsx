@@ -70,6 +70,7 @@ function IssuesPage({ data,historicData,features }) {
       <div className="summary-charts-container">
         <div className='chart-item'>
           <RadarPieToggle
+              RadarPieID="RadarPieIssues"
               radarData={radarData}
               pieData={pieData}
               title={"Assigned Issues distribution"}

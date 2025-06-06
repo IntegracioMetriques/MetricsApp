@@ -70,10 +70,10 @@ function CommitsPage({ data, historicData, features }) {
             <h2>Summary</h2>
             <div className="summary-charts-container">
               <div className="chart-item">
-                <RadarPieToggle radarData={radarChartCommits} pieData={dataPieChartCommits} title="Commits Distribution" />
+                <RadarPieToggle RadarPieID="RadarPieCommits" radarData={radarChartCommits} pieData={dataPieChartCommits} title="Commits Distribution" />
               </div>
               <div className="chart-item">
-                <RadarPieToggle radarData={radarChartModifiedLines} pieData={dataPieChartModifiedLines} title="Modified Lines Distribution" />
+                <RadarPieToggle RadarPieID="RadarPieModifiedLines" radarData={radarChartModifiedLines} pieData={dataPieChartModifiedLines} title="Modified Lines Distribution" />
               </div>
               <div>
                 <h2 className="section-title">

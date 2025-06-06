@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import usePersistentState from './usePersistentState'
 import RadarChart from './radarChart';
 import PieChart from './pieChart';
 import '../styles/radarPieToggle.css';
 
 
-const RadarPieToggle = ({ radarData, pieData, title }) => {
-  const [selectedChart, setSelectedChart] = useState('radar');
+const RadarPieToggle = ({ RadarPieID, radarData, pieData, title }) => {
+  const [selectedChart, setSelectedChart] = usePersistentState(RadarPieID,'radar');
 
   const selectRadar = () => setSelectedChart('radar');
   const selectPie = () => setSelectedChart('pie');

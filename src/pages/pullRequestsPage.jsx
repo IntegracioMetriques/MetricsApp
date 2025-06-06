@@ -86,6 +86,7 @@ function PullRequestsPage({ data,historicData,features }) {
       <div className="summary-charts-container">
         <div className='chart-item'>
         <RadarPieToggle
+          RadarPieID="RadarPieCreatedPRs"
           radarData={radarDataCreated}
           pieData={pieDataCreated}
           title={"Created Pull Requests distribution"}
@@ -93,6 +94,7 @@ function PullRequestsPage({ data,historicData,features }) {
         </div>
         <div className='chart-item'>
         <RadarPieToggle
+          RadarPieID="RadarPieMergedPRs"
           radarData={radarDataMerged}
           pieData={pieDataMerged}
           title={"Merged Pull Requests distribution"}
