@@ -5,7 +5,7 @@ import PullRequestsPage from "./pages/PullRequestsPage";
 import CommitsPage from "./pages/commitsPage";
 import IssuesPage from "./pages/issuesPage";
 import Individual from "./pages/individual";
-import Projects from "./pages/projects";
+import ProjectsPage from "./pages/projectsPage";
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 function App() {
@@ -87,7 +87,7 @@ function App() {
         <Route path="/commits" element={<CommitsPage data={data} historicData={historicData} features={config.features}/>} />
         <Route path="/issues" element={<IssuesPage data={data}  historicData={historicData} features={config.features}/>} />
         <Route path="/pull-requests" element={<PullRequestsPage data={data}  historicData={historicData} features={config.features}/>} />
-        <Route path="/projects" element={<Projects data={data}  historicData={historicData} features={config.features}/>} />
+        <Route path="/projects" element={<ProjectsPage data={data}  historicData={historicData} features={config.features}/>} />
         <Route path="/individual" element={<Individual data={data} historicData={historicData} features={config.features}/>} />
       </Routes>
     </Router>
