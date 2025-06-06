@@ -7,6 +7,8 @@ import {
   getPieChartDataModifiedLines,
   getGaugeChartDataCommits,
   getGaugeChartDataModifiedLines,
+  transformCommitsDataForUser,
+  transformModifiedLinesDataForUser
 } from '../domain/commits';
 
 describe('commits ', () => {
@@ -137,5 +139,17 @@ describe('commits ', () => {
       { user: 'pau', percentage: 100 / 400 },
       { user: 'lluis', percentage: 300 / 400 },
     ]);
+  });
+
+  test('transformCommitsDataForUser returns correct data for given user', () => {
+    const { xDataCommits, yDataCommits } = transformCommitsDataForUser(mockHistoricData, 'pau');
+    expect(xDataCommits).toEqual(['2025-06-01', '2025-06-02']);
+    expect(yDataCommits).toEqual([3, 4]);
+  });
+
+  test('transformModifiedLinesDataForUser returns correct data for given user', () => {
+    const { xDataModifiedLines, yDataModifiedLines } = transformModifiedLinesDataForUser(mockHistoricData, 'lluis');
+    expect(xDataModifiedLines).toEqual(['2025-06-01', '2025-06-02']);
+    expect(yDataModifiedLines).toEqual([200, 250]);
   });
 });

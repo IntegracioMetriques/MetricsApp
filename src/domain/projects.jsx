@@ -328,3 +328,69 @@ export const getGaugeDataStandardStatusTasksPerUser = (data,iteration) => {
     };
   });
 };
+
+export const transformTasksAssignedDataForUser = (data, username) => {
+    const xDataTasksAssigned = [];
+    const yDataTasksAssigned = [];
+
+    for (const date in data) {
+      xDataTasksAssigned.push(date);
+      const assigned = data[date]?.project?.metrics_by_iteration?.total?.assigned_per_member?.[username] || 0;
+      yDataTasksAssigned.push(assigned);
+    }
+
+    return { xDataTasksAssigned, yDataTasksAssigned };
+  };
+
+export const transformTasksToDoDataForUser = (data, username) => {
+    const xDataTasksToDo = [];
+    const yDataTasksToDo = [];
+
+    for (const date in data) {
+      xDataTasksToDo.push(date);
+      yDataTasksToDo.push(data[date].project?.metrics_by_iteration?.total?.todo_per_member?.[username] || 0);
+    }
+
+    return { xDataTasksToDo, yDataTasksToDo };
+  };
+
+export const transformTasksInProgressDataForUser = (data, username) => {
+    const xDataTasksInProgress = [];
+    const yDataTasksInProgress = [];
+
+    for (const date in data) {
+      xDataTasksInProgress.push(date);
+      yDataTasksInProgress.push(data[date].project?.metrics_by_iteration?.total?.in_progress_per_member?.[username] || 0);
+    }
+
+    return { xDataTasksInProgress, yDataTasksInProgress };
+  };
+
+
+export const transformTasksDoneDataForUser = (data, username) => {
+  const xDataTasksDone = [];
+  const yDataTasksDone = [];
+
+  for (const date in data) {
+    xDataTasksDone.push(date);
+    const done = data[date]?.project?.metrics_by_iteration?.total?.done_per_member?.[username] || 0;
+    yDataTasksDone.push(done);
+  }
+
+  return { xDataTasksDone, yDataTasksDone };
+  };
+
+export const transformTasksStandardDataForUser = (data, username) => {
+    const xDataTasksStandard = [];
+    const yDataTasksStandard = [];
+
+    for (const date in data) {
+      xDataTasksStandard.push(date);
+      const todo = data[date]?.project?.metrics_by_iteration?.total?.todo_per_member?.[username] || 0;
+      const inProgress = data[date]?.project?.metrics_by_iteration?.total?.in_progress_per_member?.[username] || 0;
+      const done = data[date]?.project?.metrics_by_iteration?.total?.done_per_member?.[username] || 0;
+      yDataTasksStandard.push(todo + inProgress + done);
+    }
+
+    return { xDataTasksStandard, yDataTasksStandard };
+  };

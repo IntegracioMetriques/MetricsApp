@@ -71,3 +71,27 @@ export const getGaugeDataIssuesHavePR = (data) => {
   const havePullRequest = data.issues.have_pull_request || 0;
   return totalClosed > 0 ? havePullRequest / totalClosed : 0;
 };
+
+export const transformAssignedIssuesDataForUser = (data, username) => {
+    const xDataAssignedIssues = [];
+    const yDataAssignedIssues = [];
+  
+    for (const date in data) {
+      xDataAssignedIssues.push(date);
+      yDataAssignedIssues.push(data[date].issues?.assigned?.[username] || 0);
+    }
+  
+    return { xDataAssignedIssues, yDataAssignedIssues };
+  }; 
+
+export const transformClosedIssuesDataForUser = (data, username) => {
+    const xDataClosedIssues = [];
+    const yDataClosedIssues = [];
+  
+    for (const date in data) {
+      xDataClosedIssues.push(date);
+      yDataClosedIssues.push(data[date].issues?.closed?.[username] || 0);
+    }
+  
+    return { xDataClosedIssues, yDataClosedIssues };
+  };

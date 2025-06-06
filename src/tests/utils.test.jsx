@@ -1,4 +1,4 @@
-import { filterHistoricData } from '../domain/utils';
+import { filterHistoricData,truncateName } from '../domain/utils';
 
 describe('utils', () => {
   const mockHistoricData = {
@@ -43,4 +43,21 @@ describe('utils', () => {
 
     vi.useRealTimers();
   });
+
+  
+  test('truncateName works correctly with long strings', () => {
+
+    const string = truncateName("thisShouldBeTruncated");
+    expect(string).toEqual("thisShouldBeTrunca...");
+
+  });
+  
+  test('truncateName works correctly with short strings', () => {
+
+    const string = truncateName("Pau");
+    expect(string).toEqual("Pau");
+
+  });
 });
+
+

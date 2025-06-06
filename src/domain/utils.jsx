@@ -15,3 +15,7 @@ export const filterHistoricData = (data, days) => {
 
   return filtered;
 };
+
+export const truncateName = (name, maxLength = 18) => {
+  return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
+};

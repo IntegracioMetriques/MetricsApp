@@ -8,6 +8,8 @@ import {
   getGaugeChartDataMergesPRs,
   getGaugeDataCreatedPRsPerUser,
   getGaugeDataMergedPRsPerUser,
+  transformCreatedPRsDataForUser,
+  transformMergedPRsDataForUser
 } from '../domain/pullRequests';
 
 describe('pullRequests', () => {
@@ -88,7 +90,7 @@ describe('pullRequests', () => {
 
   test('getGaugeChartDataMergedPRs returns correct percentage', () => {
     const result = getGaugeChartDataMergedPRs(aggregatedData);
-    expect(result).toBe(5 / (10 - 2)); // 5 / 8
+    expect(result).toBe(5 / (10 - 2));
   });
 
   test('getGaugeChartDataReviewedPRs returns correct percentage', () => {
@@ -115,5 +117,16 @@ describe('pullRequests', () => {
       { user: 'pau', percentage: 2 / 5 },
       { user: 'lluis', percentage: 3 / 5 },
     ]);
+  });
+  test('transformCreatedPRsDataForUser returns correct created PRs data for pau', () => {
+    const { xDataCreatedPRs, yDataCreatedPRs } = transformCreatedPRsDataForUser(mockPRsData, 'pau');
+    expect(xDataCreatedPRs).toEqual(['2025-06-01', '2025-06-02']);
+    expect(yDataCreatedPRs).toEqual([2, 1]);
+  });
+
+  test('transformMergedPRsDataForUser returns correct merged PRs data for lluis', () => {
+    const { xDataMergedPRs, yDataMergedPRs } = transformMergedPRsDataForUser(mockPRsData, 'lluis');
+    expect(xDataMergedPRs).toEqual(['2025-06-01', '2025-06-02']);
+    expect(yDataMergedPRs).toEqual([2, 1]);
   });
 });

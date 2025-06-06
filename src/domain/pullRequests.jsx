@@ -105,3 +105,27 @@ export const getGaugeDataMergedPRsPerUser = (data) => {
     };
   });
 };
+
+export const transformCreatedPRsDataForUser = (data, username) => {
+    const xDataCreatedPRs = [];
+    const yDataCreatedPRs = [];
+  
+    for (const date in data) {
+      xDataCreatedPRs.push(date);
+      yDataCreatedPRs.push(data[date].pull_requests?.created?.[username] || 0);
+    }
+  
+    return { xDataCreatedPRs, yDataCreatedPRs };
+  };
+
+export const transformMergedPRsDataForUser = (data, username) => {
+    const xDataMergedPRs = [];
+    const yDataMergedPRs = [];
+  
+    for (const date in data) {
+      xDataMergedPRs.push(date);
+      yDataMergedPRs.push(data[date].pull_requests?.merged_per_member?.[username] || 0);
+    }
+  
+    return { xDataMergedPRs, yDataMergedPRs };
+  };

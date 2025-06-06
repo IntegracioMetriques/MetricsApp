@@ -15,7 +15,12 @@ import {
   getGaugeDataAssignedTasksPerUser,
   getGaugeDataInProgressTasksPerUser,
   getGaugeDataDoneTasksPerUser,
-  getGaugeDataStandardStatusTasksPerUser
+  getGaugeDataStandardStatusTasksPerUser,
+  transformTasksAssignedDataForUser,
+  transformTasksToDoDataForUser,
+  transformTasksInProgressDataForUser,
+  transformTasksDoneDataForUser,
+  transformTasksStandardDataForUser,
 } from '../domain/projects';
 
 describe('projects', () => {
@@ -70,8 +75,41 @@ describe('projects', () => {
             total: 1
         },
         total: {
+          assigned_per_member: {
+            pau: 3,
+            lluis: 2,
+            non_assigned: 6,
+          },
+          in_progress_per_member: {
+            pau: 1,
+            lluis: 0,
+          },
+          done_per_member: {
+            pau: 2,
+            lluis: 1,
+          },
+          todo_per_member: {
+            pau: 0,
+            lluis: 1,
+          },
+        new_state_per_member: {
+            pau: 0,
+            lluis: 1,
+          },
+          in_progress: 3,
+          done: 4,
+          todo: 3,
+          new_state: 1,
+          total_tasks: 12,
+          total_issues: 4,
+          total_issues_with_type: 3,
           total: 13,
-        }
+          total_features_todo: 1,
+          total_features_in_progress: 2,
+          total_features_done: 3,
+          total_features_new_state: 5,
+          total_bugs: 2,
+          total_features: 3        }
       }
     }
   };
@@ -181,5 +219,38 @@ test('getActiveIteration returns correct iteration with mocked date', () => {
     const result = transformFeatureDataForAreaChart(mockHistoricData);
     expect(result.xDataFeature).toEqual(['2025-06-01', '2025-06-02']);
     expect(result.allSeries.some(s => s.label === 'Done')).toBe(true);
+  });
+
+  test('transformTasksAssignedDataForUser returns correct assigned tasks data for pau', () => {
+    const { xDataTasksAssigned, yDataTasksAssigned } = transformTasksAssignedDataForUser(mockHistoricData, 'pau');
+    expect(xDataTasksAssigned).toEqual(['2025-06-01', '2025-06-02']);
+    expect(yDataTasksAssigned).toEqual([3, 3]); 
+  });
+
+  test('transformTasksToDoDataForUser returns correct todo tasks data for lluis', () => {
+    const { xDataTasksToDo, yDataTasksToDo } = transformTasksToDoDataForUser(mockHistoricData, 'lluis');
+    expect(xDataTasksToDo).toEqual(['2025-06-01', '2025-06-02']);
+    expect(yDataTasksToDo).toEqual([1, 1]); 
+  });
+
+  test('transformTasksInProgressDataForUser returns correct in-progress tasks data for pau', () => {
+    const { xDataTasksInProgress, yDataTasksInProgress } = transformTasksInProgressDataForUser(mockHistoricData, 'pau');
+    expect(xDataTasksInProgress).toEqual(['2025-06-01', '2025-06-02']);
+    expect(yDataTasksInProgress).toEqual([1, 1]); 
+  });
+
+  test('transformTasksDoneDataForUser returns correct done tasks data for lluis', () => {
+    const { xDataTasksDone, yDataTasksDone } = transformTasksDoneDataForUser(mockHistoricData, 'lluis');
+    expect(xDataTasksDone).toEqual(['2025-06-01', '2025-06-02']);
+    expect(yDataTasksDone).toEqual([1, 1]); 
+  });
+
+  test('transformTasksStandardDataForUser returns sum todo + in_progress + done for pau', () => {
+    const { xDataTasksStandard, yDataTasksStandard } = transformTasksStandardDataForUser(mockHistoricData, 'pau');
+    expect(xDataTasksStandard).toEqual(['2025-06-01', '2025-06-02']);
+    expect(yDataTasksStandard).toEqual([
+      0 + 1 + 2,
+      0 + 1 + 2, 
+    ]);
   });
 });

@@ -5,6 +5,8 @@ import {
   getGaugeDataAssignedIssuesPerUser,
   getGaugeDataClosedIssuesPerUser,
   getGaugeDataIssuesHavePR,
+  transformAssignedIssuesDataForUser,
+  transformClosedIssuesDataForUser
 } from '../domain/issues'; 
 
 describe('issues', () => {
@@ -12,11 +14,13 @@ describe('issues', () => {
     '2025-06-01': {
       issues: {
         assigned: { pau: 3, lluis: 5, non_assigned: 1 },
+        closed: { pau: 2, lluis: 3, non_assigned: 1 },
       },
     },
     '2025-06-02': {
       issues: {
         assigned: { pau: 4, lluis: 6, non_assigned: 2 },
+        closed: { pau: 2, lluis: 3},
       },
     },
   };
@@ -75,5 +79,16 @@ describe('issues', () => {
 
   test('getGaugeDataIssuesHavePR returns correct percentage of PRs', () => {
     expect(getGaugeDataIssuesHavePR(mockData)).toEqual(7 / 10);
+  });
+  test('transformAssignedIssuesDataForUser returns correct data for given user', () => {
+    const { xDataAssignedIssues, yDataAssignedIssues } = transformAssignedIssuesDataForUser(mockHistoricData, 'pau');
+    expect(xDataAssignedIssues).toEqual(['2025-06-01', '2025-06-02']);
+    expect(yDataAssignedIssues).toEqual([3, 4]);
+  });
+
+  test('transformClosedIssuesDataForUser returns correct data for given user', () => {
+    const { xDataClosedIssues, yDataClosedIssues } = transformClosedIssuesDataForUser(mockHistoricData, 'pau');
+    expect(xDataClosedIssues).toEqual(['2025-06-01', '2025-06-02']);
+    expect(yDataClosedIssues).toEqual([2, 2]);
   });
 });

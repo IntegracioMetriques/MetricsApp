@@ -99,3 +99,28 @@ export const getGaugeChartDataModifiedLines = (data) => {
       percentage: totalModified > 0 ? val.modified / totalModified : 0,
     }));
 };
+
+export const transformCommitsDataForUser = (data, username) => {
+    const xDataCommits = [];
+    const yDataCommits = [];
+  
+    for (const date in data) {
+      xDataCommits.push(date);
+      yDataCommits.push(data[date].commits[username] || 0);
+    }
+  
+    return { xDataCommits, yDataCommits };
+  };
+  
+export const transformModifiedLinesDataForUser = (data, username) => {
+    const xDataModifiedLines = [];
+    const yDataModifiedLines = [];
+  
+    for (const date in data) {
+      const userData = data[date].modified_lines[username].modified;
+      xDataModifiedLines.push(date);
+      yDataModifiedLines.push(userData);
+    }
+  
+    return { xDataModifiedLines, yDataModifiedLines };
+  };

@@ -27,7 +27,7 @@ import {
 import { filterHistoricData } from '../domain/utils';
 import '../styles/commits.css';
 
-function Projects({ data,historicData,features }) {
+function ProjectsPage({ data,historicData,features }) {
   const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalProject', false);
   const [dateRange, setDateRange] = usePersistentStateSession('dateRangeProject', "7");
 
@@ -377,4 +377,4 @@ function Projects({ data,historicData,features }) {
   );
 }
 
-export default Projects;
+export default ProjectsPage;

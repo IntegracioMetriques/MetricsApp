@@ -4,27 +4,45 @@ import LineChart from '../components/lineChart';
 import GaugeChart from '../components/gaugeChart';
 import usePersistentStateSession  from '../components/usePersistentStateSession';
 import usePersistentState  from '../components/usePersistentState';
-
+import {
+  transformCommitsDataForUser,
+  getGaugeChartDataCommits,
+  getGaugeChartDataModifiedLines,
+  transformModifiedLinesDataForUser
+} from '../domain/commits'
+import {
+  getGaugeDataAssignedIssuesPerUser,
+  getGaugeDataClosedIssuesPerUser,
+  transformAssignedIssuesDataForUser,
+  transformClosedIssuesDataForUser
+} from '../domain/issues'
+import {
+  getGaugeDataCreatedPRsPerUser,
+  getGaugeDataMergedPRsPerUser,
+  transformCreatedPRsDataForUser,
+  transformMergedPRsDataForUser
+} from '../domain/pullRequests'
+import {
+  getGaugeDataAssignedTasksPerUser,
+  getGaugeDataInProgressTasksPerUser,
+  getGaugeDataDoneTasksPerUser,
+  getGaugeDataStandardStatusTasksPerUser,
+  transformTasksAssignedDataForUser,
+  transformTasksToDoDataForUser,
+  transformTasksInProgressDataForUser,
+  transformTasksDoneDataForUser,
+  transformTasksStandardDataForUser,
+} from '../domain/projects'
+import { 
+  filterHistoricData, 
+  truncateName } 
+from '../domain/utils';
 function Individual({ data, historicData, features }) {
   const [selectedUser, setSelectedUser] = usePersistentState("selectedUser",Object.keys(data.avatars)[0]);
   const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalIndividual', false);
   const [dateRange, setDateRange] = usePersistentStateSession('dateRangeIndividual', "7");
-  const filterHistoricData = (data, days) => {
-    if (days === "lifetime") return data;
 
-    const today = new Date();
-    const cutoff = new Date(today);
-    cutoff.setDate(today.getDate() - parseInt(days));
-    const cutoffDateString = cutoff.toISOString().split("T")[0];
-    const filtered = {};
-    for (const date in data) {
-      if (date >= cutoffDateString) {
-        filtered[date] = data[date];
-      }
-    }
-
-    return filtered;
-  };
+  //Statistics
   const filteredhistoricaData = historicData ? filterHistoricData(historicData, dateRange) : null;
   const users = Object.keys(data.avatars);
   const avatar = data.avatars[selectedUser] || "";
@@ -34,188 +52,60 @@ function Individual({ data, historicData, features }) {
   const longestStreak = data.longest_commit_streak_per_user[selectedUser] || 0;
   const issuesAssigned = data.issues.assigned[selectedUser] || 0;
   const issuesClosed = data.issues.closed[selectedUser] || 0;
-  const totalCommits = data.commits['total']
-  const totalModifiedLines = data.modified_lines['total'].modified
+  const pullRequestsCreated = data.pull_requests.created[selectedUser]
+  const pullRequestsMerged = data.pull_requests.merged_per_member[selectedUser]
   const totalPeople = Object.keys(data.avatars).length;
   const tasksAssigned = data.project.metrics_by_iteration.total.assigned_per_member[selectedUser] || 0
   const tasksClosed = data.project.metrics_by_iteration.total.done_per_member[selectedUser] || 0
   const tasksInProgress = data.project.metrics_by_iteration.total.in_progress_per_member[selectedUser] || 0
   const tasksTodo = data.project.metrics_by_iteration.total.todo_per_member[selectedUser] || 0
   const tasksStandard = tasksClosed + tasksInProgress + tasksTodo
-  const truncateName = (name, maxLength = 18) => {
-    return name.length > maxLength ? name.slice(0, maxLength) + '...' : name;
-  };
-  const userCommits = data.commits[selectedUser];
-  const percentageCommits = totalCommits > 0 ? userCommits / totalCommits: 0;
-  const userModifiedLines = data.modified_lines[selectedUser].modified
-  const percentageModifiedlLines = totalModifiedLines > 0 ? userModifiedLines / totalModifiedLines : 0
-  const totalAssignedIssues = data.issues.total - data.issues.assigned["non_assigned"]
-  const pullRequestsCreated = data.pull_requests.created[selectedUser]
-  const pullRequestsMerged = data.pull_requests.merged_per_member[selectedUser]
-  const percentageAssigned = totalAssignedIssues > 0 ? issuesAssigned / totalAssignedIssues: 0
-  const percentageIssuesClosed = issuesAssigned > 0 ? issuesClosed/issuesAssigned: 0
-  const percentageCreated = data.pull_requests.total > 0 ? data.pull_requests.created[selectedUser] / data.pull_requests.total: 0
-  const percentageMerged = data.pull_requests.merged > 0 ? data.pull_requests.merged_per_member[selectedUser] / data.pull_requests.merged: 0
-  const { non_assigned, ...assignedPerMember } = data.project.metrics_by_iteration.total.assigned_per_member;
-  const totalAssigned = Object.values(assignedPerMember).reduce((sum, current) => sum + current, 0);
-  const percentageTasksAssigned = totalAssigned > 0 ? tasksAssigned / totalAssigned : 0;
-  const percentageTasksDone = tasksAssigned > 0 ? tasksClosed / tasksAssigned : 0;
-  const percentageTasksInProgress = tasksInProgress > 0 ? tasksInProgress / tasksInProgress : 0;
-  const percentageTasksStandard = tasksAssigned > 0 ? tasksStandard / tasksAssigned : 0;
-  const transformCommitsDataForUser = (data, username) => {
-    const xDataCommits = [];
-    const yDataCommits = [];
-  
-    for (const date in data) {
-      xDataCommits.push(date);
-      yDataCommits.push(data[date].commits[username] || 0);
-    }
-  
-    return { xDataCommits, yDataCommits };
-  };
 
+  //Gauges
+  const usersCommits = getGaugeChartDataCommits(data)
+  const percentageCommits = usersCommits.find(userObj => userObj.user === selectedUser).percentage;
+  const usersModifiedLines = getGaugeChartDataModifiedLines(data)
+  const percentageModifiedlLines = usersModifiedLines.find(userObj => userObj.user === selectedUser).percentage;
+
+  const usersAssignedIssues = getGaugeDataAssignedIssuesPerUser(data)
+  const percentageAssigned = usersAssignedIssues.find(userObj => userObj.user === selectedUser).percentage;
+  const usersClosedIssues = getGaugeDataClosedIssuesPerUser(data)
+  const percentageIssuesClosed = usersClosedIssues.find(userObj => userObj.user === selectedUser).percentage;
+
+  const usersCreatedPRs = getGaugeDataCreatedPRsPerUser(data)
+  const percentageCreated = usersCreatedPRs.find(userObj => userObj.user === selectedUser).percentage;
+  const usersMergedPRs = getGaugeDataMergedPRsPerUser(data)
+  const percentageMerged = usersMergedPRs.find(userObj => userObj.user === selectedUser).percentage;
+  
+  const usersTasksAssigned = getGaugeDataAssignedTasksPerUser(data,"total");
+  const percentageTasksAssigned = usersTasksAssigned.find(userObj => userObj.user === selectedUser).percentage;
+  const usersTasksInProgress = getGaugeDataInProgressTasksPerUser(data,"total");
+  const percentageTasksInProgress = usersTasksInProgress.find(userObj => userObj.user === selectedUser).percentage;
+  const usersTasksDone = getGaugeDataDoneTasksPerUser(data,"total");
+  const percentageTasksDone = usersTasksDone.find(userObj => userObj.user === selectedUser).percentage;
+  const usersTasksStandard = getGaugeDataStandardStatusTasksPerUser(data,"total");
+  const percentageTasksStandard = usersTasksStandard.find(userObj => userObj.user === selectedUser).percentage;
+
+  //Historic
   const { xDataCommits, yDataCommits } = transformCommitsDataForUser(filteredhistoricaData, selectedUser)
-  
-  const transformModifiedLinesDataForUser = (data, username) => {
-    const xDataModifiedLines = [];
-    const yDataModifiedLines = [];
-  
-    for (const date in data) {
-      const userData = data[date].modified_lines[username].modified;
-      xDataModifiedLines.push(date);
-      yDataModifiedLines.push(userData);
-    }
-  
-    return { xDataModifiedLines, yDataModifiedLines };
-  };
+
   const { xDataModifiedLines, yDataModifiedLines } = transformModifiedLinesDataForUser(filteredhistoricaData, selectedUser)
 
-  const transformAssignedIssuesDataForUser = (data, username) => {
-    const xDataAssignedIssues = [];
-    const yDataAssignedIssues = [];
-  
-    for (const date in data) {
-      xDataAssignedIssues.push(date);
-      yDataAssignedIssues.push(data[date].issues?.assigned?.[username] || 0);
-    }
-  
-    return { xDataAssignedIssues, yDataAssignedIssues };
-  };
   const { xDataAssignedIssues, yDataAssignedIssues } = transformAssignedIssuesDataForUser(filteredhistoricaData, selectedUser);
-
-  const transformClosedIssuesDataForUser = (data, username) => {
-    const xDataClosedIssues = [];
-    const yDataClosedIssues = [];
-  
-    for (const date in data) {
-      xDataClosedIssues.push(date);
-      yDataClosedIssues.push(data[date].issues?.closed?.[username] || 0);
-    }
-  
-    return { xDataClosedIssues, yDataClosedIssues };
-  };
 
   const { xDataClosedIssues, yDataClosedIssues } = transformClosedIssuesDataForUser(filteredhistoricaData, selectedUser);
 
-
-  const transformCreatedPRsDataForUser = (data, username) => {
-    const xDataCreatedPRs = [];
-    const yDataCreatedPRs = [];
-  
-    for (const date in data) {
-      xDataCreatedPRs.push(date);
-      yDataCreatedPRs.push(data[date].pull_requests?.created?.[username] || 0);
-    }
-  
-    return { xDataCreatedPRs, yDataCreatedPRs };
-  };
   const { xDataCreatedPRs, yDataCreatedPRs } = transformCreatedPRsDataForUser(filteredhistoricaData, selectedUser);
 
-  const transformMergedPRsDataForUser = (data, username) => {
-    const xDataMergedPRs = [];
-    const yDataMergedPRs = [];
-  
-    for (const date in data) {
-      xDataMergedPRs.push(date);
-      yDataMergedPRs.push(data[date].pull_requests?.merged_per_member?.[username] || 0);
-    }
-  
-    return { xDataMergedPRs, yDataMergedPRs };
-  };
   const { xDataMergedPRs, yDataMergedPRs } = transformMergedPRsDataForUser(filteredhistoricaData, selectedUser);
-  const transformTasksAssignedDataForUser = (data, username) => {
-    const xDataTasksAssigned = [];
-    const yDataTasksAssigned = [];
-
-    for (const date in data) {
-      xDataTasksAssigned.push(date);
-      const assigned = data[date]?.project?.metrics_by_iteration?.total?.assigned_per_member?.[username] || 0;
-      yDataTasksAssigned.push(assigned);
-    }
-
-    return { xDataTasksAssigned, yDataTasksAssigned };
-  };
 
   const { xDataTasksAssigned, yDataTasksAssigned } = transformTasksAssignedDataForUser(filteredhistoricaData, selectedUser);
   
-    
-  const transformTasksToDoDataForUser = (data, username) => {
-    const xDataTasksToDo = [];
-    const yDataTasksToDo = [];
-
-    for (const date in data) {
-      xDataTasksToDo.push(date);
-      yDataTasksToDo.push(data[date].project?.metrics_by_iteration?.total?.todo_per_member?.[username] || 0);
-    }
-
-    return { xDataTasksToDo, yDataTasksToDo };
-  };
-
   const { xDataTasksToDo, yDataTasksToDo } = transformTasksToDoDataForUser(filteredhistoricaData, selectedUser);
-
-  const transformTasksInProgressDataForUser = (data, username) => {
-    const xDataTasksInProgress = [];
-    const yDataTasksInProgress = [];
-
-    for (const date in data) {
-      xDataTasksInProgress.push(date);
-      yDataTasksInProgress.push(data[date].project?.metrics_by_iteration?.total?.in_progress_per_member?.[username] || 0);
-    }
-
-    return { xDataTasksInProgress, yDataTasksInProgress };
-  };
   
   const { xDataTasksInProgress, yDataTasksInProgress } = transformTasksInProgressDataForUser(filteredhistoricaData, selectedUser);
 
-  const transformTasksDoneDataForUser = (data, username) => {
-  const xDataTasksDone = [];
-  const yDataTasksDone = [];
-
-  for (const date in data) {
-    xDataTasksDone.push(date);
-    const done = data[date]?.project?.metrics_by_iteration?.total?.done_per_member?.[username] || 0;
-    yDataTasksDone.push(done);
-  }
-
-  return { xDataTasksDone, yDataTasksDone };
-  };
-
   const { xDataTasksDone, yDataTasksDone } = transformTasksDoneDataForUser(filteredhistoricaData, selectedUser);
-
-  const transformTasksStandardDataForUser = (data, username) => {
-    const xDataTasksStandard = [];
-    const yDataTasksStandard = [];
-
-    for (const date in data) {
-      xDataTasksStandard.push(date);
-      const todo = data[date]?.project?.metrics_by_iteration?.total?.todo_per_member?.[username] || 0;
-      const inProgress = data[date]?.project?.metrics_by_iteration?.total?.in_progress_per_member?.[username] || 0;
-      const done = data[date]?.project?.metrics_by_iteration?.total?.done_per_member?.[username] || 0;
-      yDataTasksStandard.push(todo + inProgress + done);
-    }
-
-    return { xDataTasksStandard, yDataTasksStandard };
-  };
   
   const { xDataTasksStandard, yDataTasksStandard } = transformTasksStandardDataForUser(filteredhistoricaData, selectedUser);
 
