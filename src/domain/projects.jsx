@@ -88,74 +88,100 @@ export const transformAssignedTasksDataForLineChart = (data,dataHistoric, select
   return { xDataAssigned: allDates, seriesDataAssigned };
 };
 
-export const transformFeatureDataForAreaChart = (data) => {
-    const xDataFeature = [];
-    const knownKeys = {
-      total_features_done: 'Done',
-      total_features_in_progress: 'In Progress',
-      total_features_todo: 'To Do',
-    };
+export const transformFeatureDataForAreaChart = (dataHistoric, selectedIteration, iterations) => {
+  if (!dataHistoric) return { xDataFeature: [], allSeries: [] };
 
-    const baseFeatureData = {
-      'Done': [],
-      'In Progress': [],
-      'To Do': [],
-    };
+  let allDates = [];
 
-    const otherKeysData = {};
-    const allOtherKeys = new Set();
+  if (selectedIteration === "total") {
+    allDates = Object.keys(dataHistoric).sort((a, b) => new Date(a) - new Date(b));
+  } else {
+    const iteration = iterations[selectedIteration];
+    if (!iteration) return { xDataFeature: [], allSeries: [] };
 
-    for (const date in data) {
-      const metrics = data[date]?.project?.metrics_by_iteration?.total;
-      if (!metrics) continue;
+    const startDate = new Date(iteration.startDate);
+    const endDate = new Date(iteration.endDate);
 
-      for (const [key, value] of Object.entries(metrics)) {
-        if (
-          !Object.keys(knownKeys).includes(key) &&
-          typeof value === 'number' &&
-          key.startsWith('total_features_') &&
-          Number.isInteger(value)
-        ) {
-          allOtherKeys.add(key);
-        }
+    let currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      allDates.push(dateStr);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+  }
+
+  const knownKeys = {
+    total_features_done: 'Done',
+    total_features_in_progress: 'In Progress',
+    total_features_todo: 'To Do',
+  };
+
+  const baseFeatureData = {
+    'Done': [],
+    'In Progress': [],
+    'To Do': [],
+  };
+
+  const otherKeysData = {};
+  const allOtherKeys = new Set();
+
+  // Identificar claves adicionales desde los datos totales (ya que puede no haber por iteración)
+  for (const date of allDates) {
+    const metrics = dataHistoric[date]?.project?.metrics_by_iteration?.total;
+    if (!metrics) continue;
+
+    for (const [key, value] of Object.entries(metrics)) {
+      if (
+        !Object.keys(knownKeys).includes(key) &&
+        typeof value === 'number' &&
+        key.startsWith('total_features_') &&
+        Number.isInteger(value)
+      ) {
+        allOtherKeys.add(key);
       }
+    }
+  }
+
+  for (const key of allOtherKeys) {
+    otherKeysData[key] = [];
+  }
+
+  const xDataFeature = [];
+
+  for (const date of allDates) {
+    const metrics =
+      selectedIteration === "total"
+        ? dataHistoric[date]?.project?.metrics_by_iteration?.total
+        : dataHistoric[date]?.project?.metrics_by_iteration?.[selectedIteration]
+
+    xDataFeature.push(date);
+    for (const [key, label] of Object.entries(knownKeys)) {
+      baseFeatureData[label].push(metrics?.[key] || 0);
     }
 
     for (const key of allOtherKeys) {
-      otherKeysData[key] = [];
+      const value = metrics?.[key];
+      otherKeysData[key].push(Number.isInteger(value) ? value : 0);
     }
+  }
 
-    for (const date in data) {
-      const metrics = data[date]?.project?.metrics_by_iteration?.total || {};
+  const baseSeries = [
+    { label: 'Done', data: baseFeatureData['Done'], color: 'rgb(0, 255, 0)' },
+    { label: 'In Progress', data: baseFeatureData['In Progress'], color: 'orange' },
+    { label: 'To Do', data: baseFeatureData['To Do'], color: 'rgb(255, 0, 0)' }
+  ];
 
-      xDataFeature.push(date);
+  const otherSeries = Object.entries(otherKeysData).map(([key, data]) => ({
+    label: key
+      .replace('total_features_', '')
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase()),
+    data
+  }));
 
-      for (const [key, label] of Object.entries(knownKeys)) {
-        baseFeatureData[label].push(metrics[key] || 0);
-      }
-
-      for (const key of allOtherKeys) {
-        const value = metrics[key];
-        otherKeysData[key].push(Number.isInteger(value) ? value : 0);
-      }
-    }
-    const baseSeries = [
-      { label: 'Done', data: baseFeatureData['Done'], color: 'rgb(0, 255, 0)' },
-      { label: 'In Progress', data: baseFeatureData['In Progress'], color: 'orange' },
-      { label: 'To Do', data: baseFeatureData['To Do'], color: 'rgb(255, 0, 0)' }
-    ];
-
-    const otherSeries = Object.entries(otherKeysData).map(([key, data]) => ({
-      label: key
-        .replace('total_features_', '')
-        .replace(/_/g, ' ')
-        .replace(/\b\w/g, c => c.toUpperCase()),
-      data
-    }));
-
-    const allSeries = [...baseSeries, ...otherSeries];
-    return {xDataFeature, allSeries };
-  };
+  const allSeries = [...baseSeries, ...otherSeries];
+  return { xDataFeature, allSeries };
+};
 
 const formatDate = (dateStr) => {
     const d = new Date(dateStr);
@@ -394,3 +420,85 @@ export const transformTasksStandardDataForUser = (data, username) => {
 
     return { xDataTasksStandard, yDataTasksStandard };
   };
+
+export const transformTaskDataForAreaChart = (data) => {
+    const xDataTask = [];
+    const doneTask = [];
+    const inProgressTask = [];
+    const toDoTask = []
+    const otherKeysData = {}
+    const allOtherKeys = new Set();
+
+    for (const date in data) {
+      const metrics = data[date].project.metrics_by_iteration.total;
+      for (const [key, value] of Object.entries(metrics)) {
+        if (
+          !['done', 'in_progress', 'todo', 'total'].includes(key) &&
+          !key.startsWith('total_') &&
+          !key.startsWith('total') &&
+          typeof value === 'number' &&
+          Number.isInteger(value)
+        ) {
+          allOtherKeys.add(key);
+        }
+      }
+    }
+
+    for (const key of allOtherKeys) {
+      otherKeysData[key] = [];
+    }
+    for (const date in data) {
+      const metrics = data[date].project.metrics_by_iteration.total;
+      const done = metrics.done || 0;
+      const todo = metrics.todo || 0;
+      const inProgress = metrics.in_progress || 0;
+
+      xDataTask.push(date);
+      doneTask.push(done);
+      inProgressTask.push(inProgress);
+      toDoTask.push(todo)
+      for (const key of allOtherKeys) {
+        const value = metrics[key];
+          otherKeysData[key].push(Number.isInteger(value) ? value : 0);
+      }
+      }
+      const baseSeries = [
+      { label: 'Done', data: doneTask, color: "rgb(0, 255, 0)" },
+      { label: 'In Progress', data: inProgressTask, color: 'orange' },
+      { label: 'To Do', data: toDoTask, color: "rgb(255, 0, 0)" }
+        ];
+
+        const otherSeries = Object.entries(otherKeysData).map(([key, data]) => ({
+          label: key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+          data,
+        }));     
+        const allSeries = [...baseSeries, ...otherSeries];
+ 
+      return { xDataTask, allSeries };
+    };
+ 
+export const getPieDataTasksStatus = (data) => {
+  const taskData = data.project.metrics_by_iteration.total;
+  const totalInProgress = taskData.in_progress;
+  const totalDone = taskData.done;
+  const totalToDo = taskData.todo;
+  const pieDataTasksStatus = [
+    ["Todo",totalToDo],
+    ["In Progress",totalInProgress],
+    ["Done", totalDone]
+  ]
+    for (const [key, value] of Object.entries(taskData)) {
+    if (
+      !["todo", "in_progress", "done", "total"].includes(key) &&
+      !key.startsWith("total_") &&
+      !key.startsWith("total") &&
+      typeof value === "number" &&
+      Number.isInteger(value)
+    ) {
+      const label = key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      pieDataTasksStatus.push([label, value]);
+    }
+  }
+  const pieDataTasksStatusColor = ["red", "orange","green"]; 
+  return {pieDataTasksStatus,pieDataTasksStatusColor};
+}

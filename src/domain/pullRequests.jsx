@@ -129,3 +129,32 @@ export const transformMergedPRsDataForUser = (data, username) => {
   
     return { xDataMergedPRs, yDataMergedPRs };
   };
+
+export const transformPRDataForAreaChart = (data) => {
+    const xDataPRs = [];
+    const mergedPRs = [];
+    const openPRs = [];
+    
+    for (const date in data) {
+      const total = data[date].pull_requests.total || 0;
+      const merged = data[date].pull_requests.merged || 0;
+      const closed = data[date].pull_requests.closed || 0;
+      const open = total - merged - closed;
+      xDataPRs.push(date);
+      mergedPRs.push(merged);
+      openPRs.push(open);
+      }
+      return { xDataPRs, mergedPRs, openPRs };
+    };
+
+export const getPieDataPullRequestStatus = (data) => {
+  const pullRequests = data.pull_requests;
+  const open = pullRequests.total - pullRequests.merged - pullRequests.closed
+  const pieDataPullRequestStatus = [
+    ["Open", open],
+    ["Closed", pullRequests.closed],
+    ["Merged", pullRequests.merged],
+  ];
+  const pieDataPullRequestStatusColor = ["red", "orange","green"];  
+  return {pieDataPullRequestStatus,pieDataPullRequestStatusColor};
+}

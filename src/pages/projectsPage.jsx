@@ -55,7 +55,7 @@ function ProjectsPage({ data,historicData,features }) {
     data.project.iterations
   );
 
-  const { xDataFeature,allSeries } = transformFeatureDataForAreaChart(filteredhistoricaData);
+  const { xDataFeature,allSeries } = transformFeatureDataForAreaChart(filteredhistoricaData,selectedIteration,data.project.iterations);
   
   const {typePieChartData,typeColorsPieChart} = getIssueTypeDataForChart(data, selectedIteration);
 

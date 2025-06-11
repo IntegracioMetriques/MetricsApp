@@ -95,3 +95,29 @@ export const transformClosedIssuesDataForUser = (data, username) => {
   
     return { xDataClosedIssues, yDataClosedIssues };
   };
+
+export const transformIssuesDataForAreaChart = (data) => {
+    const xDataIssues = [];
+    const closedIssues = [];
+    const openIssues = [];
+    
+    for (const date in data) {
+      const total = data[date].issues.total || 0;
+      const closed = data[date].issues.total_closed || 0;
+      const open = total - closed;
+      xDataIssues.push(date);
+      closedIssues.push(closed);
+      openIssues.push(open);
+      }
+      return { xDataIssues, closedIssues, openIssues };
+    };
+ 
+export const getPieDataIssuesStatus = (data) => {
+  const issues = data.issues
+  const pieDataIssuesStatus = [
+    ["Open",issues.total - issues.total_closed],
+    ["Closed",issues.total_closed]
+  ]
+  const pieDataIssuesStatusColor = ["red","green"]; 
+  return {pieDataIssuesStatus,pieDataIssuesStatusColor};
+}

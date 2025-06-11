@@ -21,6 +21,8 @@ import {
   transformTasksInProgressDataForUser,
   transformTasksDoneDataForUser,
   transformTasksStandardDataForUser,
+  transformTaskDataForAreaChart,
+  getPieDataTasksStatus
 } from '../domain/projects';
 
 describe('projects', () => {
@@ -109,7 +111,7 @@ describe('projects', () => {
           total_features_done: 3,
           total_features_new_state: 5,
           total_bugs: 2,
-          total_features: 3        }
+          total_features: 11        }
       }
     }
   };
@@ -214,11 +216,20 @@ test('getActiveIteration returns correct iteration with mocked date', () => {
     ]);
     expect(featureColorsPieChart).toEqual(['green', 'orange', 'red']);
   });
-
-  test('transformFeatureDataForAreaChart transforms correctly', () => {
-    const result = transformFeatureDataForAreaChart(mockHistoricData);
+  
+  test('transformFeatureDataForAreaChart transforms correctly with selectedIteration "total"', () => {
+    const result = transformFeatureDataForAreaChart(mockHistoricData, 'total', {});
     expect(result.xDataFeature).toEqual(['2025-06-01', '2025-06-02']);
-    expect(result.allSeries.some(s => s.label === 'Done')).toBe(true);
+
+    const doneSeries = result.allSeries.find(s => s.label === 'Done');
+    const inProgressSeries = result.allSeries.find(s => s.label === 'In Progress');
+    const toDoSeries = result.allSeries.find(s => s.label === 'To Do');
+    const customSeries = result.allSeries.find(s => s.label === 'New State');
+
+    expect(doneSeries.data).toEqual([3, 3]);
+    expect(inProgressSeries.data).toEqual([2, 2]);
+    expect(toDoSeries.data).toEqual([1, 1]);
+    expect(customSeries.data).toEqual([5, 5]);
   });
 
   test('transformTasksAssignedDataForUser returns correct assigned tasks data for pau', () => {
@@ -252,5 +263,38 @@ test('getActiveIteration returns correct iteration with mocked date', () => {
       0 + 1 + 2,
       0 + 1 + 2, 
     ]);
+  });
+
+  test('transformTaskDataForAreaChart estructura correcta con métricas adicionales', () => {
+    const result = transformTaskDataForAreaChart(mockHistoricData);
+
+    expect(result.xDataTask).toEqual(['2025-06-01', '2025-06-02']);
+
+    const doneSeries = result.allSeries.find(s => s.label === 'Done');
+    const inProgressSeries = result.allSeries.find(s => s.label === 'In Progress');
+    const toDoSeries = result.allSeries.find(s => s.label === 'To Do');
+    const newStateSeries = result.allSeries.find(s => s.label === 'New State');
+
+    expect(doneSeries?.data).toEqual([4, 4]);
+    expect(inProgressSeries?.data).toEqual([3, 3]);
+    expect(toDoSeries?.data).toEqual([3, 3]);
+    expect(newStateSeries?.data).toEqual([1, 1]);
+  });
+
+  test('getPieDataTasksStatus genera datos correctos de pastel con métricas adicionales', () => {
+    const pie = getPieDataTasksStatus(mockData);
+
+    expect(pie.pieDataTasksStatus).toEqual(expect.arrayContaining([
+      ['Todo', 3],
+      ['In Progress', 3],
+      ['Done', 4],
+      ['New State', 1],
+    ]));
+
+    expect(pie.pieDataTasksStatusColor).toEqual(expect.arrayContaining([
+      'red',
+      'orange',
+      'green',
+    ]));
   });
 });

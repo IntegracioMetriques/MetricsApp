@@ -6,7 +6,9 @@ import {
   getGaugeDataClosedIssuesPerUser,
   getGaugeDataIssuesHavePR,
   transformAssignedIssuesDataForUser,
-  transformClosedIssuesDataForUser
+  transformClosedIssuesDataForUser,
+  transformIssuesDataForAreaChart,
+  getPieDataIssuesStatus
 } from '../domain/issues'; 
 
 describe('issues', () => {
@@ -15,12 +17,17 @@ describe('issues', () => {
       issues: {
         assigned: { pau: 3, lluis: 5, non_assigned: 1 },
         closed: { pau: 2, lluis: 3, non_assigned: 1 },
+        total_closed: 5,
+        total: 9
       },
     },
     '2025-06-02': {
       issues: {
         assigned: { pau: 4, lluis: 6, non_assigned: 2 },
         closed: { pau: 2, lluis: 3},
+        total_closed: 5,
+        total: 12
+
       },
     },
   };
@@ -91,4 +98,21 @@ describe('issues', () => {
     expect(xDataClosedIssues).toEqual(['2025-06-01', '2025-06-02']);
     expect(yDataClosedIssues).toEqual([2, 2]);
   });
+
+  test('transformIssuesDataForAreaChart transforms correctly', () => {
+    const result = transformIssuesDataForAreaChart(mockHistoricData);
+    expect(result.xDataIssues).toEqual(['2025-06-01', '2025-06-02']);
+    expect(result.closedIssues).toEqual([5,5]);
+    expect(result.openIssues).toEqual([4,7]);
+
+  });
+  test('getPieDataIssuesStatus returns correct open and closed issues data and colors', () => {
+  expect(getPieDataIssuesStatus(mockData)).toEqual({
+    pieDataIssuesStatus: [
+      ['Open', 10], 
+      ['Closed', 10],
+    ],
+    pieDataIssuesStatusColor: ['red', 'green'],
+  });
+});
 });

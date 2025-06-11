@@ -1,3 +1,7 @@
+export const getGaugeDataAnonymous = (data) => {
+  return data.commits?.total > 0 ? ((data.commits?.total || 0) - (data.commits?.anonymous || 0)) / data.commits?.total : 0
+}
+
 export const transformCommitsDataForLineChart = (data) => {
   const xData = [];
   const userSeries = {};
@@ -123,4 +127,26 @@ export const transformModifiedLinesDataForUser = (data, username) => {
     }
   
     return { xDataModifiedLines, yDataModifiedLines };
+  };
+
+  export const transformDataForLineChartCommits = (data) => {
+    const xData = []; 
+    const yData = []; 
+    for (const date in data) {
+          xData.push(date);
+          yData.push(data[date].commits.total); 
+        }
+      
+    return { xData, yData };
+    };
+
+  export const transformDataForLineChartModifiedLines = (data) => {
+    const xDataModifedLines = []; 
+    const yDataModifedLines = []; 
+    for (const date in data) {
+          xDataModifedLines.push(date);
+          yDataModifedLines.push(data[date].modified_lines.total.modified); 
+        }
+      
+    return { xDataModifedLines, yDataModifedLines };
   };

@@ -1,4 +1,5 @@
 import {
+  getGaugeDataAnonymous,
   transformCommitsDataForLineChart,
   transformModifiedLinesDataForLineChart,
   GetRadarDataCommits,
@@ -8,7 +9,9 @@ import {
   getGaugeChartDataCommits,
   getGaugeChartDataModifiedLines,
   transformCommitsDataForUser,
-  transformModifiedLinesDataForUser
+  transformModifiedLinesDataForUser,
+  transformDataForLineChartCommits,
+  transformDataForLineChartModifiedLines
 } from '../domain/commits';
 
 describe('commits ', () => {
@@ -151,5 +154,26 @@ describe('commits ', () => {
     const { xDataModifiedLines, yDataModifiedLines } = transformModifiedLinesDataForUser(mockHistoricData, 'lluis');
     expect(xDataModifiedLines).toEqual(['2025-06-01', '2025-06-02']);
     expect(yDataModifiedLines).toEqual([200, 250]);
+  });
+
+  test('transformDataForLineChartCommits returns correct data', () => {
+    const { xData, yData } = transformDataForLineChartCommits(mockHistoricData);
+    expect(xData).toEqual(['2025-06-01', '2025-06-02']);
+    expect(yData).toEqual([8, 10]);
+  });
+
+  test('transformDataForLineChartModifiedLines returns correct data', () => {
+    const { xDataModifedLines, yDataModifedLines } = transformDataForLineChartModifiedLines(mockHistoricData);
+    expect(xDataModifedLines).toEqual(['2025-06-01', '2025-06-02']);
+    expect(yDataModifedLines).toEqual([300, 400]);
+  });
+  test('getGaugeDataAnonymous returns correct ratio of non-anonymous to total', () => {
+    const input = { commits: { total: 10, anonymous: 2 } };
+    expect(getGaugeDataAnonymous(input)).toBe(0.8);
+  });
+
+  test('getGaugeDataAnonymous returns 0 when total is 0', () => {
+    const input = { commits: { total: 0, anonymous: 0 } };
+    expect(getGaugeDataAnonymous(input)).toBe(0);
   });
 });

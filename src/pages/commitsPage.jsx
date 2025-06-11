@@ -27,6 +27,9 @@ function CommitsPage({ data, historicData, features }) {
   const { xData: xDataCommits, seriesData: seriesDataCommits } = transformCommitsDataForLineChart(filteredHistoricData || {});
   const { xData: xDataModified, seriesData: seriesDataModified } = transformModifiedLinesDataForLineChart(filteredHistoricData || {});
 
+  const totalCommits = data.commits?.total || 0;
+  const gaugeDataAnonymous = totalCommits > 0 ? ((data.commits?.total || 0) - (data.commits?.anonymous || 0)) / totalCommits : 0
+
   const dataPieChartCommits = getPieChartDataCommits(data);
   const dataPieChartModifiedLines = getPieChartDataModifiedLines(data);
   const commitsGaugeData = getGaugeChartDataCommits(data);
@@ -34,7 +37,6 @@ function CommitsPage({ data, historicData, features }) {
   const radarChartCommits = GetRadarDataCommits(data);
   const radarChartModifiedLines = GetRadarDataModifiedLines(data);
 
-  const totalCommits = data.commits?.total || 0;
   const totalPeople = Object.keys(data.avatars || {}).length || 1;
 
   return (
@@ -86,7 +88,7 @@ function CommitsPage({ data, historicData, features }) {
                 <GaugeChart
                   key="non-anonymous"
                   user="non-anonymous"
-                  percentage={totalCommits > 0 ? (totalCommits - (data.commits?.anonymous || 0)) / totalCommits : 0}
+                  percentage={gaugeDataAnonymous}
                   totalPeople={1}
                 />
               </div>

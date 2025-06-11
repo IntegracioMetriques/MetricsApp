@@ -9,7 +9,9 @@ import {
   getGaugeDataCreatedPRsPerUser,
   getGaugeDataMergedPRsPerUser,
   transformCreatedPRsDataForUser,
-  transformMergedPRsDataForUser
+  transformMergedPRsDataForUser,
+  transformPRDataForAreaChart,
+  getPieDataPullRequestStatus
 } from '../domain/pullRequests';
 
 describe('pullRequests', () => {
@@ -24,18 +26,24 @@ describe('pullRequests', () => {
           pau: 1,
           lluis: 2,
         },
+        total: 5,
+        merged: 3,
+        closed: 1,
       },
     },
     '2025-06-02': {
       pull_requests: {
         created: {
-          pau: 1,
+          pau: 3,
           lluis: 4,
         },
         merged_per_member: {
           pau: 2,
-          lluis: 1,
+          lluis: 3,
         },
+        total: 7,
+        merged: 5,
+        closed: 1,
       },
     },
   };
@@ -44,7 +52,7 @@ describe('pullRequests', () => {
     const { xDataCreated, seriesDataCreated } = transformCreatedPRsDataForLineChart(mockPRsData);
     expect(xDataCreated).toEqual(['2025-06-01', '2025-06-02']);
     expect(seriesDataCreated).toEqual([
-      { name: 'pau', data: [2, 1] },
+      { name: 'pau', data: [2, 3] },
       { name: 'lluis', data: [3, 4] },
     ]);
   });
@@ -54,7 +62,7 @@ describe('pullRequests', () => {
     expect(xDataMerged).toEqual(['2025-06-01', '2025-06-02']);
     expect(seriesDataMerged).toEqual([
       { name: 'pau', data: [1, 2] },
-      { name: 'lluis', data: [2, 1] },
+      { name: 'lluis', data: [2, 3] },
     ]);
   });
 
@@ -121,12 +129,31 @@ describe('pullRequests', () => {
   test('transformCreatedPRsDataForUser returns correct created PRs data for pau', () => {
     const { xDataCreatedPRs, yDataCreatedPRs } = transformCreatedPRsDataForUser(mockPRsData, 'pau');
     expect(xDataCreatedPRs).toEqual(['2025-06-01', '2025-06-02']);
-    expect(yDataCreatedPRs).toEqual([2, 1]);
+    expect(yDataCreatedPRs).toEqual([2, 3]);
   });
 
   test('transformMergedPRsDataForUser returns correct merged PRs data for lluis', () => {
     const { xDataMergedPRs, yDataMergedPRs } = transformMergedPRsDataForUser(mockPRsData, 'lluis');
     expect(xDataMergedPRs).toEqual(['2025-06-01', '2025-06-02']);
-    expect(yDataMergedPRs).toEqual([2, 1]);
+    expect(yDataMergedPRs).toEqual([2, 3]);
   });
+
+  test('transformPRDataForAreaChart works as expected', () => {
+  const { xDataPRs, mergedPRs, openPRs } = transformPRDataForAreaChart(mockPRsData);
+
+  expect(xDataPRs).toEqual(['2025-06-01', '2025-06-02']);
+  expect(mergedPRs).toEqual([3, 5]);
+  expect(openPRs).toEqual([1, 1]); 
+});
+
+test('getPieDataPullRequestStatus returns correct pie data and colors', () => {
+  const { pieDataPullRequestStatus, pieDataPullRequestStatusColor } = getPieDataPullRequestStatus(aggregatedData);
+
+  expect(pieDataPullRequestStatus).toEqual([
+    ['Open', aggregatedData.pull_requests.total - aggregatedData.pull_requests.merged - aggregatedData.pull_requests.closed],
+    ['Closed', aggregatedData.pull_requests.closed],
+    ['Merged', aggregatedData.pull_requests.merged],
+  ]);
+  expect(pieDataPullRequestStatusColor).toEqual(['red', 'orange', 'green']);
+});
 });
