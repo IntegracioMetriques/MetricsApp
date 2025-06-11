@@ -133,19 +133,19 @@ function Individual({ data, historicData, features }) {
               {features.includes("issues") && (
               <div><strong>Issues Closed:</strong> {issuesClosed}</div>)}
               {features.includes("pull-requests") && (
-              <div><strong>Pull requests Created:</strong> {pullRequestsCreated}</div>)}
+              <div><strong>Pull Requests Created:</strong> {pullRequestsCreated}</div>)}
               {features.includes("pull-requests") && (
-              <div><strong>Pull requests merged:</strong> {pullRequestsMerged}</div>)}
+              <div><strong>Pull Requests merged:</strong> {pullRequestsMerged}</div>)}
               {features.includes("projects") && (
               <div><strong>Tasks assigned:</strong> {tasksAssigned}</div>)}
                 {features.includes("projects") && (
-              <div><strong>Tasks todo:</strong> {tasksTodo}</div>)}
+              <div><strong>Tasks ToDo:</strong> {tasksTodo}</div>)}
               {features.includes("projects") && (
-              <div><strong>Tasks in progress:</strong> {tasksInProgress}</div>)}
+              <div><strong>Tasks In Progress:</strong> {tasksInProgress}</div>)}
               {features.includes("projects") && (
-              <div><strong>Tasks done:</strong> {tasksClosed}</div>)}
+              <div><strong>Tasks Done:</strong> {tasksClosed}</div>)}
               {features.includes("projects") && (
-              <div><strong>Tasks with Standard Status:</strong> {tasksStandard}</div>)}
+              <div><strong>Tasks with a standard status:</strong> {tasksStandard}</div>)}
             </div>
         </div>
       </div>
@@ -326,7 +326,7 @@ function Individual({ data, historicData, features }) {
         {features.includes("projects") && (
         <div>
           <h2 className="section-title">
-          Tasks with Standard Status
+          Tasks with standard status
             <span className="custom-tooltip">
               ⓘ
               <span className="tooltip-text">Percentage of tasks with standard status (ToDo, In Progress, Done) of the user relative to the user assigned tasks</span>

@@ -190,7 +190,7 @@ function ProjectsPage({ data,historicData,features }) {
         </div>
           <div>
           <h2 className="section-title">
-            Tasks with Standard Status
+            Tasks with standard status
               <span className="custom-tooltip">
                 ⓘ
                 <span className="tooltip-text">Percentage of tasks that have a standard status (ToDo, In Progress, Done) to the total of tasks</span>
@@ -311,7 +311,7 @@ function ProjectsPage({ data,historicData,features }) {
       </div>
 
       <h2 className="section-title">
-        Tasks with Standard Status per user
+        Tasks with standard status per user
         <span className="custom-tooltip">
           ⓘ
           <span className="tooltip-text">
