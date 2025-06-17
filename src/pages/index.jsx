@@ -7,6 +7,8 @@ import AreaChart from '../components/areaChart';
 import GaugeChart from '../components/gaugeChart';
 import AreaChartMultiple from '../components/areaChartMultiple';
 import usePersistentStateSession  from '../components/usePersistentStateSession';
+import HistoricalToggle from '../components/historicalToggle.jsx';
+import DateRangeSelector from '../components/dateRangeSelector.jsx';
 import {filterHistoricData } from '../domain/utils';
 import {
   getGaugeDataAnonymous,
@@ -91,17 +93,18 @@ function Index({data,historicData,features}) {
 
   const { xDataIssues, closedIssues, openIssues } = transformIssuesDataForAreaChart(filteredhistoricaData);
 
-  const { xDataPRs, mergedPRs, openPRs } = transformPRDataForAreaChart(filteredhistoricaData);
+  const { xDataPRs, areaPRData } = transformPRDataForAreaChart(filteredhistoricaData);
     
   const { xDataTask, allSeries } = transformTaskDataForAreaChart(filteredhistoricaData);
   
+  const gaugeAnonymousData = getGaugeDataAnonymous(data)
   return (
     <div>
       <h1>General overview</h1>
           <div className="grid-container">
             <div className="grid-item general-stats horizontal-layout">
               <div className='stats-title '>
-                <h2>Project Stats</h2>
+                <h2>Project Statistics</h2>
               </div>
               <div className="general-stats-grid">
                 <div><strong>Total Members:</strong> {Object.keys(data.avatars).length}</div>
@@ -122,41 +125,19 @@ function Index({data,historicData,features}) {
             </div>
           </div>
           {(features.includes("issues") || features.includes("pull-requests") || features.includes("projects")) && (
-          <div className="chart-toggle-wrapper-index">
-            <div className="chart-toggle-buttons">
-              <button 
-                onClick={() => setShowHistorical(false)}
-                className={!showHistorical ? 'selected' : ''}
-              >
-                Current
-              </button>
-              <button 
-                onClick={() => setShowHistorical(true)}
-                className={showHistorical ? 'selected' : ''}
-              >
-                Historical
-              </button>
-            </div>
-          </div>)}
+            <HistoricalToggle
+              showHistorical={showHistorical}
+              setShowHistorical={setShowHistorical}
+            />)}
             
-          {showHistorical && (
-            <div className = "day-selector-wrapper">
-            <select className='day-selector'
-              onChange={(e) => setDateRange(e.target.value)} 
-              value={dateRange}
-              style={{ marginLeft: '1rem' }}
-            >
-              <option value="7">Last 7 days</option>
-              <option value="15">Last 15 days</option>
-              <option value="30">Last 30 days</option>
-              <option value="90">Last 3 months</option>
-              <option value="lifetime">Lifetime</option>
-            </select>
-            </div>
-          )}
+            <DateRangeSelector
+              showHistorical={showHistorical}
+              dateRange={dateRange}
+              setDateRange={setDateRange}
+            />
           
           {!showHistorical && (
-  <>
+      <>
     {(features.includes("issues") || features.includes("pull-requests") || features.includes("projects")) ? (
       <div className="grid-container">
         <div className="grid-item">
@@ -187,7 +168,7 @@ function Index({data,historicData,features}) {
         {features.includes("projects") && (
           <div className="grid-item">
             <PieChart
-              title="Project tasks state summary"
+              title="Projects tasks state summary"
               data={pieDataTasksStatus}
               colors={pieDataTasksStatusColor}
             />
@@ -200,7 +181,7 @@ function Index({data,historicData,features}) {
         <div className='only-commits-container'>
             <GaugeChart
             user = "non-anonymous" 
-            percentage={data.commits.total > 0 ? (data.commits.total - data.commits.anonymous) / data.commits.total : 0 }
+            percentage={gaugeAnonymousData }
             totalPeople={1}
           />
         </div>
@@ -278,24 +259,19 @@ function Index({data,historicData,features}) {
                   bottomLabel="Closed"
                   xLabel="Date"
                   yLabel="Issues"
-                  title="Open and Closed Issues Over Time"
+                  title="Issues State Over Time"
                 />
               </div>)}
               {features.includes("pull-requests") && (
               <div className='radar-chart-container'>
-                <AreaChart
-                  xData={xDataPRs}
-                  topData={openPRs}
-                  bottomData={mergedPRs}
-                  topColor="rgb(255, 0, 0)"
-                  bottomColor="rgb(0, 255, 0)"
-                  toplabel="Open"
-                  bottomLabel="Merged"
-                  xLabel="Date"
-                  yLabel="Pull Requests"
-                  title="Open and Merged Pull Requests Over Time"
-                />
-              </div>)}
+                <AreaChartMultiple
+                xData={xDataPRs}
+                seriesData={areaPRData}
+                xLabel="Date"
+                yLabel="Pull requests"
+                title="Pull Requests State Over Time"
+              />      
+            </div>)}
               {features.includes("projects") && (
               <div className='radar-chart-container'>
                 <AreaChartMultiple
@@ -303,7 +279,7 @@ function Index({data,historicData,features}) {
                 seriesData={allSeries}
                 xLabel="Date"
                 yLabel="Tasks"
-                title="Tasks Over Time"
+                title="Tasks State Over Time"
               />      
             </div>)}
             </div>

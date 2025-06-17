@@ -3,9 +3,12 @@ import GaugeChart from '../components/gaugeChart.jsx';
 import RadarPieToggle from '../components/radarPieToggle.jsx';
 import LineChartMultiple from '../components/lineChartMultiple.jsx';
 import usePersistentStateSession from '../components/usePersistentStateSession.jsx';
+import HistoricalToggle from '../components/historicalToggle.jsx';
+import DateRangeSelector from '../components/dateRangeSelector.jsx';
 import '../styles/commits.css';
 
 import {
+  getGaugeDataAnonymous,
   transformCommitsDataForLineChart,
   transformModifiedLinesDataForLineChart,
   getPieChartDataCommits,
@@ -28,8 +31,8 @@ function CommitsPage({ data, historicData, features }) {
   const { xData: xDataModified, seriesData: seriesDataModified } = transformModifiedLinesDataForLineChart(filteredHistoricData || {});
 
   const totalCommits = data.commits?.total || 0;
-  const gaugeDataAnonymous = totalCommits > 0 ? ((data.commits?.total || 0) - (data.commits?.anonymous || 0)) / totalCommits : 0
-
+  const gaugeDataAnonymous = getGaugeDataAnonymous(data)
+ 
   const dataPieChartCommits = getPieChartDataCommits(data);
   const dataPieChartModifiedLines = getPieChartDataModifiedLines(data);
   const commitsGaugeData = getGaugeChartDataCommits(data);
@@ -42,29 +45,17 @@ function CommitsPage({ data, historicData, features }) {
   return (
     <div className="commits-container">
       <h1>Commits</h1>
-      <div className="chart-toggle-wrapper-index">
-        <div className="chart-toggle-buttons">
-          <button onClick={() => setShowHistorical(false)} className={!showHistorical ? 'selected' : ''}>Current</button>
-          <button onClick={() => setShowHistorical(true)} className={showHistorical ? 'selected' : ''}>Historical</button>
-        </div>
-      </div>
 
-      {showHistorical && (
-        <div className="day-selector-wrapper-comm">
-          <select
-            className="day-selector-comm"
-            onChange={(e) => setDateRange(e.target.value)}
-            value={dateRange}
-            style={{ marginLeft: '1rem' }}
-          >
-            <option value="7">Last 7 days</option>
-            <option value="15">Last 15 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 3 months</option>
-            <option value="lifetime">Lifetime</option>
-          </select>
-        </div>
-      )}
+      <HistoricalToggle
+        showHistorical={showHistorical}
+        setShowHistorical={setShowHistorical}
+      />
+
+      <DateRangeSelector
+        showHistorical={showHistorical}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+      />
 
       {!showHistorical && (
         <>
@@ -141,9 +132,17 @@ function CommitsPage({ data, historicData, features }) {
               </div>
             </div>
           ) : (
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", textAlign: "center", fontSize: "1.8rem" }}>
-              No s'ha trobat <code>historic_metrics.json</code>.<br />
-              Si és el primer dia, torna demà un cop s'hagi fet la primera execució del bot.
+            <div style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            fontSize: "1.8rem",
+            }}>
+            No s'ha trobat historic_metrics.json.<br />
+            Si és el primer dia, torna demà un cop
+            s'hagi fet la primera execució del
+            workflow Daily Metrics.
             </div>
           )}
         </>

@@ -3,6 +3,8 @@ import GaugeChart from '../components/gaugeChart';
 import RadarPieToggle from '../components/radarPieToggle';
 import LineChartMultiple from '../components/lineChartMultiple';
 import usePersistentStateSession  from '../components/usePersistentStateSession';
+import HistoricalToggle from '../components/historicalToggle.jsx';
+import DateRangeSelector from '../components/dateRangeSelector.jsx';
 import {
   transformAssignedIssuesDataForLineChart,
   getRadarAndPieDataIssuesAssigned,
@@ -30,38 +32,16 @@ function IssuesPage({ data,historicData,features }) {
   return (
     <div className="commits-container">
       <h1>Issues</h1>
-            <div className="chart-toggle-wrapper-index">
-      <div className="chart-toggle-buttons">
-        <button 
-          onClick={() => setShowHistorical(false)}
-          className={!showHistorical ? 'selected' : ''}
-        >
-          Current
-        </button>
-        <button 
-          onClick={() => setShowHistorical(true)}
-          className={showHistorical ? 'selected' : ''}
-        >
-          Historical
-        </button>
-      </div>
-    </div>
+      <HistoricalToggle
+        showHistorical={showHistorical}
+        setShowHistorical={setShowHistorical}
+      />
 
-    {showHistorical && (
-        <div className = "day-selector-wrapper-comm">
-        <select className='day-selector-comm'
-          onChange={(e) => setDateRange(e.target.value)} 
-          value={dateRange}
-          style={{ marginLeft: '1rem' }}
-        >
-          <option value="7">Last 7 days</option>
-          <option value="15">Last 15 days</option>
-          <option value="30">Last 30 days</option>
-          <option value="90">Last 3 months</option>
-          <option value="lifetime">Lifetime</option>
-        </select>
-        </div>
-      )}
+      <DateRangeSelector
+        showHistorical={showHistorical}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+      />
 
         {!showHistorical && (
       <>

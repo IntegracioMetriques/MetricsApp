@@ -5,6 +5,8 @@ import PieChart from '../components/pieChart';
 import LineChartMultiple  from '../components/lineChartMultiple';
 import AreaChartMultiple  from '../components/areaChartMultiple';
 import usePersistentStateSession  from '../components/usePersistentStateSession';
+import HistoricalToggle from '../components/historicalToggle.jsx';
+import DateRangeSelector from '../components/dateRangeSelector.jsx';
 import {
   getActiveIteration,
   filterHistoricDataByIteration,
@@ -61,7 +63,6 @@ function ProjectsPage({ data,historicData,features }) {
 
   const {featurePieChartData,featureColorsPieChart} = getFeatureDataForChart(data, selectedIteration);
 
-
   const percentageTasksAssigned =  getGaugeDataTasksAssigned(data,selectedIteration)
   const percentageStandardStatus = getGaugeDataTasksStandardStatus(data,selectedIteration)
   const percentageItemsIssues = getGaugeDataItemsIssues(data,selectedIteration)
@@ -75,25 +76,10 @@ function ProjectsPage({ data,historicData,features }) {
     
     <div className="commits-container">
       <h1>Projects</h1>
-       <div className="chart-toggle-wrapper-index">
-      <div className="chart-toggle-buttons">
-        <button 
-          onClick={() => setShowHistorical(false)}
-          className={!showHistorical ? 'selected' : ''}
-        >
-          Current
-        </button>
-        <button 
-          onClick={() => setShowHistorical(true)}
-          className={showHistorical ? 'selected' : ''}
-        >
-          Historical
-        </button>
-      </div>
-    </div>
-
-        {showHistorical && (
-            <>
+      <HistoricalToggle
+        showHistorical={showHistorical}
+        setShowHistorical={setShowHistorical}
+      />
       <div className="day-selector-wrapper-comm">
         <select
           className="day-selector-comm"
@@ -107,47 +93,21 @@ function ProjectsPage({ data,historicData,features }) {
             </option>
           ))}
         </select> 
+        {!showHistorical && (
+        <div className='date-range'>
+          {getDateRangeForIteration(data,selectedIteration)}
+        </div>)}
       </div>
       {selectedIteration === "total" && (
-        <div className="day-selector-wrapper-comm">
-          <select
-            className="day-selector-comm"
-            onChange={(e) => setDateRange(e.target.value)}
-            value={dateRange}
-            style={{ marginLeft: '1rem' }}
-          >
-            <option value="7">Last 7 days</option>
-            <option value="15">Last 15 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 3 months</option>
-            <option value="lifetime">Lifetime</option>
-          </select>
-        </div>
+          <DateRangeSelector
+            showHistorical={showHistorical}
+            dateRange={dateRange}
+            setDateRange={setDateRange}
+          />
       )}
-      </>
-      )}
-
-
 
       {!showHistorical && (
       <>
-      <div className="day-selector-wrapper-comm">
-        <select
-          className="day-selector-comm"
-          onChange={(e) => setSelectedIteration(e.target.value)}
-          value={selectedIteration}
-          style={{ marginLeft: '1rem' }}
-        >
-          {sortedIterationNames.map((iterationName) => (
-            <option key={iterationName} value={iterationName}>
-              {iterationName}
-            </option>
-          ))}
-        </select>
-          <div className='date-range'>
-          {getDateRangeForIteration(data,selectedIteration)}
-        </div> 
-      </div>
       <div className='section-background'>
       <h2>Summary</h2>
       <div className="summary-charts-container">

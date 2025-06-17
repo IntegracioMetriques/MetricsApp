@@ -131,21 +131,31 @@ export const transformMergedPRsDataForUser = (data, username) => {
   };
 
 export const transformPRDataForAreaChart = (data) => {
-    const xDataPRs = [];
-    const mergedPRs = [];
-    const openPRs = [];
-    
-    for (const date in data) {
-      const total = data[date].pull_requests.total || 0;
-      const merged = data[date].pull_requests.merged || 0;
-      const closed = data[date].pull_requests.closed || 0;
-      const open = total - merged - closed;
-      xDataPRs.push(date);
-      mergedPRs.push(merged);
-      openPRs.push(open);
-      }
-      return { xDataPRs, mergedPRs, openPRs };
-    };
+  const xDataPRs = [];
+  const mergedPRs = [];
+  const closedPRs = [];
+  const openPRs = [];
+
+  for (const date in data) {
+    const total = data[date].pull_requests.total || 0;
+    const merged = data[date].pull_requests.merged || 0;
+    const closed = data[date].pull_requests.closed || 0;
+    const open = total - merged - closed;
+
+    xDataPRs.push(date);
+    mergedPRs.push(merged);
+    closedPRs.push(closed);
+    openPRs.push(open);
+  }
+
+  const areaPRData = [
+    { label: 'Merged', data: mergedPRs, color:'rgb(0, 255, 0)' },
+    { label: 'Closed', data: closedPRs, color: 'orange' },
+    { label: 'Open', data: openPRs, color: 'rgb(255, 0, 0)' },
+  ];
+
+  return { xDataPRs, areaPRData };
+};
 
 export const getPieDataPullRequestStatus = (data) => {
   const pullRequests = data.pull_requests;
