@@ -6,9 +6,9 @@ import usePersistentStateSession  from '../components/usePersistentStateSession.
 import usePersistentState  from '../components/usePersistentState.jsx';
 import HistoricalToggle from '../components/historicalToggle.jsx';
 import DateRangeSelector from '../components/dateRangeSelector.jsx';
-import IndividualStatsSection from '../summarySections/individualStatisticsSection.jsx';
-import IndividualMetricsSection from '../metricsSections/individualMetricsSection.jsx';
-import IndividualHistoricSection from '../historicalSections/individualHistoricalSection.jsx';
+import IndividualStatsSection from '../summarySections/individualPageStatisticsSection.jsx';
+import IndividualMetricsSection from '../metricsSections/individualPageMetricsSection.jsx';
+import IndividualHistoricSection from '../historicalSections/individualPageHistoricalSection.jsx';
 
 import {
   transformCommitsDataForUser,
@@ -40,10 +40,10 @@ import {
   transformTasksStandardDataForUser,
 } from '../domain/projects.jsx'
 import { 
-  filterHistoricData, 
-  truncateName } 
+  filterHistoricData, } 
 from '../domain/utils.jsx';
-function Individual({ data, historicData, features }) {
+
+function IndividualPage({ data, historicData, features }) {
   const [selectedUser, setSelectedUser] = usePersistentState("selectedUser",Object.keys(data.avatars)[0]);
   const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalIndividual', false);
   const [dateRange, setDateRange] = usePersistentStateSession('dateRangeIndividual', "7");
@@ -199,4 +199,4 @@ function Individual({ data, historicData, features }) {
   );
 }
 
-export default Individual;
+export default IndividualPage;
