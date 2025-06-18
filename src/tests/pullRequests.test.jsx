@@ -139,11 +139,14 @@ describe('pullRequests', () => {
   });
 
   test('transformPRDataForAreaChart works as expected', () => {
-  const { xDataPRs, mergedPRs, openPRs } = transformPRDataForAreaChart(mockPRsData);
+  const { xDataPRs, areaPRData } = transformPRDataForAreaChart(mockPRsData);
 
   expect(xDataPRs).toEqual(['2025-06-01', '2025-06-02']);
-  expect(mergedPRs).toEqual([3, 5]);
-  expect(openPRs).toEqual([1, 1]); 
+  expect(areaPRData).toEqual([
+    { label: 'Merged', data: [3, 5], color: 'rgb(0, 255, 0)' },
+    { label: 'Closed', data: [1, 1], color: 'orange' },
+    { label: 'Open', data: [1, 1], color: 'rgb(255, 0, 0)' },
+  ]); 
 });
 
 test('getPieDataPullRequestStatus returns correct pie data and colors', () => {
