@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import GaugeChart from '../components/gaugeChart';
-import RadarPieToggle from '../components/radarPieToggle';
-import PieChart from '../components/pieChart';
-import LineChartMultiple  from '../components/lineChartMultiple';
-import AreaChartMultiple  from '../components/areaChartMultiple';
-import usePersistentStateSession  from '../components/usePersistentStateSession';
+import usePersistentStateSession from '../components/usePersistentStateSession';
 import HistoricalToggle from '../components/historicalToggle.jsx';
 import DateRangeSelector from '../components/dateRangeSelector.jsx';
+
+import ProjectsPageSummarySection from '../summarySections/projectsPageSummarySection.jsx';
+import ProjectsPageMetricsSection from '../metricsSections/projectsPageMetricsSection.jsx';
+import ProjectsPageHistoricalSection from '../historicalSections/projectsPageHistoricalSection.jsx';
+
 import {
   getActiveIteration,
   filterHistoricDataByIteration,
@@ -25,16 +25,15 @@ import {
   getGaugeDataInProgressTasksPerUser,
   getGaugeDataDoneTasksPerUser,
   getGaugeDataStandardStatusTasksPerUser
-} from '../domain/projects'
+} from '../domain/projects';
 import { filterHistoricData } from '../domain/utils';
-import '../styles/commits.css';
 
-function ProjectsPage({ data,historicData,features }) {
+function ProjectsPage({ data, historicData, features }) {
   const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalProject', false);
   const [dateRange, setDateRange] = usePersistentStateSession('dateRangeProject', "7");
 
-  const [selectedIteration, setSelectedIteration] = usePersistentStateSession("activeIteration",getActiveIteration(data));
-  
+  const [selectedIteration, setSelectedIteration] = usePersistentStateSession("activeIteration", getActiveIteration(data));
+
   const iterationsOrdered = Object.keys(data.project.iterations);
   const iterations = Object.keys(data.project.metrics_by_iteration);
 
@@ -45,11 +44,13 @@ function ProjectsPage({ data,historicData,features }) {
   const totalPeople = Object.keys(data.avatars).length;
 
   const filteredhistoricaData = historicData
-  ? (selectedIteration === "total"
-      ? filterHistoricData(historicData, dateRange) 
-      : filterHistoricDataByIteration(data,historicData, selectedIteration)) 
-  : null;
-  const {radarDataAssigned,pieDataAssigned} = getRadarPieDataAssignedTasks(data,selectedIteration)
+    ? (selectedIteration === "total"
+      ? filterHistoricData(historicData, dateRange)
+      : filterHistoricDataByIteration(data, historicData, selectedIteration))
+    : null;
+
+  const { radarDataAssigned, pieDataAssigned } = getRadarPieDataAssignedTasks(data, selectedIteration);
+
   const { xDataAssigned, seriesDataAssigned } = transformAssignedTasksDataForLineChart(
     data,
     filteredhistoricaData,
@@ -57,23 +58,23 @@ function ProjectsPage({ data,historicData,features }) {
     data.project.iterations
   );
 
-  const { xDataFeature,allSeries } = transformFeatureDataForAreaChart(filteredhistoricaData,selectedIteration,data.project.iterations);
-  
-  const {typePieChartData,typeColorsPieChart} = getIssueTypeDataForChart(data, selectedIteration);
+  const { xDataFeature, allSeries } = transformFeatureDataForAreaChart(filteredhistoricaData, selectedIteration, data.project.iterations);
 
-  const {featurePieChartData,featureColorsPieChart} = getFeatureDataForChart(data, selectedIteration);
+  const { typePieChartData, typeColorsPieChart } = getIssueTypeDataForChart(data, selectedIteration);
 
-  const percentageTasksAssigned =  getGaugeDataTasksAssigned(data,selectedIteration)
-  const percentageStandardStatus = getGaugeDataTasksStandardStatus(data,selectedIteration)
-  const percentageItemsIssues = getGaugeDataItemsIssues(data,selectedIteration)
-  const percentageItemIssuesWithType = getGaugeDataItemIssuesWithType(data,selectedIteration)
-  const percentageIteration = getGaugeDataItemIssuesWithIteration(data)
-  const gaugeDataAssignedTasks = getGaugeDataAssignedTasksPerUser(data,selectedIteration);
-  const gaugeDataInProgressTasks = getGaugeDataInProgressTasksPerUser(data,selectedIteration);
-  const gaugeDataDoneTasks = getGaugeDataDoneTasksPerUser(data,selectedIteration);
-  const gaugeDataStandardTasks = getGaugeDataStandardStatusTasksPerUser(data,selectedIteration)
+  const { featurePieChartData, featureColorsPieChart } = getFeatureDataForChart(data, selectedIteration);
+
+  const percentageTasksAssigned = getGaugeDataTasksAssigned(data, selectedIteration);
+  const percentageStandardStatus = getGaugeDataTasksStandardStatus(data, selectedIteration);
+  const percentageItemsIssues = getGaugeDataItemsIssues(data, selectedIteration);
+  const percentageItemIssuesWithType = getGaugeDataItemIssuesWithType(data, selectedIteration);
+  const percentageIteration = getGaugeDataItemIssuesWithIteration(data);
+  const gaugeDataAssignedTasks = getGaugeDataAssignedTasksPerUser(data, selectedIteration);
+  const gaugeDataInProgressTasks = getGaugeDataInProgressTasksPerUser(data, selectedIteration);
+  const gaugeDataDoneTasks = getGaugeDataDoneTasksPerUser(data, selectedIteration);
+  const gaugeDataStandardTasks = getGaugeDataStandardStatusTasksPerUser(data, selectedIteration);
+
   return (
-    
     <div className="commits-container">
       <h1>Projects</h1>
       <HistoricalToggle
@@ -92,246 +93,53 @@ function ProjectsPage({ data,historicData,features }) {
               {iterationName}
             </option>
           ))}
-        </select> 
+        </select>
         {!showHistorical && (
-        <div className='date-range'>
-          {getDateRangeForIteration(data,selectedIteration)}
-        </div>)}
+          <div className='date-range'>
+            {getDateRangeForIteration(data, selectedIteration)}
+          </div>
+        )}
       </div>
       {selectedIteration === "total" && (
-          <DateRangeSelector
-            showHistorical={showHistorical}
-            dateRange={dateRange}
-            setDateRange={setDateRange}
-          />
+        <DateRangeSelector
+          showHistorical={showHistorical}
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+        />
       )}
 
-      {!showHistorical && (
-      <>
-      <div className='section-background'>
-      <h2>Summary</h2>
-      <div className="summary-charts-container">
-        <div className='chart-item'>
-          <RadarPieToggle
-              RadarPieID = "RadarPieAssignedTasks"
-              radarData={radarDataAssigned}
-              pieData={pieDataAssigned}
-              title={"Assigned Tasks distribution"}
-            />
-        </div>
-        <div className='chart-item'>
-          <PieChart
-            title="Issue types"
-            data={typePieChartData}
-            colors = {typeColorsPieChart}
-          />
-        </div>
-        <div className='chart-item'>
-          <PieChart
-            title="Features state"
-            data={featurePieChartData}
-            colors = {featureColorsPieChart}
-          />
-        </div>
-        <div>
-          <h2 className="section-title">
-            Tasks assigned
-              <span className="custom-tooltip">
-                ⓘ
-                <span className="tooltip-text">Percentage of tasks that are assigned to a user relative to the total number of Tasks</span>
-              </span>
-            </h2>
-              <GaugeChart
-                key="AssignedTasks"
-                user="assigned"
-                percentage={percentageTasksAssigned}
-                totalPeople= {1}
-              />
-        </div>
-          <div>
-          <h2 className="section-title">
-            Tasks with standard status
-              <span className="custom-tooltip">
-                ⓘ
-                <span className="tooltip-text">Percentage of tasks that have a standard status (ToDo, In Progress, Done) to the total of tasks</span>
-              </span>
-            </h2>
-              <GaugeChart
-                key="Standard"
-                user="Tasks"
-                percentage={percentageStandardStatus}
-                totalPeople= {1}
-              />
-        </div>
-        <div>
-          <h2 className="section-title">
-            Issues
-              <span className="custom-tooltip">
-                ⓘ
-                <span className="tooltip-text">Percentage of Items that are Issues</span>
-              </span>
-            </h2>
-              <GaugeChart
-                key="ItemIssues"
-                user="Issues"
-                percentage={percentageItemsIssues}
-                totalPeople= {1}
-              />
-        </div>
-        <div>
-          <h2 className="section-title">
-            Issues with type
-              <span className="custom-tooltip">
-                ⓘ
-                <span className="tooltip-text">Percentage of Issues that have a type assigned</span>
-              </span>
-            </h2>
-              <GaugeChart
-                key={"Issue with types"}
-                user="Issues"
-                percentage={percentageItemIssuesWithType}
-                totalPeople= {1}
-              />
-        </div>
-        {data.project.has_iterations && (
-          <div>
-          <h2 className="section-title">
-            Items with iteration
-              <span className="custom-tooltip">
-                ⓘ
-                <span className="tooltip-text">Percentage of Items that are assigned to an iteration</span>
-              </span>
-            </h2>
-              <GaugeChart
-                user="Issues"
-                percentage={percentageIteration}
-                totalPeople= {1}
-              />
-        </div>)}
-      </div>
-      </div>
-      <div className='section-background'>
-      <h2>Metrics by User</h2>
-      <h2 className="section-title">
-        Tasks assigned per user
-          <span className="custom-tooltip">
-            ⓘ
-            <span className="tooltip-text">Percentage of tasks assigned per user relative to the number of assigned tasks</span>
-          </span>
-        </h2>
-      <div className="gauge-charts-container">
-          {gaugeDataAssignedTasks.map(({ user, percentage }) => (
-            <GaugeChart
-              key={`assigned-tasks-${user}`}
-              user={user}
-              percentage={percentage}
-              totalPeople={totalPeople}
-            />
-          ))}
-      </div>
-      <h2 className="section-title">
-      Tasks In Progress per user
-      <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">
-          Shows if the user is actively working on at least one task.
-            If the gauge is at 100%, the user has at least one task in progress.
-            If it's at 0%, the user currently has no tasks in progress.          
-            </span>
-        </span>
-      </h2>
-      <div className="gauge-charts-container">
-          {gaugeDataInProgressTasks.map(({ user, percentage }) => (
-            <GaugeChart
-              key={`inProgress-tasks-${user}`}
-              user={user}
-              percentage={percentage}
-              totalPeople={1}
-            />
-          ))}
-      </div>
-      <h2 className="section-title">
-      Tasks Done per user
-      <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">
-          Percentage of tasks done per user relative to the tasks assigned to that user
-          </span>
-        </span>
-      </h2>
-      <div className="gauge-charts-container">
-          {gaugeDataDoneTasks.map(({ user, percentage }) => (
-            <GaugeChart
-              key={`done-tasks-${user}`}
-              user={user}
-              percentage={percentage}
-              totalPeople={1}
-            />
-          ))}
-      </div>
-
-      <h2 className="section-title">
-        Tasks with standard status per user
-        <span className="custom-tooltip">
-          ⓘ
-          <span className="tooltip-text">
-            Percentage of tasks with standard status (ToDo, In Progress, Done) per user relative to their assigned tasks
-          </span>
-        </span>
-      </h2>
-      <div className="gauge-charts-container">
-          {gaugeDataStandardTasks.map(({ user, percentage }) => (
-            <GaugeChart
-              key={`standard-tasks-${user}`}
-              user={user}
-              percentage={percentage}
-              totalPeople={1}
-            />
-          ))}
-      </div>
-    </div>
-      </>)} 
-
-      {showHistorical && (
+      {!showHistorical ? (
         <>
-        {historicData ? (
-        <>
-        <div className="section-background">
-        <div className='radar-charts-wrapper'>
-        <div className='radar-chart-container'>
-        <LineChartMultiple
-            xData={xDataAssigned}
-            seriesData={seriesDataAssigned}
-            xLabel="Data"
-            yLabel="Tasks"
-            title="Assigned tasks distribution over time"
+          <ProjectsPageSummarySection
+            radarDataAssigned={radarDataAssigned}
+            pieDataAssigned={pieDataAssigned}
+            typePieChartData={typePieChartData}
+            typeColorsPieChart={typeColorsPieChart}
+            featurePieChartData={featurePieChartData}
+            featureColorsPieChart={featureColorsPieChart}
+            percentageTasksAssigned={percentageTasksAssigned}
+            percentageStandardStatus={percentageStandardStatus}
+            percentageItemsIssues={percentageItemsIssues}
+            percentageItemIssuesWithType={percentageItemIssuesWithType}
+            percentageIteration={percentageIteration}
+            data={data}
           />
-          </div>
-          <div className='radar-chart-container'>
-          <AreaChartMultiple
-            xData={xDataFeature}
-            seriesData={allSeries}
-            xLabel="Date"
-            yLabel="Features"
-            title="Features Over Time"
+          <ProjectsPageMetricsSection
+            gaugeDataAssignedTasks={gaugeDataAssignedTasks}
+            gaugeDataInProgressTasks={gaugeDataInProgressTasks}
+            gaugeDataDoneTasks={gaugeDataDoneTasks}
+            gaugeDataStandardTasks={gaugeDataStandardTasks}
+            totalPeople={totalPeople}
           />
-          </div>
-          </div>
-          </div>
-        </>)  : (
-            <div style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            textAlign: "center",
-            fontSize: "1.8rem",
-            }}>
-            No s'ha trobat historic_metrics.json.<br />
-            Si és el primer dia, torna demà un cop
-            s'hagi fet la primera execució del
-            workflow Daily Metrics.
-            </div>)}
-         </>
+        </>
+      ) : (
+        <ProjectsPageHistoricalSection
+          historicData={historicData}
+          xDataAssigned={xDataAssigned}
+          seriesDataAssigned={seriesDataAssigned}
+          xDataFeature={xDataFeature}
+          allSeries={allSeries}
+        />
       )}
     </div>
   );

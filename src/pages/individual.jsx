@@ -1,29 +1,33 @@
 import React, { useState } from 'react';
 import "../styles/individual.css";
-import LineChart from '../components/lineChart';
-import GaugeChart from '../components/gaugeChart';
-import usePersistentStateSession  from '../components/usePersistentStateSession';
-import usePersistentState  from '../components/usePersistentState';
+import LineChart from '../components/lineChart.jsx';
+import GaugeChart from '../components/gaugeChart.jsx';
+import usePersistentStateSession  from '../components/usePersistentStateSession.jsx';
+import usePersistentState  from '../components/usePersistentState.jsx';
 import HistoricalToggle from '../components/historicalToggle.jsx';
 import DateRangeSelector from '../components/dateRangeSelector.jsx';
+import IndividualStatsSection from '../summarySections/individualStatisticsSection.jsx';
+import IndividualMetricsSection from '../metricsSections/individualMetricsSection.jsx';
+import IndividualHistoricSection from '../historicalSections/individualHistoricalSection.jsx';
+
 import {
   transformCommitsDataForUser,
   getGaugeChartDataCommits,
   getGaugeChartDataModifiedLines,
   transformModifiedLinesDataForUser
-} from '../domain/commits'
+} from '../domain/commits.jsx'
 import {
   getGaugeDataAssignedIssuesPerUser,
   getGaugeDataClosedIssuesPerUser,
   transformAssignedIssuesDataForUser,
   transformClosedIssuesDataForUser
-} from '../domain/issues'
+} from '../domain/issues.jsx'
 import {
   getGaugeDataCreatedPRsPerUser,
   getGaugeDataMergedPRsPerUser,
   transformCreatedPRsDataForUser,
   transformMergedPRsDataForUser
-} from '../domain/pullRequests'
+} from '../domain/pullRequests.jsx'
 import {
   getGaugeDataAssignedTasksPerUser,
   getGaugeDataInProgressTasksPerUser,
@@ -34,11 +38,11 @@ import {
   transformTasksInProgressDataForUser,
   transformTasksDoneDataForUser,
   transformTasksStandardDataForUser,
-} from '../domain/projects'
+} from '../domain/projects.jsx'
 import { 
   filterHistoricData, 
   truncateName } 
-from '../domain/utils';
+from '../domain/utils.jsx';
 function Individual({ data, historicData, features }) {
   const [selectedUser, setSelectedUser] = usePersistentState("selectedUser",Object.keys(data.avatars)[0]);
   const [showHistorical, setShowHistorical] = usePersistentStateSession('showHistoricalIndividual', false);
@@ -114,44 +118,26 @@ function Individual({ data, historicData, features }) {
   return (
     <div>
       <h1>Individual overview</h1>
-      <div className="grid-container">
-        <div className="grid-item individual-user-card horizontal-layout">
-          <div className="user-info">
-            <img src={avatar} alt={selectedUser} className="user-avatar" />
-            <select className="user-selector" value={selectedUser}  title={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
-          {users.map(user => (
-            <option key={user} value={user} title={user}>{truncateName(user)}</option>
-          ))}
-        </select>            
-        </div>
-            <div className="stats-grid">
-              <div><strong>Commits:</strong> {commits}</div>
-              <div><strong>Additions:</strong> {modifiedLines.additions}</div>
-              <div><strong>Deletions:</strong> {modifiedLines.deletions}</div>
-              <div><strong>Modifications:</strong> {modifiedLines.modified}</div>
-              <div><strong>Commit Streak:</strong> {streak}</div>
-              <div><strong>Longest Streak:</strong> {longestStreak}</div>
-              {features.includes("issues") && (
-              <div><strong>Issues Assigned:</strong> {issuesAssigned}</div>)}
-              {features.includes("issues") && (
-              <div><strong>Issues Closed:</strong> {issuesClosed}</div>)}
-              {features.includes("pull-requests") && (
-              <div><strong>Pull Requests Created:</strong> {pullRequestsCreated}</div>)}
-              {features.includes("pull-requests") && (
-              <div><strong>Pull Requests merged:</strong> {pullRequestsMerged}</div>)}
-              {features.includes("projects") && (
-              <div><strong>Tasks assigned:</strong> {tasksAssigned}</div>)}
-                {features.includes("projects") && (
-              <div><strong>Tasks ToDo:</strong> {tasksTodo}</div>)}
-              {features.includes("projects") && (
-              <div><strong>Tasks In Progress:</strong> {tasksInProgress}</div>)}
-              {features.includes("projects") && (
-              <div><strong>Tasks Done:</strong> {tasksClosed}</div>)}
-              {features.includes("projects") && (
-              <div><strong>Tasks with a standard status:</strong> {tasksStandard}</div>)}
-            </div>
-        </div>
-      </div>
+        <IndividualStatsSection
+          selectedUser={selectedUser}
+          setSelectedUser={setSelectedUser}
+          users={users}
+          avatar={avatar}
+          commits={commits}
+          modifiedLines={modifiedLines}
+          streak={streak}
+          longestStreak={longestStreak}
+          issuesAssigned={issuesAssigned}
+          issuesClosed={issuesClosed}
+          pullRequestsCreated={pullRequestsCreated}
+          pullRequestsMerged={pullRequestsMerged}
+          tasksAssigned={tasksAssigned}
+          tasksTodo={tasksTodo}
+          tasksInProgress={tasksInProgress}
+          tasksClosed={tasksClosed}
+          tasksStandard={tasksStandard}
+          features={features}
+        />
 
       <HistoricalToggle
         showHistorical={showHistorical}
@@ -165,298 +151,50 @@ function Individual({ data, historicData, features }) {
       />
 
     {!showHistorical && (
-      <>
-      <div className="grid-container">
-        <div>
-          <h2 className="section-title">
-          Commits
-          <span className="custom-tooltip">
-            ⓘ
-            <span className="tooltip-text">Percentage of commits made by the user relative to the total number of commits</span>
-          </span>
-          </h2>
-          <GaugeChart
-            user={selectedUser}
-            percentage= {percentageCommits}
-            totalPeople= {totalPeople}
-          /> 
-        </div>
-        <div>
-          <h2 className="section-title">
-          Modified Lines
-          <span className="custom-tooltip">
-            ⓘ
-            <span className="tooltip-text">Percentage of commits made by the user relative to the total number of commits</span>
-          </span>
-          </h2>
-          <GaugeChart
-            user={selectedUser}
-            percentage= {percentageModifiedlLines}
-            totalPeople= {totalPeople}
-          /> 
-        </div>
-        {features.includes("issues") && (
-        <div>
-          <h2 className="section-title">
-          Issues assigned
-            <span className="custom-tooltip">
-              ⓘ
-              <span className="tooltip-text">Percentage of issues assigned to the user relative to the number of assigned issues</span>
-            </span>
-          </h2>
-          <GaugeChart
-                    user={selectedUser}
-                    percentage= {percentageAssigned}
-                    totalPeople= {totalPeople}
-                  /> 
-        </div>)}
-        {features.includes("issues") && (
-        <div>
-          <h2 className="section-title">
-            Issues closed
-            <span className="custom-tooltip">
-              ⓘ
-              <span className="tooltip-text"> Percentage of issues closed by the user relative to the issues assigned to the user</span>
-            </span>
-          </h2>
-          <GaugeChart
-                    user={selectedUser}
-                    percentage= {percentageIssuesClosed}
-                    totalPeople= {1}
-                  /> 
-        </div>)}
-        {features.includes("pull-requests") && (
-        <div>
-          <h2 className="section-title">
-            Pull Requests created
-            <span className="custom-tooltip">
-              ⓘ
-              <span className="tooltip-text">Percentage of pull requests created by the user relative to the total number of pull requests</span>
-            </span>
-          </h2>
-          <GaugeChart
-                    user={selectedUser}
-                    percentage= {percentageCreated}
-                    totalPeople= {totalPeople}
-                  /> 
-        </div>)}
-        {features.includes("pull-requests") && (
-        <div>
-          <h2 className="section-title">
-            Pull Requests merged
-            <span className="custom-tooltip">
-              ⓘ
-              <span className="tooltip-text">Percentage of pull requests merged by the user relative to the total number of pull requests merged</span>
-            </span>
-          </h2>
-          <GaugeChart
-                    user={selectedUser}
-                    percentage= {percentageMerged}
-                    totalPeople= {totalPeople}
-                  /> 
-        </div>)}
-        {features.includes("projects") && (
-        <div>
-          <h2 className="section-title">
-            Tasks assigned
-            <span className="custom-tooltip">
-              ⓘ
-              <span className="tooltip-text">Percentage of tasks assigned to the user relative to the number of assigned tasks</span>
-            </span>
-          </h2>
-          <GaugeChart
-                    user={selectedUser}
-                    percentage= {percentageTasksAssigned}
-                    totalPeople= {totalPeople}
-                  /> 
-        </div>)}
-        {features.includes("projects") && (
-        <div>
-          <h2 className="section-title">
-            Tasks In Progress
-            <span className="custom-tooltip">
-              ⓘ
-              <span className="tooltip-text">
-                Shows if the user is actively working on at least one task.
-                If the gauge is at 100%, the user has at least one task in progress.
-                If it's at 0%, the user currently has no tasks in progress.          
-              </span>
-            </span>
-          </h2>
-          <GaugeChart
-                    user={selectedUser}
-                    percentage= {percentageTasksInProgress}
-                    totalPeople= {1}
-                  /> 
-        </div>)}
-        {features.includes("projects") && (
-        <div>
-          <h2 className="section-title">
-            Tasks Done
-            <span className="custom-tooltip">
-              ⓘ
-              <span className="tooltip-text">Percentage of tasks done by the user relative to the tasks assigned to the user</span>
-            </span>
-          </h2>
-          <GaugeChart
-                    user={selectedUser}
-                    percentage= {percentageTasksDone}
-                    totalPeople= {1}
-                  /> 
-        </div>)}
-        {features.includes("projects") && (
-        <div>
-          <h2 className="section-title">
-          Tasks with standard status
-            <span className="custom-tooltip">
-              ⓘ
-              <span className="tooltip-text">Percentage of tasks with standard status (ToDo, In Progress, Done) of the user relative to the user assigned tasks</span>
-            </span>
-          </h2>
-          <GaugeChart
-                    user={selectedUser}
-                    percentage= {percentageTasksStandard}
-                    totalPeople= {1}
-                  /> 
-        </div>)}
-      </div>
-      </>)}
+        <IndividualMetricsSection
+          selectedUser={selectedUser}
+          totalPeople={totalPeople}
+          percentageCommits={percentageCommits}
+          percentageModifiedlLines={percentageModifiedlLines}
+          percentageAssigned={percentageAssigned}
+          percentageIssuesClosed={percentageIssuesClosed}
+          percentageCreated={percentageCreated}
+          percentageMerged={percentageMerged}
+          percentageTasksAssigned={percentageTasksAssigned}
+          percentageTasksInProgress={percentageTasksInProgress}
+          percentageTasksDone={percentageTasksDone}
+          percentageTasksStandard={percentageTasksStandard}
+          features={features}
+        />
+      )}
       {showHistorical && (
-      <>
-      {historicData ? (
-        <>
-      <div className='radar-charts-wrapper'>
-            <div className='radar-chart-container'>
-              <LineChart
-                  xData={xDataCommits}
-                  yData={yDataCommits}
-                  xLabel="Date"
-                  yLabel="Commits"
-                  title="Commits Over Time"
-                  />
-              </div>
-              <div className='radar-chart-container'>
-                <LineChart
-                    xData={xDataModifiedLines}
-                    yData={yDataModifiedLines}
-                    xLabel="Date"
-                    yLabel="Modified Lines"
-                    title="Modified Lines Over Time"
-                    />
-                  </div>
-            {features.includes("issues") && (
-
-              <div className='radar-chart-container'>
-                <LineChart
-                    xData={xDataAssignedIssues}
-                    yData={yDataAssignedIssues}
-                    xLabel="Date"
-                    yLabel="Issues"
-                    title="Assigned Issues Over Time"
-                    />
-              </div>)}
-            {features.includes("issues") && (
-              <div className='radar-chart-container'>
-                <LineChart
-                    xData={xDataClosedIssues}
-                    yData={yDataClosedIssues}
-                    xLabel="Date"
-                    yLabel="Issues"
-                    title="Clossed Issues Over Time"
-                    />
-              </div>)}
-            {features.includes("pull-requests") && (
-              <div className='radar-chart-container'>
-                <LineChart
-                    xData={xDataCreatedPRs}
-                    yData={yDataCreatedPRs}
-                    xLabel="Date"
-                    yLabel="Pull Requests"
-                    title="Pull Requests Created Over Time"
-                />
-              </div>)}
-              {features.includes("pull-requests") && (
-              <div className='radar-chart-container'>
-                <LineChart
-                    xData={xDataMergedPRs}
-                    yData={yDataMergedPRs}
-                    xLabel="Date"
-                    yLabel="Pull Requests"
-                    title="Pull Requests Merged Over Time"
-                  />
-              </div>)}
-              {features.includes("projects") && (
-              <div className='radar-chart-container'>
-                <LineChart
-                  xData={xDataTasksAssigned}
-                  yData={yDataTasksAssigned}
-                  xLabel="Date"
-                  yLabel="Tasks Assigned"
-                  title="Tasks Assigned Over Time"
-                />
-              </div>
-              )}
-            {features.includes("projects") && (
-              <div className='radar-chart-container'>
-                <LineChart
-                  xData={xDataTasksToDo}
-                  yData={yDataTasksToDo}
-                  xLabel="Date"
-                  yLabel="Tasks ToDo"
-                  title="Tasks ToDo Over Time"
-                />
-              </div>
-            )}
-            {features.includes("projects") && (
-              <div className='radar-chart-container'>
-                <LineChart
-                  xData={xDataTasksInProgress}
-                  yData={yDataTasksInProgress}
-                  xLabel="Date"
-                  yLabel="Tasks In Progress"
-                  title="Tasks In Progress Over Time"
-                />
-              </div>
-            )}
-            {features.includes("projects") && (
-              <div className='radar-chart-container'>
-                <LineChart
-                  xData={xDataTasksDone}
-                  yData={yDataTasksDone}
-                  xLabel="Date"
-                  yLabel="Tasks Done"
-                  title="Tasks Done Over Time"
-                />
-              </div>
-            )}
-
-            {features.includes("projects") && (
-              <div className='radar-chart-container'>
-                <LineChart
-                  xData={xDataTasksStandard}
-                  yData={yDataTasksStandard}
-                  xLabel="Date"
-                  yLabel="Standard Tasks"
-                  title="Standard Tasks Over Time"
-                />
-              </div>
-            )}
-          </div>
-      </>) : (
-            <div style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            textAlign: "center",
-            fontSize: "1.8rem",
-            }}>
-            No s'ha trobat historic_metrics.json.<br />
-            Si és el primer dia, torna demà un cop
-            s'hagi fet la primera execució del
-            workflow Daily Metrics.
-            </div>)}
-         </>
-        )}
+        <IndividualHistoricSection
+          historicData={historicData}
+          features={features}
+          xDataCommits={xDataCommits}
+          yDataCommits={yDataCommits}
+          xDataModifiedLines={xDataModifiedLines}
+          yDataModifiedLines={yDataModifiedLines}
+          xDataAssignedIssues={xDataAssignedIssues}
+          yDataAssignedIssues={yDataAssignedIssues}
+          xDataClosedIssues={xDataClosedIssues}
+          yDataClosedIssues={yDataClosedIssues}
+          xDataCreatedPRs={xDataCreatedPRs}
+          yDataCreatedPRs={yDataCreatedPRs}
+          xDataMergedPRs={xDataMergedPRs}
+          yDataMergedPRs={yDataMergedPRs}
+          xDataTasksAssigned={xDataTasksAssigned}
+          yDataTasksAssigned={yDataTasksAssigned}
+          xDataTasksToDo={xDataTasksToDo}
+          yDataTasksToDo={yDataTasksToDo}
+          xDataTasksInProgress={xDataTasksInProgress}
+          yDataTasksInProgress={yDataTasksInProgress}
+          xDataTasksDone={xDataTasksDone}
+          yDataTasksDone={yDataTasksDone}
+          xDataTasksStandard={xDataTasksStandard}
+          yDataTasksStandard={yDataTasksStandard}
+        />
+      )}
     </div>
   );
 }
