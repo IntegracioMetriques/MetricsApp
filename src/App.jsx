@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Header from "./components/header";
 import Index from "./pages/index";
-import PullRequests from "./pages/pullRequests";
+import PullRequestsPage from "./pages/PullRequestsPage";
 import CommitsPage from "./pages/commitsPage";
-import Issues from "./pages/issues";
-import Individual from "./pages/individual";
-import Projects from "./pages/projects";
+import IssuesPage from "./pages/issuesPage";
+import IndividualPage from "./pages/individualPage";
+import ProjectsPage from "./pages/projectsPage";
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 function App() {
@@ -85,10 +85,10 @@ function App() {
         <Route path="/" element={<Navigate to="/general" />} />
         <Route path="/general" element={<Index data={data} historicData={historicData} features={config.features} />} />
         <Route path="/commits" element={<CommitsPage data={data} historicData={historicData} features={config.features}/>} />
-        <Route path="/issues" element={<Issues data={data}  historicData={historicData} features={config.features}/>} />
-        <Route path="/pull-requests" element={<PullRequests data={data}  historicData={historicData} features={config.features}/>} />
-        <Route path="/projects" element={<Projects data={data}  historicData={historicData} features={config.features}/>} />
-        <Route path="/individual" element={<Individual data={data} historicData={historicData} features={config.features}/>} />
+        <Route path="/issues" element={<IssuesPage data={data}  historicData={historicData} features={config.features}/>} />
+        <Route path="/pull-requests" element={<PullRequestsPage data={data}  historicData={historicData} features={config.features}/>} />
+        <Route path="/projects" element={<ProjectsPage data={data}  historicData={historicData} features={config.features}/>} />
+        <Route path="/individual" element={<IndividualPage data={data} historicData={historicData} features={config.features}/>} />
       </Routes>
     </Router>
   );
